@@ -1,0 +1,436 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>How Git Manages Conflicts and Collaboration</title>
+<meta name="viewport" content="width=device-width">
+ <meta property="og:image" content="http://dannguyen.github.io/github-for-portfolios/images/main-logo.jpg" />
+ <meta property="og:title" content="How Git Manages Conflicts and Collaboration" />
+ <meta property="og:site_name" content="Github Pages for Web Portfolios, a tutorial" />
+ <meta property="og:type" content="blog" />
+
+<!-- Custom CSS -->
+
+<link rel="stylesheet" href="/github-for-portfolios/assets/main-161376837a3835ada3c85e61c30776d9.css">
+<script src="/github-for-portfolios/assets/jquery-352023206044a3523e9ad580cc6fc2f2.js"></script>
+<script src="/github-for-portfolios/assets/main-e02b489dc512a81c0d5c57872bf03447.js"></script>
+
+    </head>
+    <body>
+        <!-- begin  layouts/default -->
+<header class="header">
+  <div class="container">
+
+          <div class="site-title"><a href="/github-for-portfolios/">Creating Simple Web Portfolios using Github Pages</a></div>
+
+  </div>
+</header>
+
+
+<div class="home layout">
+      <!-- begin  layouts/lesson -->
+
+<article class="layout lesson">
+  <header>
+    <div class="header-background">
+      <img src="/github-for-portfolios/images/lessons/headers/5.jpg" alt="">
+
+    </div>
+
+    <div class="header-content">
+      <div class="container">
+        <div class="title">
+          <div class="lesson-number">Lesson 5</div>
+          <h1>How Git Manages Conflicts and Collaboration</h1>
+        </div>
+      </div>
+
+      <div class="deck">
+        <div class="container">
+          <div class="row">
+            <div class="content-silo">
+                By using Git, you automatically get data protection features built into your project. This is what makes collaboration so (relatively) smooth. But even if you work alone, Git can reduce anxiety.
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+  </header>
+
+
+  <section class="sec content">
+    <div class="container">
+
+      <div class="status">
+        This lesson is: <strong>Just a stub [2014-04-10]</strong>
+      </div>
+
+
+      <section class="overhead">
+
+  <p>Sometimes when you’re slogging through a long writing or design project, you’ll pause – perhaps because you’ve just had a few drinks – and wonder, <em>if I could just nuke this page/section/entire folder from orbit, I could have a clean slate for some new inspiration</em>. So you take ten minutes, or an hour, to carefully back up your project, and then move the unwanted files to carefully labeled folders just in case you need to refer to something in the cluttery crap.</p>
+
+  <p>But then after a day or so, you might realize: <em>having a clean slate didn’t help at all…now where did I put those trashed sections?</em> The ensuing annoyance and/or panic is enough to keep you from ever radically experimenting again.</p>
+
+  <p>A Git/Github repo is, again, essentially just a folder of files, no different from past projects you’ve worked on. But they have inherent, built-in features that make it possible to revise, trash, and experiment with (almost) no regrets or anxiety. These features are key to how Git/Github have revolutionized open-source collaboration. But even if you plan to work alone, these <strong>version control</strong> features can still reduce anxiety and inconvenience.</p>
+
+  <p><strong>TK: chapter in progress, more text to come</strong></p>
+</section>
+
+<h2 id="conflicts">Conflicts</h2>
+
+<section class="row">
+  <div class="col-sm-6">
+    <p><strong>Note:</strong> If you’re working alone and on a single computer, you may never run into a “merge conflict,” just as you (hopefully) wouldn’t erase your own files while copying them the old-fashioned way. But just in case, this is a quick walkthrough on how Git protects you from accidentally wiping out data.</p>
+
+    <p>I don’t intend to get into Github’s full suite of collaboration features (<a href="https://guides.github.com/">they’ve got guides for that</a>). But if you can clone <em>once</em>, you can obviously clone your repo from more than one computer. Which means you can edit and sync files from multiple computers.</p>
+
+    <p>So what happens when two different computers clone a repo, edit the files, and then try to sync with Github.com?</p>
+
+    <p>These sync-related <strong>conflicts</strong> a basic pain when it comes to working on <strong>Git</strong>-managed projects. But hell, they’re a <strong>major pain</strong> for <em>any</em> project that involves more than one person. You’ve probably run into this when a colleague has accidentally saved over one of your files.</p>
+
+    <p>One side-effect of managing your project through Git (actually, most would consider it Git’s <em>raison d’etre</em>) is that, automagically and behind-the-scenes, Git will keep track of changes and conflicts.</p>
+  </div>
+  <div class="col-sm-6">
+    <p>Placeholder images</p>
+
+    <p><img src="/github-for-portfolios/images/lessons/5/github-conflict-edit-on-github-published.png" alt="img" /></p>
+
+    <p><img src="/github-for-portfolios/images/lessons/5/github-conflict-edit-on-github.png" alt="img" /></p>
+
+    <p><img src="/github-for-portfolios/images/lessons/5/github-conflict-fixed-and-published.png" alt="img" /></p>
+
+    <p><img src="/github-for-portfolios/images/lessons/5/github-conflict-fixed-ready-to-sync-in-app.png" alt="img" /></p>
+
+    <p><img src="/github-for-portfolios/images/lessons/5/github-conflict-fixed-shown-in-app.png" alt="img" /></p>
+
+    <p><img src="/github-for-portfolios/images/lessons/5/github-conflict-marked-in-text-file.png" alt="img" /></p>
+
+    <p><img src="/github-for-portfolios/images/lessons/5/github-conflict-marked-in-the-app.png" alt="img" /></p>
+
+    <p><img src="/github-for-portfolios/images/lessons/5/github-conflict-shown-in-app-history.png" alt="img" /></p>
+
+    <p><img src="//placekitten.com/700/320" alt="TK" /></p>
+
+  </div>
+</section>
+
+<h2 id="deleting-files">Deleting files</h2>
+<section class="row">
+  <div class="col-sm-6">
+    <p>Let’s see what happens when we just delete a whole bunch of files…which is what we want to do now because we want to build a website from scratch, not from the pre-fab HTML files we’ve been working with so far.</p>
+
+    <p><strong>More text, to be continued…TK</strong></p>
+
+  </div>
+  <div class="col-sm-6">
+
+    <p><img src="/github-for-portfolios/images/lessons/5/github-clone-move-to-trash.png" alt="img" /></p>
+
+    <p><img src="//placekitten.com/600/620" alt="TK" /></p>
+
+  </div>
+</section>
+
+<h2 id="rolling-back">Rolling back</h2>
+<section class="row">
+  <div class="col-sm-6">
+
+    <p><strong>More text, to be continued…TK</strong></p>
+
+  </div>
+  <div class="col-sm-6">
+
+    <p><img src="/github-for-portfolios/images/lessons/5/github-app-rollback-option.png" alt="img" /></p>
+
+    <p><img src="/github-for-portfolios/images/lessons/5/github-app-rollback-in-history.png" alt="img" /></p>
+
+    <p><img src="/github-for-portfolios/images/lessons/5/github-app-rollback-committed.png" alt="img" /></p>
+
+    <p><img src="/github-for-portfolios/images/lessons/5/github-app-rollback-synced.png" alt="img" /></p>
+
+    <p><img src="//placekitten.com/700/500" alt="TK" /></p>
+  </div>
+</section>
+
+<section class="conclusion">
+  <h2 id="things-weve-learned">Things we’ve learned</h2>
+
+  <ul>
+    <li>Why Git (and Github) is ideal for collaboration and experimentation</li>
+    <li>How to handle conflicts</li>
+    <li>How to delete everything</li>
+    <li>How to rollback big mistakes</li>
+  </ul>
+
+  <p>…to be written</p>
+
+</section>
+
+    </div>
+  </section>
+
+
+  <section class="sec comments">
+
+      <div class="container">
+
+                <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_shortname = 'danondisqus'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+      </div>
+
+
+
+  </section>
+
+</article>
+
+
+  <section class="sec">
+    <div class="container">
+      <div class="lessons-list">
+        <h2>Lessons List</h2>
+        
+<section class="lessons-list">
+<ul class="list list-unstyled">
+ 
+  
+
+      <li class="lesson">
+        <div class="row">
+
+        <div class="col-sm-4">
+          <div class="thumb">
+            <a href="/github-for-portfolios/lessons/setup-github/">
+              <img src="/github-for-portfolios/images/lessons/thumbs/1.jpg" alt="">
+            </a>
+          </div>
+        </div>
+
+        <div class="col-sm-8">
+          <div class="title">
+            <a href="/github-for-portfolios/lessons/setup-github/">1. Setting Up a Place on Github</a>
+          </div>
+          <div class="status">
+            Complete [2014-04-10]
+          </div>
+          <div class="deck">
+            How to open a Github account, create a project repository, and create a new file in the repository.
+          </div>
+
+        </div>
+        </div>
+
+      </li>
+
+  
+
+      <li class="lesson">
+        <div class="row">
+
+        <div class="col-sm-4">
+          <div class="thumb">
+            <a href="/github-for-portfolios/lessons/deploy-github-pages/">
+              <img src="/github-for-portfolios/images/lessons/thumbs/2.jpg" alt="">
+            </a>
+          </div>
+        </div>
+
+        <div class="col-sm-8">
+          <div class="title">
+            <a href="/github-for-portfolios/lessons/deploy-github-pages/">2. Publishing Web Pages from Scratch with Github Pages</a>
+          </div>
+          <div class="status">
+            Mostly complete [2014-04-03]
+          </div>
+          <div class="deck">
+            How to create and publish a file to the Web and how that is better/worse than publishing a blog post on WordPress.
+          </div>
+
+        </div>
+        </div>
+
+      </li>
+
+  
+
+      <li class="lesson">
+        <div class="row">
+
+        <div class="col-sm-4">
+          <div class="thumb">
+            <a href="/github-for-portfolios/lessons/premanufactured-github-pages/">
+              <img src="/github-for-portfolios/images/lessons/thumbs/3.jpg" alt="">
+            </a>
+          </div>
+        </div>
+
+        <div class="col-sm-8">
+          <div class="title">
+            <a href="/github-for-portfolios/lessons/premanufactured-github-pages/">3. Pre-Fab Pages with Github's Automatic Page Generator</a>
+          </div>
+          <div class="status">
+            Mostly complete [2014-04-03]
+          </div>
+          <div class="deck">
+            An (optional) tour of Github Pages pre-built templates and of Markdown, and practical experience with the concept of 'separation of content and presentation.'
+          </div>
+
+        </div>
+        </div>
+
+      </li>
+
+  
+
+      <li class="lesson">
+        <div class="row">
+
+        <div class="col-sm-4">
+          <div class="thumb">
+            <a href="/github-for-portfolios/lessons/clone-github-pages-repo/">
+              <img src="/github-for-portfolios/images/lessons/thumbs/4.jpg" alt="">
+            </a>
+          </div>
+        </div>
+
+        <div class="col-sm-8">
+          <div class="title">
+            <a href="/github-for-portfolios/lessons/clone-github-pages-repo/">4. Clone, Edit, Commit, and Sync</a>
+          </div>
+          <div class="status">
+            Mostly complete [2014-04-13]
+          </div>
+          <div class="deck">
+            How to install the Github desktop app, make a local copy of your Github repo, manage and edit your webpage project on your own operating system, and sync with your Github repo.
+          </div>
+
+        </div>
+        </div>
+
+      </li>
+
+  
+
+      <li class="lesson">
+        <div class="row">
+
+        <div class="col-sm-4">
+          <div class="thumb">
+            <a href="/github-for-portfolios/lessons/conflict-and-rollbacks/">
+              <img src="/github-for-portfolios/images/lessons/thumbs/5.jpg" alt="">
+            </a>
+          </div>
+        </div>
+
+        <div class="col-sm-8">
+          <div class="title">
+            <a href="/github-for-portfolios/lessons/conflict-and-rollbacks/">5. How Git Manages Conflicts and Collaboration</a>
+          </div>
+          <div class="status">
+            Just a stub [2014-04-10]
+          </div>
+          <div class="deck">
+            By using Git, you automatically get data protection features built into your project. This is what makes collaboration so (relatively) smooth. But even if you work alone, Git can reduce anxiety.
+          </div>
+
+        </div>
+        </div>
+
+      </li>
+
+  
+
+      <li class="lesson">
+        <div class="row">
+
+        <div class="col-sm-4">
+          <div class="thumb">
+            <a href="/github-for-portfolios/lessons/creating-your-portfolio/">
+              <img src="/github-for-portfolios/images/lessons/thumbs/6.jpg" alt="">
+            </a>
+          </div>
+        </div>
+
+        <div class="col-sm-8">
+          <div class="title">
+            <a href="/github-for-portfolios/lessons/creating-your-portfolio/">6. Creating and Publishing Your Portfolio</a>
+          </div>
+          <div class="status">
+            Just a draft [2014-03-30]
+          </div>
+          <div class="deck">
+            How to use HTML, JavaScript, and CSS to build your own web portfolio. And then, how to tweak and test things of which you have no real understanding.
+          </div>
+
+        </div>
+        </div>
+
+      </li>
+
+  
+
+</ul>
+</section>
+
+
+      </div>
+
+    </div>
+  </section>
+
+
+<!-- end  layouts/lesson -->
+
+</div>
+<!-- end  layouts/default -->
+
+        <footer class="footer">
+    <div class="container">
+
+        <div>
+          <a href="https://twitter.com/share" class="twitter-share-button" data-via="dancow" data-size="large">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+        </div>
+
+
+                <div class="contact">
+                  <p>
+                    By <a href="http://danwin.com">Dan Nguyen</a> | <a href="https://twitter.com/dancow">@dancow</a><br />
+                  </p>
+
+                  <p>Fork <a href="//github.com/dannguyen/github-for-portfolios">this tutorial on Github</a></p>
+                </div>
+
+    </div>
+</footer>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-49769365-1', 'dannguyen.github.io');
+  ga('send', 'pageview');
+
+</script>
+
+    </body>
+</html>
