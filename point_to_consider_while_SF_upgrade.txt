@@ -1,0 +1,45 @@
+---++ Doc Log 1383807353_01
+        $ Date: Thu Nov 07:: 12:25:53
+        $ Summary: point to consider while SF upgrade
+
+---++++ Details:
+<pre>
+Upgrading VxFS disk layout versions 
+====================================
+VxFS 5.0 allows you to mount and create the following file system disk layouts: 
+Disk layout Version 7 
+Disk layout Version 6 
+Disk layout Version 5 
+Disk layout Version 4 
+Disk layout Version 1, Version 2, and Version 3 are not supported on VxFS 5.0. In the next major release of VxFS, disk layouts Version 4 and 5 will no longer be supported. 
+
+To determine the disk layout version of a VxFS file system, run the fstyp command on the file system physical device. For example: 
+# /opt/VRTS/bin/fstyp -v /dev/vx/dsk/rootdg/volname | grep version
+
+magic a501fcf5 version 7 ctime Thu May 12 11:29:31 2006 
+Deciding when to upgrade disk layout versions 
+Deciding when to use vxupgrade or vxfsconvert 
+You can use the vxupgrade command to upgrade an earlier VxFS disk layout to disk layout Version 6 or Version 7 while the file system remains mounted. 
+You can use the vxfsconvert command to upgrade an earlier VxFS disk layout to a higher disk layout version when the file system is unmounted. 
+Disk layout Version 1, Version 2, and Version 3 cannot be mounted on VxFS 5.0. You can upgrade these layout versions online before installing VxFS 5.0, or upgrade them using vxfsconvert after installing VxFS 5.0, as shown in the following table: 
+ 
+	Disk Layout Version 1 	Disk Layout Version 2 	Disk Layout Version 4 	Disk Layout Version 5 
+VxFS Release 3.5 MP2 or lower 	Use vxupgrade to upgrade to disk layout Version 4 or Version 5.  
+VxFS Release 4.0 or higher 	Use vxfsconvert to upgrade to disk layout Version 4.   		Use vxupgrade to upgrade to disk layout Version 5 or Version 6.  
+
+
+
+The vxupgrade command does not upgrade previous disk layouts directly to Version 7. You must upgrade older disk layouts in stages. For example, a Version 4 file system disk layout must first be upgraded to Version 5, then to Version 6, then to Version 7 in three separate invocations of the command: 
+
+# vxupgrade -n 5 /mount_point 
+# vxupgrade -n 6 /mount_point 
+# vxupgrade -n 7/mount_point 
+
+The vxfsconvert command converts any older disk layout versions directly to Version 5, but you must use vxupgrade to convert from Version 5 to Version 6 or Version 7. See the vxfsconvert(1M), vxupgrade(1M), and fsadm(1M) manual pages for more information on upgrading VxFS file systems. 
+
+  Note   The contents of intent logs created on previous disk layout versions cannot be used after the disk layout version is upgraded. 
+
+Estimating space and time requirements for upgrading to disk layout Version 7 
+Converting a Version 5 or Version 6 disk layout to a Version 7 disk layout requires adequate free space to complete. The space and time required to complete the upgrade increases with the number of files, extended attributes, and hard links in the file system. Typical maximum space is at least two additional inodes with one block for every inode. Allow at least ten minutes to upgrade for every million inodes in the file system. 
+
+</pre>

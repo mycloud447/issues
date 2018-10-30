@@ -1,0 +1,68 @@
+---++ Doc Log 1234786806_01
+
+	$ Date: Feb 16 12:20:06 2009
+	$ Summary: No disks in rootdg due to rootdisk public region deletion
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+Problem
+
+rootdg consisted of 2 disks (rootdisk & rootmirror).
+Due to maintanence work rootmirror was split from rootdisk for backout purposes.
+While working on rsyning roormirror to rootdisk the public region was removed on rootdisk causing rootdisk to be deported and system crash and could not be imported back into rootdg on reboot.
+Due to this server running VRTSvxvm 3.5 rootg has to be available for Veritas to startup.
+
+Resolution
+
+Boot single user off the network.
+As this server was not on the same subnet of the build servers I had to boot DHCP and get engineering team to confirm that there was a config build for this server available on the jet servers.
+To boot off DHCP in single user, dont forget to add the :dhcp tag - 
+
+{c0} ok boot /pci@dd,700000/pci@1/SUNW,qfe@2,1:dhcp -s
+
+Boot device: /pci@dd,700000/pci@1/SUNW,qfe@2,1:dhcp File and args: -s
+Timed out waiting for BOOTP/DHCP reply
+Timed out waiting for BOOTP/DHCP reply
+Timed out waiting for BOOTP/DHCP reply
+-
+Requesting Ethernet address for: 128.8.115.1
+| 	 
+
+
+You need to wait a least 5 attempts before you cancel as it sometimes takes time for the ports to open up.
+
+When you are at the OS prompt you will need to mount the OS partition
+
+mount /dev/dsk/c0t0d0s0 /mnt
+
+1) Backup the vfstab and copy the PRE veritas vfstab over the original one or edit the vfstab and remove and ref to vx.
+2) Edit the system file and remove the folllowing -
+
+rootdev:/pseudo/vxio@0:0
+set vxio:vol_rootdev_is_volume=1
+
+3) touch /mnt/etc/vx/reconfig.d/state.d/install-db 
+4) rm /mnt/etc/vx/reconfig.d/state.d/root-done 
+
+5) reboot server to OS
+
+After reboot and confirm that you are booted without Veritas
+
+If you do a prtvtoc /dev/dsk/c0t0d0s0 you will see that TAG 14 & 15
+
+14 = Public region
+15 = Private region
+
+Remove these partitions by using the format command to clear any veritas information.
+
+You will then need to do a vxinstall to re-create the rootdg and incapsulate the root disk.
+When you run this vxinstall remember to only do actions on the rootdisk and when prompted for any other disks make sure you select to leave them alone.
+
+After this has completed you will now have rootdisk in rootdg and the system will reboot twice.
+
+To mirror this rootdisk, run vxdiskadm and select option 6 to mirror volumes on a disk.
+
+After this mirroring is complete you can add all the other volumes back into the /etc/vfstab file.
+
+</pre>

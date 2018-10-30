@@ -1,0 +1,43 @@
+---++ Doc Log 1224864969_01
+
+	$ Date: Fri Oct 24 16:16:09 2008
+	$ Summary: Add and check clarion libary on Linux
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+to check to see if clarion ASL is on the server.
+
+# vxddladm listsupport
+LIBNAME              VID                            PID
+==============================================================================
+libvxcscovrts.so     CSCOVRTS                       MDS9
+libvxemc.so          EMC                            SYMMETRIX
+libvxhds.so          HITACHI                        All
+libvxhitachi.so      HITACHI                        DF350, DF400, DF400F
+libvxpurple.so       SUN                            T300
+libvxshark.so        IBM                            2105
+libvxveritas.so      VERITAS                        All
+libvxxp256.so        HP                             All
+libVRTSCLARiiON.so   DGC                            CLARiiON
+ 
+
+Or to list libaries
+
+/etc/vx/lib/discovery.d # ls -l
+total 120
+drwxr-xr-x  2 bin  bin  4096 Oct 12 10:47 .
+drwxr-xr-x  3 root sys  4096 Mar  6  2006 ..
+-r-xr-xr-x  1 root sys  8792 Dec  2  2005 libvxcscovrts.so
+-r-xr-xr-x  1 root sys 19949 Dec  2  2005 libvxemc.so
+-r-xr-xr-x  1 root sys 13801 Dec  2  2005 libvxhds.so
+-r-xr-xr-x  1 root sys 12334 Dec  2  2005 libvxhitachi.so
+-r-xr-xr-x  1 root sys  9703 Dec  2  2005 libvxpurple.so
+-r-xr-xr-x  1 root sys  8890 Dec  2  2005 libvxshark.so
+-r-xr-xr-x  1 root sys  8834 Dec  2  2005 libvxveritas.so
+-r-xr-xr-x  1 root sys  9957 Dec  2  2005 libvxxp256.so
+
+If its not on there then the ASL package for Linux is on another server.
+
+/var/ftp/pub/veritas/CLARIION
+</pre>

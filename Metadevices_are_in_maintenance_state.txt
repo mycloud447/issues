@@ -1,0 +1,34 @@
+---++ Doc Log 1383707570_01
+        $ Date: Wed Nov 06:: 08:42:50
+        $ Summary: Metadevices are in maintenance state
+
+---++++ Details:
+<pre>
+metadb -i command shows an error on the state database if it is corrupted as follows:
+
+#metadb -i
+flags first blk block count 
+a m p lu 16 1034 /dev/dsk/c0t3d0s3
+a p l 1050 1034 /dev/dsk/c0t3d0s3
+M p unknown unknown /dev/dsk/c1t2d0s3
+M p unknown unknown /dev/dsk/c1t2d0s3
+
+
+In this case, c1t2d0s3 is unknown and it does imply c1t2d0 disk is faulty.
+For further information on metadb command output, please see :
+
+Solaris Volume Manager SVM metadb/statedatabase, replica, repair, State Database Resolution Path (Doc ID 1501153.1)
+
+But metadb command does not help the case where wrong device id triggers state database corruption. For example, the disk was replaced but metadevadm command was not ran so device id was not update. But the system was rebooted then issued I/O to the device related to the disk replaced, it might cause the state database corruption. The way to determine whether device id is update or not is to run metadevadm and compare the old and new device reloc information.
+
+# metadevadm -u c0t9d0
+Updating Solaris Volume Manager device relocation information for c0t9d0
+Old device reloc information:
+id1,sd@SSEAGATE_ST39173W_SUN9.0GLMD69076000079291K9W
+New device reloc information:
+id1,sd@SSEAGATE_ST39173W_SUN9.0GLMD69076000079291K9W
+
+Please see the following doc:
+
+Solaris Volume Manager (SVM): How to Use Metadevadm to Maintain Device Relocation Information After Disk Replacement (Doc ID 1006196.1)	
+</pre>

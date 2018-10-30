@@ -1,0 +1,36 @@
+---++ Doc Log 1383561915_01
+        $ Date: Mon Nov 04:: 16:15:15
+        $ Summary: vxfenswap issue
+
+---++++ Details:
+<pre>
+/opt/VRTSvcs/vxfen/bin/vxfenswap -g vmax_bss_rac_fencdg
+
+Veritas vxfenswap version 5.1SP1RP2 Solaris
+
+The logfile generated for vxfenswap is /var/VRTSvcs/log/vxfen/vxfenswap.log.18050
+
+Please Wait...
+
+Did not find /etc/vxfenmode.test file, copying /etc/vxfenmode to
+
+/etc/vxfenmode.test
+
+Invalid entry for vxfen_mode found in /etc/vxfenmode.test file.
+
+Logs are showing as TDTJ3
+
+Saturday March 23 22:14:51 EST 2013 Current fencing mode: TDTJ3
+
+Saturday March 23 22:14:51 EST 2013 Fencing mode specified in /etc/vxfenmode.test: scsi3
+
+
+Resolved -- modify the below script
+===================================
+
+cp -p /etc/vxfen.d/script/vxfen_scriptlib.sh /etc/vxfen.d/script/vxfen_scriptlib.sh.org
+
+vi /etc/vxfen.d/script/vxfen_scriptlib.sh
+
+TR="/usr/xpg4/bin/tr" to TR="/usr/bin/tr"
+</pre>

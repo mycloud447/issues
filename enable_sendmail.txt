@@ -1,0 +1,34 @@
+---++ Doc Log 1141645530_01
+	$ Date: Mon Mar 06 11:45:30 2006
+	$ Summary: enable sendmail
+
+---++++ Details:
+<pre>
+need to enable sendmail 
+logon to server and perform the following steps: 
+
+cd /etc/mail/
+ls -lrt (check for any recent update to sendmail.cf file) 
+check that you can resolve both notes-internal-smtp 
+cp -p /etc/mail/sendmail.cf /etc/mail/sendmail.cf.`date +%d%m%Y`
+vi /etc/mail/sendmail.cf
+change below lines accordingly
+===========================================================================
+# my official domain name
+# ... define this only if sendmail cannot automatically determine your domain
+#Dj$w.Foo.COM
+your-relay.com
+ 
+CP. 
+ 
+# "Smart" relay host (may be null)
+#DSmailhost$?m.$m$.
+DSnotes-internal-smtp
+========================================================================
+test with following command: 
+
+echo test | mailx -v -s "test from `hostname`" YOUR_EMAIL_ADDRESS
+
+you should see the SMTP conversation and check that Recipient is OK and the Message has been accepted for delivery.. 
+
+</pre>

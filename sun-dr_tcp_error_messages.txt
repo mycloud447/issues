@@ -1,0 +1,21 @@
+---++ Doc Log 1133882929_01
+<pre>
+
+	$ Date: Tue Dec 06 15:28:49 2005
+	$ Summary: sun-dr/tcp error messages
+
+</pre>
+---++++ Details:
+<pre>
+
+Subject:  Re: LIVE NFOS - Errors in the "/var/adm/messages" log 
+
+The following message is reported in the /var/adm/messages file of a 12k/15k domain:
+  inetd[3008]: [ID 161378 daemon.error] sun-dr/tcp: bind: Address already in use 
+
+This error is reported when dcs daemon is already running . Domain Configuration Server (DCS) is used for system board manipulation  by system controllers.
+To resolve the problem, I killed the dcs process and restart inetd. 
+
+Dec  6 14:53:28 ssucl152 inetd[20138]: [ID 161378 daemon.error] sun-dr/tcp: bind: Address already in use
+# 
+</pre>

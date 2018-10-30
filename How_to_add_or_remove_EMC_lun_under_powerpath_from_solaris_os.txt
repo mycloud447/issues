@@ -1,0 +1,116 @@
+---++ Doc Log 1383640762_01
+        $ Date: Tue Nov 05:: 14:09:22
+        $ Summary: How to add or remove EMC lun under powerpath from solaris os
+
+---++++ Details:
+<pre>
+>>> Follow the procedures in exact order because deviating from the procedures can cause server to
+
+reboot to add/remove the LUN <<<
+
+--------------------------------------------------------------------------------------------------------------
+
+Case 1. How to ADD EMC LUN under powerpath control in Solaris OS after assigning LUN from Storage
+
+==================================================================================================
+
+0) - tail -f /var/adm/messages (open another terminal session to get the Message for ...Corrupt label;
+
+wrong magic number )
+
+00) OPTIONAL (For Solaris 10 its not required, devfsadm -Cv --->ONLY required in Solaris 8/9 in case
+
+disk has not been seen by OS)
+
+Once LUN is assigned it will pop-up messages in message file. Format output will show the new disks
+
+except pseudo name. Pseudo device will also apaear once powermt config command runs alongwith the newly
+
+disks.
+
+1) - /etc/powercf -q (----> Whenever you add or remove any LUN from server, run these command, it will
+
+update the emcp.conf file (/kernel/drv/emcp.conf,)
+
+2) - /etc/powermt display dev=all (--> At this stage LUN names will not appear on output but psuedo name
+
+& all other details will appear. LUN name that are
+
+assigned while creating LUN on storage end should
+
+appear under Logical device but it will reflect once you run powermt config command.)
+
+3) - /etc/powermt config (----->It will update /etc/powermt.custom file & powermt display will reflect
+
+the LUN name under Logical device)
+
+4) - /etc/powermt display dev=all --> (Once you see all paths are active, then run "powermt save"
+
+command)
+
+5) - /etc/powermt save
+
+6) - Now run 'format' to put a label on the disks (format-->Select new pseudo disk (emcpower#)-->Y (when
+
+propted for Label if its not used disk)-->quit
+
+7)- SAN disk is ready to use with Volume management
+
+Case2. How to REMOVE EMC LUN under powerpath control from Solaris OS
+
+=====================================================================
+
+1) Stop I/O to the device. [Unmount the filesystem ]
+
+2) Remove the device from the volume managment.
+
+3) Run the following command to determine the LUN pseudo (i.e. emcpower) device name that need to be
+
+removed.
+
+#/etc/powermt display dev=all
+
+4) Remove the particular LUN from powerpath
+
+a) #/etc/powermt remove dev=emcpower#
+
+b) #/etc/powercf -q (--->whenever you add or remove any LUN from server, run these command, it will
+
+update the emcp.conf file (/kernel/drv/emcp.conf)).
+
+c) #/etc/powermt config (--->it will update /etc/powermt.custom file & powermt display will remove
+
+the LUN name Logical device
+
+Note: powermt config does not remove previously configured paths when they become dead paths. If c)
+
+failed, use /etc/powermt check - to clear dead paths)
+
+d) # /etc/powermt display dev=emcpower# (--> before saving configuration, check if LUN is removed
+
+successfully)
+
+e) # /etc/powermt save
+
+5) [OPTIONAL] If found dead paths while excuting Step 4, run below commands
+
+end change happended before removing it from powerpath)
+
+#/etc/powermt check
+
+#/etc/powercf -q
+
+#/etc/powermt display dev=all (--> and check o/p status are okay)
+
+#/etc/powermt save
+
+(could be due to Stoarge
+
+6) Now remove the LUN from the storage group/array or unmap it from SAN switch.
+
+7) Verify the LUN if it is removed from server and not visible in server.
+
+#/etc/powermt display dev=all
+
+8) Remove the device from the device tree via the cfgadm or by devfsadm -Cv
+</pre>

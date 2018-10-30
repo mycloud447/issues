@@ -1,0 +1,254 @@
+---++ Doc Log 1383808286_01
+        $ Date: Thu Nov 07:: 12:41:26
+        $ Summary: Corrections for I/O fencing utilties and procedures
+
+---++++ Details:
+<pre>
+About I/O fencing utilities
+
+Veritas Cluster Server User's Guide for 5.0 MP3 does not include the path for the I/O fencing commands. Refer to the following content.
+
+The I/O fencing feature provides the following utilities that are available through the VRTSvxfen package:
+
+vxfentsthdw
+===========
+	
+
+Tests hardware for I/O fencing
+
+Path: /opt/VRTSvcs/vxfen/bin/vxfentsthdw
+
+vxfenconfig
+===========
+	
+
+Configures and unconfigures I/O fencing
+
+Checks the list of coordinator disks used by the vxfen driver.
+
+Path: /sbin/vxfenconfig
+
+vxfenadm
+===========
+	
+
+Displays information on I/O fencing operations and manages SCSI-3 disk registrations and reservations for I/O fencing
+
+Path: /sbin/vxfenadm
+
+vxfenclearpre
+===========
+	
+
+Removes SCSI-3 registrations and reservations from disks
+
+Path: /opt/VRTSvcs/vxfen/bin/vxfenclearpre
+
+vxfenswap
+===========
+	
+
+Replaces coordinator disks without stopping I/O fencing
+
+Path: /opt/VRTSvcs/vxfen/bin/vxfenswap
+
+vxfendisk
+===========
+	
+
+Generates the list of paths of disks in the diskgroup. This utility requires that Veritas Volume Manager is installed and configured.
+
+Path: /opt/VRTSvcs/vxfen/bin/vxfendisk
+
+Refer to the corresponding manual page for more information on the commands.
+Removing and replacing a failed disk
+
+Veritas Cluster Server User's Guide for 5.0 MP3 does not include more information for steps 2 and 3. Refer to the following content.
+
+If a disk in the coordinator disk group fails verification, remove the failed disk or LUN from the vxfencoorddg disk group, replace it with another, and retest the disk group.
+
+To remove and replace a failed disk
+
+    Use the vxdiskadm utility to remove the failed disk from the disk group.
+
+    Refer to the Veritas Volume Manager Administrator's Guide.
+
+    Add a new disk to the node, initialize it, and add it to the coordinator disk group.
+
+    See the Veritas Cluster Server Installation Guide for instructions to initialize disks for I/O fencing and to set up coordinator disk groups.
+
+    If necessary, start the disk group.
+
+    See the Veritas Volume Manager Administrator's Guide for instructions to start the disk group.
+
+    Retest the disk group.
+
+    Use the vxfentsthdw -c option to retest the disk group. Refer to the Veritas Cluster Server User's Guide for 5.0 MP3 for the procedure.
+
+Removing preexisting keys
+
+Veritas Cluster Server User's Guide for 5.0 MP3 does not include more information for step 1. Refer to the following content.
+
+If you encountered a split brain condition, use the vxfenclearpre utility to remove SCSI-3 registrations and reservations on the coordinator disks as well as on the data disks in all shared disk groups.
+
+You can also use this procedure to remove the registration and reservation keys created by another node from a disk.
+
+To clear keys after split brain
+
+    Stop VCS and I/O fencing on all nodes.
+
+    # hastop -all
+
+    Make sure that the port h is closed on all the nodes. Run the following command to verify that the port h is closed:
+
+    Enter the following command on each node:
+
+    # /etc/init.d/vxfen stop
+
+    If you have any applications that run outside of VCS control that have access to the shared storage, then shut down all other nodes in the cluster that have access to the shared storage. This prevents data corruption.
+
+    Start the script:
+
+    # cd /opt/VRTSvcs/vxfen/bin
+    # ./vxfenclearpre
+
+    Read the script's introduction and warning. Then, you can choose to let the script run.
+
+    Do you still want to continue: [y/n] (default : n) y
+
+    Informational messages resembling the following may appear on the console of one of the nodes in the cluster when a node is ejected from a disk/LUN:
+
+    <date> <system name> scsi: WARNING: /sbus@3,0/lpfs@0,0/
+    sd@0,1(sd91):
+    <date> <system name> Error for Command: <undecoded 
+    cmd 0x5f> Error Level: Informational
+    <date> <system name> scsi: Requested Block: 0 Error Block 0
+    <date> <system name> scsi: Vendor: <vendor> Serial Number: 
+    0400759B006E
+    <date> <system name> scsi: Sense Key: Unit Attention
+    <date> <system name> scsi: ASC: 0x2a (<vendor unique code 
+    0x2a>), ASCQ: 0x4, FRU: 0x0
+
+    These informational messages may be ignored.
+
+    Cleaning up the coordinator disks...
+
+    Cleaning up the data disks for all shared disk groups...
+
+    Successfully removed SCSI-3 persistent registration and 
+    reservations from the coordinator disks as well as the 
+    shared data disks.
+
+    Reboot the server to proceed with normal cluster startup...
+    #
+
+    Restart all nodes in the cluster.
+
+Replacing I/O fencing coordinator disks when the cluster is online
+
+Veritas Cluster Server User's Guide for 5.0 MP3 does not include more information for steps 4 to 7. Refer to the following content.
+
+Review the procedures to add, remove, or replace one or more coordinator disks in a cluster that is operational.
+
+Warning:
+	
+
+The cluster might panic if any node leaves the cluster membership before the vxfenswap script replaces the set of coordinator disks.
+
+To replace a disk in a coordinator diskgroup when the cluster is online
+
+    Make sure system-to-system communication is functioning properly.
+
+    Make sure that the cluster is online.
+
+    # vxfenadm -d
+    I/O Fencing Cluster Information:
+    ================================
+    Fencing Protocol Version: 201
+    Fencing Mode: SCSI3
+    Fencing SCSI3 Disk Policy: dmp
+    Cluster Members:
+    		* 0 (galaxy)
+    		1 (nebula)
+    RFSM State Information:
+    		node 0 in state 8 (running)
+    		node 1 in state 8 (running)
+
+    Import the coordinator disk group.
+
+    The file /etc/vxfendg includes the name of the disk group (typically, vxfencoorddg) that contains the coordinator disks, so use the command:
+
+    # vxdg -tfC import 'cat /etc/vxfendg'
+
+    where:
+
+    -t specifies that the disk group is imported only until the node restarts.
+
+    -f specifies that the import is to be done forcibly, which is necessary if one or more disks is not accessible.
+
+    -C specifies that any import locks are removed.
+
+    To remove disks from the disk group, use the VxVM disk administrator utility vxdiskadm.
+
+    You may also destroy the existing coordinator disk group. For example:
+
+        Verify whether the coordinator attribute is set to on.
+
+        # vxdg list vxfencoorddg |  grep flags: | grep coordinator
+
+        If the coordinator attribute value is set to on, you must turn off this attribute for the coordinator disk group.
+
+        # vxdg -g vxfencoordg set coordinator=off
+
+        Destroy the disk group.
+
+        # vxdg destroy vxfencoorddg
+
+    Add the new disk to the node, initialize it as a VxVM disk, and add it to the vxfencoorddg disk group.
+
+    See the Veritas Cluster Server Installation Guide for detailed instructions.
+
+    Note that though the diskgroup content changes, the I/O fencing remains in the same state.
+
+    Make sure that the /etc/vxfenmode file is updated to specify the correct disk policy.
+
+    See the Veritas Cluster Server Installation Guide for more information.
+
+    From one node, start the vxfenswap utility. You must specify the diskgroup to the utility.
+
+    Do one of the following:
+
+        If you use ssh for communication:
+
+        # /opt/VRTSvcs/vxfen/bin/vxfenswap -g diskgroup
+
+        If you use rsh for communication:
+
+        # /opt/VRTSvcs/vxfen/bin/vxfenswap -g diskgroup -n
+
+    The utility performs the following tasks:
+
+        Backs up the existing /etc/vxfentab file.
+
+        Creates a test file /etc/vxfentab.test for the diskgroup that is modified on each node.
+
+        Reads the diskgroup you specified in the vxfenswap command and adds the diskgroup to the /etc/vxfentab.test file on each node.
+
+        Verifies that the serial number of the new disks are identical on all the nodes. The script terminates if the check fails.
+
+        Verifies that the new disks can support I/O fencing on each node.
+
+    If the disk verification passes, the utility reports success and asks if you want to commit the new set of coordinator disks.
+
+    Do you wish to commit this change? [y/n] (default: n) y
+
+    Review the message that the utility displays and confirm that you want to replace the diskgroup. Else skip to step 10.
+
+    If the utility successfully commits, the utility moves the /etc/vxfentab.test file to the /etc/vxfentab file.
+
+    If you specified a diskgroup different to that in the /etc/vxfendg file, the utility also updates the /etc/vxfendg file.
+
+    If you do not want to replace the diskgroup, answer n.
+
+    The vxfenswap utility rolls back any changes to the coordinator diskgroup
+</pre>

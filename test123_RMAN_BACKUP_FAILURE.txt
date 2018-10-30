@@ -1,0 +1,98 @@
+---++ Doc Log 1152757190_01
+
+	$ Date: Thu Jul 13 02:19:50 2006
+	$ Summary: test123 RMAN BACKUP FAILURE
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+Seems that control M agent is running ok on both the systems.
+
+# ps -ef |grep ctm
+    root 14167  8494  0 01:44:34 pts/5    0:00 grep ctm
+  oracle 25022 24992  0 18:30:14 ?        0:00 /bin/sh -v /tmp/ctm/CM_SH.24987
+    root 24987     1  0 18:30:14 ?        0:00 p_ctmag -e /opt/cntlm/ctmagent/ctm
+  oracle 24992 24987  0 18:30:14 ?        0:00 -ksh -c /tmp/ctm/CM_SH.24987 1> /opt/cntlm/ctmagent/ctm/sysout/CMD.LOG_01a157_0
+# su - ctmagent
+test123% pwd
+/opt/cntlm/ctmagent/ctm/scripts
+test123% ./ag_menu
+CONTROL-M/Agent Main Menu
+-------------------------
+
+Select one of the following options:
+
+ 1 - Configuration parameters
+ 2 - Communication Diagnostic Report
+
+ q - Quit
+
+ Enter option number --->  2
+
+
+
+This procedure runs for about 30 seconds. Please wait
+
+
+CONTROL-M/Agent Communication Diagnostic Report
+-----------------------------------------------
+
+ Agent User Name                   :  ctmagent
+ Agent Platform Architecture       :  Solaris
+ FD Number                         :  FD3637
+ Agent Version                     :  9902
+ Agent Platform Name               :  test123
+ Server Host Name                  :  test104
+ Backup Host Names                 :  test104 test105
+ Server-to-Agent Port Number       :  7006
+ Agent-to-Server Port Number       :  7005
+ Server-Agent Comm. Protocol       :  TCP
+ Unix Ping to Server Platform      :  Succeeded
+ NIS is                            :  Not_running
+ /etc/services - Service Name      :  ctmagent
+ /etc/services -  Protocol         :  tcp
+ Service "ctmagent" is             :  Active
+ Netstat protocol                  :  tcp
+ Protocol consistency check        :  Ok
+
+Press Enter to continue
+
+% ./ag_menu
+CONTROL-M/Agent Main Menu
+-------------------------
+
+Select one of the following options:
+
+ 1 - Configuration parameters
+ 2 - Communication Diagnostic Report
+
+ q - Quit
+
+ Enter option number --->  2
+
+
+
+This procedure runs for about 30 seconds. Please wait
+
+
+CONTROL-M/Agent Communication Diagnostic Report
+-----------------------------------------------
+
+ Agent User Name                   :  ctmagent
+ Agent Platform Architecture       :  Solaris
+ FD Number                         :  FD3637
+ Agent Version                     :  9902
+ Agent Platform Name               :  syopl019
+ Server Host Name                  :  test104
+ Backup Host Names                 :  test104 test105
+ Server-to-Agent Port Number       :  7006
+ Agent-to-Server Port Number       :  7005
+ Server-Agent Comm. Protocol       :  TCP
+ Unix Ping to Server Platform      :  Succeeded
+ NIS is                            :  Not_running
+ /etc/services - Service Name      :  ctmagent
+ /etc/services -  Protocol         :  tcp
+ Service "ctmagent" is             :  Active
+ Netstat protocol                  :  tcp
+ Protocol consistency check        :  Ok
+</pre>

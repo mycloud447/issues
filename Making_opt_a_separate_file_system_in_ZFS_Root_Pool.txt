@@ -1,0 +1,144 @@
+---++ Doc Log 1383704326_01
+        $ Date: Wed Nov 06:: 07:48:46
+        $ Summary: Making opt a separate file system in ZFS Root Pool
+
+---++++ Details:
+<pre>
+Please find the technical procedure to separate opt into a zfs file system.
+
+1.Making opt in separate file system in ZFS.
+
+# df -k
+Filesystem            kbytes    used   avail capacity  Mounted on
+rpool/ROOT/s10s_u7wos_08
+                     140378112 5120793 131585733     4%    /
+/devices                   0       0       0     0%    /devices
+ctfs                       0       0       0     0%    /system/contract
+proc                       0       0       0     0%    /proc
+mnttab                     0       0       0     0%    /etc/mnttab
+swap                 14415448     472 14414976     1%    /etc/svc/volatile
+objfs                      0       0       0     0%    /system/object
+sharefs                    0       0       0     0%    /etc/dfs/sharetab
+/platform/SUNW,T5140/lib/libc_psr/libc_psr_hwcap2.so.1
+                     136706527 5120793 131585733     4%
+/platform/sun4v/lib/libc_psr.so.1
+/platform/SUNW,T5140/lib/sparcv9/libc_psr/libc_psr_hwcap2.so.1
+                     136706527 5120793 131585733     4%
+/platform/sun4v/lib/sparcv9/libc_psr.so.1
+fd                         0       0       0     0%    /dev/fd
+swap                 14415008      32 14414976     1%    /tmp
+swap                 14415008      32 14414976     1%    /var/run
+rpool/export         140378112      20 131585733     1%    /export
+rpool/export/home    140378112      18 131585733     1%    /export/home
+rpool                140378112      94 131585733     1%    /rpool
+#
+
+# zfs list
+NAME                       USED  AVAIL  REFER  MOUNTPOINT
+rpool                     8.39G   125G    94K  /rpool
+rpool/ROOT                4.88G   125G    18K  legacy
+rpool/ROOT/s10s_u7wos_08  4.88G   125G  4.88G  /
+rpool/dump                1.50G   125G  1.50G  -
+rpool/export                38K   125G    20K  /export
+rpool/export/home           18K   125G    18K  /export/home
+rpool/swap                   2G   127G    16K  -
+#
+
+2. Boot from a Solaris 10 CD/DVD or the network into single user mode.
+
+ok boot cdrom -s  (or boot net -s)
+
+3. Import a zfs root pool and mount a zfs root file system.
+
+# zpool import -R /mnt rpool
+cannot mount '/mnt/export': failed to create mountpoint
+cannot mount '/mnt/export/home': failed to create mountpoint
+cannot mount '/mnt/rpool': failed to create mountpoint
+# 
+
+# zfs mount rpool/ROOT/s10s_u7wos_08
+
+# zfs list
+NAME                       USED  AVAIL  REFER  MOUNTPOINT
+rpool                     8.39G   125G    94K  /mnt/rpool
+rpool/ROOT                4.89G   125G    18K  legacy
+rpool/ROOT/s10s_u7wos_08  4.89G   125G  4.89G  /mnt
+rpool/dump                1.50G   125G  1.50G  -
+rpool/export                38K   125G    20K  /mnt/export
+rpool/export/home           18K   125G    18K  /mnt/export/home
+rpool/swap                   2G   127G    16K  -
+#
+
+4. Create a separate dataset for /opt .
+
+Before creating, rename a original opt directory to opt_save.
+
+# cd /mnt
+# mv opt opt_save
+# zfs create rpool/ROOT/s10s_u7wos_08/opt
+# zfs list
+NAME                           USED  AVAIL  REFER  MOUNTPOINT
+rpool                         8.39G   125G    94K  /mnt//rpool
+rpool/ROOT                    4.89G   125G    18K  legacy
+rpool/ROOT/s10s_u7wos_08      4.89G   125G  4.89G  /mnt
+rpool/ROOT/s10s_u7wos_08/opt    18K   125G    18K  /mnt/opt
+rpool/dump                    1.50G   125G  1.50G  -
+rpool/export                    38K   125G    20K  /mnt/export
+rpool/export/home               18K   125G    18K  /mnt/export/home
+rpool/swap                       2G   127G    16K  -
+#
+
+5. Transfer data from opt_save to opt.
+
+# cd /mnt/opt_save
+# mv * ../opt/.
+# cd /mnt ; rmdir opt_save
+
+# ls /mnt/opt
+SUNWits      SUNWmlib     SUNWrtvc     staroffice8
+# 
+
+6. After boot from a zfs root file system.
+
+# df -k
+Filesystem            kbytes    used   avail capacity  Mounted on
+rpool/ROOT/s10s_u7wos_08
+                     140378112 4663452 131582232     4%    /
+/devices                   0       0       0     0%    /devices
+ctfs                       0       0       0     0%    /system/contract
+proc                       0       0       0     0%    /proc
+mnttab                     0       0       0     0%    /etc/mnttab
+swap                 14290528     408 14290120     1%    /etc/svc/volatile
+objfs                      0       0       0     0%    /system/object
+sharefs                    0       0       0     0%    /etc/dfs/sharetab
+/platform/SUNW,T5140/lib/libc_psr/libc_psr_hwcap2.so.1
+                     136245684 4663452 131582232     4%
+/platform/sun4v/lib/libc_psr.so.1
+/platform/SUNW,T5140/lib/sparcv9/libc_psr/libc_psr_hwcap2.so.1
+                     136245684 4663452 131582232     4%
+/platform/sun4v/lib/sparcv9/libc_psr.so.1
+fd                         0       0       0     0%    /dev/fd
+swap                 14290160      40 14290120     1%    /tmp
+swap                 14290152      32 14290120     1%    /var/run
+rpool/ROOT/s10s_u7wos_08/opt
+                     140378112  460698 131582232     1%    /opt
+rpool/export         140378112      20 131582232     1%    /export
+rpool/export/home    140378112      18 131582232     1%    /export/home
+rpool                140378112      94 131582232     1%    /rpool
+#
+# cd /opt
+# ls
+SUNWits      SUNWmlib     SUNWrtvc     staroffice8
+#
+# zfs list
+NAME                           USED  AVAIL  REFER  MOUNTPOINT
+rpool                         8.39G   125G    94K  /rpool
+rpool/ROOT                    4.89G   125G    18K  legacy
+rpool/ROOT/s10s_u7wos_08      4.89G   125G  4.45G  /
+rpool/ROOT/s10s_u7wos_08/opt   450M   125G   450M  /opt
+rpool/dump                    1.50G   125G  1.50G  -
+rpool/export                    38K   125G    20K  /export
+rpool/export/home               18K   125G    18K  /export/home
+rpool/swap                       2G   127G    16K  -
+#
+</pre>

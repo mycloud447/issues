@@ -1,0 +1,45 @@
+---++ Doc Log 1143654662_01
+	$ Date: Wed Mar 29 17:51:02 2006
+	$ Summary: disk failure 
+
+---++++ Details:
+<pre>
+Call raised with HP to replace faulty disk,  some discussion as to when this can happen as it a Treats/BOS ETX adaptor.  Wendy Hall requesting that this go ahead over the weekend.  Ops advised that this is the root mirror disk and should we have any issues with the other disk then we could be without a server until rebuilt.
+
+Disk c1t15d0 needs replacing whilst the disks for vg01 in lvmtab need updating to reflect a change of device file:  Will log a call with HP for internal drive to be replaced.  It should eb identical to the one below:
+
+SCSI describe of /dev/rdsk/c3t15d0:
+             vendor: HP 36.4G
+         product id: MAN3367MC
+               type: direct access
+               size: 35566480 Kbytes
+   bytes per sector: 512
+
+# ioscan -fnC disk
+Class     I  H/W Path                 Driver   S/W State   H/W Type     Description
+====================================================================================
+disk      0  0/0/1/0.2.0              sdisk    CLAIMED     DEVICE       HP      DVD-ROM 305
+                                     /dev/dsk/c0t2d0   /dev/rdsk/c0t2d0
+disk      1  0/0/1/1.15.0             sdisk    NO_HW       DEVICE       HP 36.4GST336607LC
+                                     /dev/dsk/c1t15d0   /dev/rdsk/c1t15d0
+disk      2  0/0/2/1.15.0             sdisk    CLAIMED     DEVICE       HP 36.4GMAN3367MC
+                                     /dev/dsk/c3t15d0   /dev/rdsk/c3t15d0
+disk      7  0/4/0/0.103.11.19.0.0.0  sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t0d0   /dev/rdsk/c8t0d0
+disk      8  0/4/0/0.103.11.19.0.0.6  sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t0d6   /dev/rdsk/c8t0d6
+disk      5  0/6/2/0.104.64.19.0.0.0  sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c6t0d0   /dev/rdsk/c6t0d0
+disk      6  0/6/2/0.104.64.19.0.0.6  sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c6t0d6   /dev/rdsk/c6t0d6
+# strings /etc/lvmtab
+/dev/vg00
+/dev/dsk/c1t15d0
+/dev/dsk/c3t15d0
+/dev/vg01
+/dev/dsk/c4t0d6
+/dev/dsk/c6t0d6
+#
+
+OPS to confirm with HP if this disk is hot swap able as this will influence the replacement time. 
+</pre>

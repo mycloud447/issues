@@ -1,0 +1,43 @@
+---++ Doc Log 1193993162_01
+
+	$ Date: Fri Nov 02 08:46:02 2007
+	$ Summary: When good disks go bad.... !!!!
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+Parag,
+ 
+I cannot guarantee all the data will be there as I am unsure why the private region has been stepped on, however, I would replace the disk with themselves and if the data is all intact, the volumes/file-systems will be fine once done.
+ 
+NOTE:  First you will need to determine exactly what the disk access names changed to.
+ 
+Once you know which disk is which:
+ 
+# vxdg -g bimidumpdg -k rmdisk bimidumpd24
+# vxdg -g bimidumpdg -k rmdisk bimidumpd27
+# vxdg -g oradumpdg -k rmdisk oradumpd21
+# vxdg -g oradatadg -k rmdisk oradatd04
+ 
+You should now see them in a "removed was" state at the bottom of the disk list.
+then add them back with:
+
+# vxdg -g bimidumpdg -k adddisk bimidumpd24=EMC_CLARiiON0_XX
+# vxdg -g bimidumpdg -k adddisk bimidumpd27=EMC_CLARiiON0_XX
+# vxdg -g oradumpddg -k adddisk oradumpd21=EMC_CLARiiON_XX
+# vxdg -g oradatadg -k adddisk oradat04=EMC_CLARiiON0_XX
+ 
+Since the volumes are single plex, you can simply force start them.
+ 
+# vxvol -g $diskgroup -f start $volume
+ 
+NOTE: The file-system is either good or bad and the above command will not affect either way.
+ 
+You can then if vxfs:
+ 
+# fsck -F vxfs /dev/vx/rdsk/$diskgroup/$volume
+ 
+NOTE:  The above is a log replay and non-intrusive.
+
+Hope this helps,
+</pre>

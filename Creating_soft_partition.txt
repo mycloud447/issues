@@ -1,0 +1,29 @@
+---++ Doc Log 1383626662_01
+        $ Date: Tue Nov 05:: 10:14:22
+        $ Summary: Creating soft partition
+
+---++++ Details:
+<pre>
+In the following example, a 4-Gbyte soft partition called d20 is created on c1t3d0s2.
+
+# metainit d20 -p c1t3d0s2 4g
+
+
+
+The following example creates a soft partition and formats disk c1t2d0. This action destroys any data on that disk and creates a new soft partition on slice 0.
+
+# metainit d7 -p -e c1t2d0 1G
+
+
+
+Specifying an existing slice and absolute offset and size values. For example:
+
+# metainit d2 -p c1t0d0s0 -o 2048 -b 1024
+
+
+
+The -o parameter signifies the offset into the slice, and the -b parameter is the size for the soft partition. 
+
+All numbers are in blocks (a block is 512 bytes). The metainit command ensures that extents and soft partitions do not overlap. 
+
+</pre>

@@ -1,0 +1,111 @@
+---++ Doc Log 1200894774_01
+
+	$ Date: Mon Jan 21 05:52:54 2008
+	$ Summary: check linux wwn
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+use lspci to check Adaptor (Qlogic in this case)
+
+# lspci
+02:00.0 PCI bridge: Intel Corp. 6700PXH PCI Express-to-PCI Bridge A (rev 09)
+02:00.2 PCI bridge: Intel Corp. 6700PXH PCI Express-to-PCI Bridge B (rev 09)
+03:03.0 Fibre Channel: QLogic Corp. QLA2312 Fibre Channel Adapter (rev 02)
+04:04.0 Fibre Channel: QLogic Corp. QLA2312 Fibre Channel Adapter (rev 02)
+
+Check WWN - 
+[root@s root]# cat /proc/scsi/qla2300/0
+QLogic PCI to Fibre Channel Host Adapter for QLA2340:
+        Firmware version:  3.03.11, Driver version 7.05.00-RH1
+Entry address = f8830060
+HBA: QLA2312 , Serial# B48882
+Request Queue = 0x37350000, Response Queue = 0x37340000
+Request Queue count= 512, Response Queue count= 512
+Total number of active commands = 0
+Total number of interrupts = 4515
+Total number of IOCBs (used/max) = (0/600)
+Total number of queued commands = 0
+    Device queue depth = 0x20
+Number of free request entries = 209
+Number of mailbox timeouts = 0
+Number of ISP aborts = 0
+Number of loop resyncs = 0
+Number of retries for empty slots = 0
+Number of reqs in pending_q= 0, retry_q= 0, done_q= 0, scsi_retry_q= 0
+Host adapter:loop state= <READY>, flags= 0x860813
+Dpc flags = 0x0
+MBX flags = 0x0
+SRB Free Count = 4096
+Link down Timeout = 000
+Port down retry = 030
+Login retry count = 030
+Commands retried with dropped frame(s) = 0
+Configured characteristic impedence: 50 ohms
+Configured data rate: 1-2 Gb/sec auto-negotiate
+
+
+SCSI Device Information:
+scsi-qla0-adapter-node=200000e08b829245;
+scsi-qla0-adapter-port=210000e08b829245;
+scsi-qla0-target-0=5006016810602d95;
+scsi-qla0-target-1=5006016210602d95;
+
+SCSI LUN Information:
+(Id:Lun)  * - indicates lun is not registered with the OS.
+( 0: 0): Total reqs 753, Pending reqs 0, flags 0x0, 0:0:81,
+( 0: 1): Total reqs 758, Pending reqs 0, flags 0x0, 0:0:81,
+( 0: 2): Total reqs 753, Pending reqs 0, flags 0x0, 0:0:81,
+( 0: 3): Total reqs 759, Pending reqs 0, flags 0x0, 0:0:81,
+( 1: 0): Total reqs 459, Pending reqs 0, flags 0x0, 0:0:82,
+( 1: 1): Total reqs 286, Pending reqs 0, flags 0x0, 0:0:82,
+( 1: 2): Total reqs 459, Pending reqs 0, flags 0x0, 0:0:82,
+( 1: 3): Total reqs 289, Pending reqs 0, flags 0x0, 0:0:82,
+[root@s root]# cat /proc/scsi/qla2300/1
+QLogic PCI to Fibre Channel Host Adapter for QLA2340:
+        Firmware version:  3.03.11, Driver version 7.05.00-RH1
+Entry address = f8830060
+HBA: QLA2312 , Serial# U93804
+Request Queue = 0x37200000, Response Queue = 0x371f0000
+Request Queue count= 512, Response Queue count= 512
+Total number of active commands = 0
+Total number of interrupts = 2679
+Total number of IOCBs (used/max) = (0/600)
+Total number of queued commands = 0
+    Device queue depth = 0x20
+Number of free request entries = 58
+Number of mailbox timeouts = 0
+Number of ISP aborts = 0
+Number of loop resyncs = 0
+Number of retries for empty slots = 0
+Number of reqs in pending_q= 0, retry_q= 0, done_q= 0, scsi_retry_q= 0
+Host adapter:loop state= <READY>, flags= 0x860813
+Dpc flags = 0x0
+MBX flags = 0x0
+SRB Free Count = 4096
+Link down Timeout = 000
+Port down retry = 030
+Login retry count = 030
+Commands retried with dropped frame(s) = 0
+Configured characteristic impedence: 50 ohms
+Configured data rate: 1-2 Gb/sec auto-negotiate
+
+
+SCSI Device Information:
+scsi-qla1-adapter-node=200000e08b1fecf2;
+scsi-qla1-adapter-port=210000e08b1fecf2;
+scsi-qla1-target-0=5006016110602d95;
+scsi-qla1-target-1=5006016b10602d95;
+
+SCSI LUN Information:
+(Id:Lun)  * - indicates lun is not registered with the OS.
+( 0: 0): Total reqs 459, Pending reqs 0, flags 0x0, 1:0:81,
+( 0: 1): Total reqs 240, Pending reqs 0, flags 0x0, 1:0:81,
+( 0: 2): Total reqs 459, Pending reqs 0, flags 0x0, 1:0:81,
+( 0: 3): Total reqs 243, Pending reqs 0, flags 0x0, 1:0:81,
+( 1: 0): Total reqs 394, Pending reqs 0, flags 0x0, 1:0:82,
+( 1: 1): Total reqs 245, Pending reqs 0, flags 0x0, 1:0:82,
+( 1: 2): Total reqs 394, Pending reqs 0, flags 0x0, 1:0:82,
+( 1: 3): Total reqs 245, Pending reqs 0, flags 0x0, 1:0:82,
+
+</pre>

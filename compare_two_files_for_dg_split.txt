@@ -1,0 +1,86 @@
+---++ Doc Log 1399351113_01
+        $ Date: May 06 10:08:33 2014
+        $ Summary: compare two files for dg split
+
+---++++ Details:
+<pre>
+#!/bin/ksh
+
+
+        /usr/bin/echo "Please enter diskgroup  :"; read dg
+
+        /usr/bin/echo "Please enter PR volumes :  [ ex:- PR_vol1 PR_vol2 ]:"; read PR_vol
+
+        /usr/bin/echo "Please enter OM volumes :  [ ex:- OM_vol1 OM_vol2 ]:"; read OM_vol
+
+        DG=`echo $dg`
+
+        PR=`echo $PR_vol`
+
+        OM=`echo $OM_vol`
+
+
+
+        /usr/sbin/vxprint -g $DG -htv $PR |awk '$1~/sd/ {print $8}'|sort|uniq > /var/tmp/pr_vol
+
+        /usr/sbin/vxprint -g $DG -htv $OM |awk '$1~/sd/ {print $8}'|sort|uniq > /var/tmp/om_vol
+
+
+
+        /usr/bin/cat /var/tmp/pr_vol|while read line1
+
+
+
+        do
+
+                /usr/bin/cat /var/tmp/om_vol |while read line2
+
+
+
+                do
+
+
+
+                if [[ $line1 == $line2 ]]; then
+
+
+
+                        /usr/bin/echo $line1 >> /var/tmp/com_lun
+
+                fi
+
+        done
+
+done
+
+                if [ -s /var/tmp/com_lun ];then
+
+                clear
+
+                echo ""
+
+                echo "Oops......below luns are using both PR and OM volumes DG split is not possible"
+
+                echo ""
+
+                cat /var/tmp/com_lun
+
+                rm /var/tmp/pr_vol /var/tmp/om_vol /var/tmp/com_lun
+
+
+
+        else
+
+                clear
+
+                echo ""
+
+                echo "All PR and OM lunus are in seperate spindle, good to proceed with DG split...!!"
+
+                echo ""
+
+                rm /var/tmp/pr_vol /var/tmp/om_vol
+
+        fi
+
+</pre>

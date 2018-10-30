@@ -1,0 +1,297 @@
+---++ Doc Log 1383807784_01
+        $ Date: Thu Nov 07:: 12:33:04
+        $ Summary: converting zfs pool to mirror -- script
+
+---++++ Details:
+<pre>
+# attached new storage to pool
+
+-------------------------------
+
+#!/usr/bin/bash
+
+if [ ! $1 ]
+
+then
+
+    echo "USAGE: $0 <pool name>"
+
+    exit 1
+
+fi
+
+
+
+POOL=$1
+
+LUNS_NEW=( c3t60000970000292603494533032313832d0 c3t60000970000292603494533032313838d0 )
+
+LUNS_OLD=`zpool status ${POOL} | grep c3t | awk '{print $1}'`
+
+
+p=0
+
+for i in ${LUNS_OLD}
+
+do
+
+    zpool attach ${POOL} ${i} ${LUNS_NEW[$p]}
+
+    p=$[p+1]
+
+done
+
+
+# detach old storage array LUNs after resilver is done:
+
+--------------------------------------------------------
+
+#!/usr/bin/bash
+
+
+if [ ! $1 ]
+
+then
+
+    echo "USAGE: $0 <pool name>"
+
+    exit 1
+
+fi
+
+
+
+POOL=$1
+
+STUFF=( `zpool status ${POOL} | grep ONLINE | egrep -v "state|mirror|${POOL}" | awk '{print $1}'` )
+
+
+
+for i in ${STUFF[@]}
+
+do
+
+    REV=`luxadm display /dev/rdsk/${i}s2 | grep -i rev | awk '{print $2}'`
+
+    if [ ${REV} = "5773" ] #5773 DMX #5874 VMAX
+
+    then
+
+        echo "${i} is from rev ${REV} will detach..."
+
+        zpool detach ${POOL} ${i}
+
+    else
+
+        echo "${i} is from rev ${REV} will leave as is..."
+
+    fi
+
+done
+
+
+
+========================================================
+
+
+Converting a ZFS pool to be mirrored
+
+-------------------------------------
+
+So, the ZFS syntax is quite different to that of SVM which can lead to confusion. 
+
+Ben Rockwood does a good job of explaning the difference, but does not show how to convert an un-mirrored ZFS pool into mirrored one. 
+
+So, here's how to do it
+
+
+
+
+
+o We start with a pool called realzfs (because it's made out of real devices rather than files)
+
+# zpool list
+
+NAME                    SIZE    USED   AVAIL    CAP  HEALTH     ALTROOT
+
+realzfs                 544G   1.17G    543G     0%  ONLINE     -
+
+
+
+o We can see that it is made up of 4 disks
+
+# zpool status
+
+  pool: realzfs
+
+ state: ONLINE
+
+ scrub: none requested
+
+config:
+
+
+
+        NAME        STATE     READ WRITE CKSUM
+
+        realzfs     ONLINE       0     0     0
+
+          c3t0d0    ONLINE       0     0     0
+
+          c3t1d0    ONLINE       0     0     0
+
+          c3t2d0    ONLINE       0     0     0
+
+          c3t5d0    ONLINE       0     0     0
+
+
+
+
+
+o The correct way is to attach a new device to each existing ldev e.g.
+
+
+
+# zpool attach -f realzfs c3t0d0 c3t8d0
+
+
+
+
+
+# zpool status
+
+  pool: realzfs
+
+ state: ONLINE
+
+status: One or more devices is currently being resilvered.  The pool will
+
+        continue to function, possibly in a degraded state.
+
+action: Wait for the resilver to complete.
+
+ scrub: resilver in progress, 99.99% done, 0h0m to go
+
+config:
+
+
+
+        NAME        STATE     READ WRITE CKSUM
+
+        realzfs     ONLINE       0     0     0
+
+          mirror    ONLINE       0     0     0
+
+            c3t0d0  ONLINE       0     0     0
+
+            c3t8d0  ONLINE       0     0     0  178.3 resilvered
+
+          c3t1d0    ONLINE       0     0     0
+
+          c3t2d0    ONLINE       0     0     0
+
+          c3t5d0    ONLINE       0     0     0
+
+
+
+# zpool attach -f realzfs c3t1d0 c3t9d0
+
+# zpool attach -f realzfs c3t2d0 c3t10d0
+
+# zpool attach -f realzfs c3t5d0 c3t11d0
+
+
+
+o Finally we see all our ldevs mirrored.
+
+
+
+# zpool status
+
+  pool: realzfs
+
+ state: ONLINE
+
+ scrub: resilver completed with 0 errors on Mon Jan 23 15:26:16 2006
+
+config:
+
+
+
+        NAME         STATE     READ WRITE CKSUM
+
+        realzfs      ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c3t0d0   ONLINE       0     0     0
+
+            c3t8d0   ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c3t1d0   ONLINE       0     0     0
+
+            c3t9d0   ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c3t2d0   ONLINE       0     0     0
+
+            c3t10d0  ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c3t5d0   ONLINE       0     0     0
+
+            c3t11d0  ONLINE       0     0     0
+
+
+
+o The WRONG way to do it is as follows:-
+
+
+
+# zpool add -f realzfs mirror  c3t8d0  c3t9d0 c3t10d0 c3t11d0
+
+
+
+
+
+# zpool status
+
+  pool: realzfs
+
+ state: ONLINE
+
+ scrub: resilver completed with 0 errors on Mon Jan 23 15:26:16 2006
+
+config:
+
+
+
+        NAME         STATE     READ WRITE CKSUM
+
+        realzfs      ONLINE       0     0     0
+
+          c3t0d0     ONLINE       0     0     0
+
+          c3t1d0     ONLINE       0     0     0
+
+          c3t2d0     ONLINE       0     0     0
+
+          c3t5d0     ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c3t8d0   ONLINE       0     0     0
+
+            c3t9d0   ONLINE       0     0     0
+
+            c3t10d0  ONLINE       0     0     0
+
+            c3t11d0  ONLINE       0     0     0
+
+
+Which is 4 single disk ldevs and one 4way mirrored ldev.  NOT 4 mirrored ldev's which is what we actually wanted.
+</pre>

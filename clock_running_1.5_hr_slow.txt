@@ -1,0 +1,50 @@
+---++ Doc Log 1145886117_01
+
+	$ Date: Mon Apr 24 13:41:57 2006
+	$ Summary: clock running 1.5 hr slow.
+
+---++++ Details:
+<pre>
+
+
+/sbin/init.d # date
+Mon Apr 24 11:57:59 BST 2006
+/sbin/init.d # ps -fade |grep ntp
+    root 13472 10633  1 12:04:42 pts/2     0:00 grep ntp
+/sbin/init.d # ntpdate utctime1
+24 Apr 13:35:32 ntpdate[13567]: step time server 128.30.151.231 offset 5438.758018 sec
+/sbin/init.d # date
+Mon Apr 24 13:35:35 BST 2006
+ # ./xntpd start
+/sbin/init.d # ps -fade |grep ntp
+    root 14356 10633  0 13:35:46 pts/2     0:00 grep ntp
+    root 14208     1  0 13:35:43 ?         0:00 /usr/sbin/xntpd
+/sbin/init.d # ntpq -p
+     remote           refid      st t when poll reach   delay   offset    disp
+==============================================================================
+ gpstime1.uk.hib 0.0.0.0         16 -    -   64    0     0.00    0.000 16000.0
+ gpstime2.uk.hib 0.0.0.0         16 -    -   64    0     0.00    0.000 16000.0
+/sbin/init.d # ntpq -p
+     remote           refid      st t when poll reach   delay   offset    disp
+==============================================================================
+ gpstime1.uk.hib 0.0.0.0         16 -    -   64    0     0.00    0.000 16000.0
+ gpstime2.uk.hib 0.0.0.0         16 -    -   64    0     0.00    0.000 16000.0
+/sbin/init.d # date
+Mon Apr 24 13:35:59 BST 2006
+/sbin/init.d # date
+Mon Apr 24 13:40:32 BST 2006
+/sbin/init.d # ntpq -p
+     remote           refid      st t when poll reach   delay   offset    disp
+==============================================================================
+*gpstime1.uk.hib .GPS.            1 u    2   64   37     4.24   12.160  879.79
++gpstime2.uk.hib .GPS.            1 u    2   64   37     4.33   12.057  879.79
+/sbin/init.d # 
+/sbin/init.d # ntpq -p
+     remote           refid      st t when poll reach   delay   offset    disp
+==============================================================================
+*gpstime1.uk.hib .GPS.            1 u   29   64  177     4.33    5.521  128.40
++gpstime2.uk.hib .GPS.            1 u   29   64  177     4.61    5.558  128.14
+/sbin/init.d # 
+
+slowly getting better.  will be all fine soon.
+</pre>

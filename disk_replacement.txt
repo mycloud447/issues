@@ -1,0 +1,119 @@
+---++ Doc Log 1383808691_01
+        $ Date: Thu Nov 07:: 12:48:11
+        $ Summary: disk replacement
+
+---++++ Details:
+<pre>
+# /opt/SUNWexplo/bin/explorer
+
+# cfgadm -al |grep cf7f3e64     
+
+#metastat -p d110
+
+#metastat  -p d111
+
+#metastat  -p d101
+
+# iostat -En | grep -i c120000004cf7f3e64/ c1t0d0
+
+# echo | format
+
+# luxadm disp 20000004cf7f3e64/ c1t0d0
+
+# luxadm disp FCloop|grep cf7f3e64/ c1t0d0
+
+# prtconf -pv | grep -i boot
+
+# metadb -I 
+
+# metastat d110
+
+# metadetach d110 d0
+
+#metastat d111
+
+#metadetach d111 d4
+
+#metastat d101
+
+#metadetach d101 d2
+
+# metadb -d c120000004cf7f3e64/ c1t0d0
+
+# metaclear d0
+
+#metaclear d4
+
+#metaclear d2
+
+# cfgadm -al | grep -i c120000004cf7f3e64d0/ 20000004cf7f3e64/ c1t0d0
+
+# cfgadm -C unconfigure c120000004cf7f3e64/ c1t0d0
+
+#luxadm remove_device /dev/rdsk/ c120000004cf7f3e64d0/ 20000004cf7f3e64/ c1t0d0
+
+# cfgadm -al | grep -i c120000004cf7f3e64/ 20000004cf7f3e64/ c1t0d0
+
+  Call SUN Engineer to replace the Hard Disk c120000004cf7f3e64/ c1t0d0
+
+  Ask Sun Engineer to Remove the Faulty HDD
+
+Ask Sun Engineer to Install a New HDD
+
+
+
+# devfsadm -C -c <new disk>
+
+# echo | format | egrep c120000004cf7f3e64/ c1t0d0/<new disk>
+
+# cfgadm -f -c configure c120000004cf7f3e64/ c1t0d0/<new disk> 
+
+                 (or)
+
+# luxadm insert_device c120000004cf7f3e64/ c1t0d0/<new disk>"
+
+# cfgadm -al
+
+# prtvtoc /dev/dsk/c1 21000020379aac1ed0s2/ c1t1d0  | fmthard -s - /dev/dsk/c120000004cf7f3e64d0s2/ c1t0d0/<new disk>
+
+# prtvtoc /dev/dsk/c4t20000000879FD117d0s0/ c1t0d0
+
+# prtvtoc /dev/ c120000004cf7f3e64d0/ c1t0d0/<new disk>"
+
+# metadb –i
+
+# metadb  -a -f -c 3 c120000004cf7f3e64d0/ c1t0d0/<new disk>
+
+# metadb
+
+# metainit d4 1 1 c1t0d0s4/<new disk> 
+
+#metainit d0 1 1 c1t0d0s0/<newdisk>
+
+#metainit d2 1 1 c1t0d0s1/<newdisk>
+
+# metattach d110 d0
+
+#metattach d111 d4
+
+#metattach d101 d2
+
+# metastat | grep %
+
+# metastat
+
+# metastat | grep –i maint
+
+# metastat –p 
+
+# echo|format
+
+# iostat -En|grep -I hard
+
+# metastat –p
+
+# metastat | grep %
+
+# metastat | grep -I main;iostat -en
+
+</pre>

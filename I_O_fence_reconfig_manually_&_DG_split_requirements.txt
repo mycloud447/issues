@@ -1,0 +1,28 @@
+---++ Doc Log 1383609607_01
+        $ Date: Tue Nov 05:: 05:30:07
+        $ Summary: I/O fence reconfig manually & DG split requirements
+
+---++++ Details:
+<pre>
+1. While doing disk group split VERITAS Storage Foundation Standard license will not work, required enterprise license
+
+2. While doing quorum migration manually we need to follow below steps.
+
+On all the cluster nodes
+
+$ hastop -all
+$ /etc/init.d/vxfen stop
+$ /etc/init.d/odm stop
+$ /sbin/vcsmmconfig -U
+$ gabconfig -U
+$ lltconfig -U
+
+$ cat /etc/vxfendg ======> update with new VMAX fen diskgroup on all the nodes
+$ /etc/init.d/vxfen start ======> once it's doine check /etc/vxfentab, will populate with new I/O fenc disks.
+$ /sbin/vxfenconfig -c
+$ lltconfig -c
+$ gabconfig -c
+$ /sbin/vcsmmconfig -c
+$ /etc/init.d/odm start
+$ hastart
+</pre>

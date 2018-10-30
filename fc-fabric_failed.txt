@@ -1,0 +1,19 @@
+---++ Doc Log 1393502328_01
+        $ Date: Feb 27 17:28:48 2014
+        $ Summary: fc-fabric failed
+
+---++++ Details:
+<pre>
+Issue:-
+======
+
+While booting the solaris server we got Method /lib/svc/method/fc-fabric failed due to signal KILL
+
+we tried all options and even rebooted the box trying different options but to no avail. Even after the Server coming to single user mode, the error still persisted. 
+We tried by checking at svcs services as well. Finally was able to resolve the issue with the following solution.
+
+Solution:
+========
+In /etc/cfg/fp,  we need to check for file starting with fabric_wwn*  and delete all the files which are starting with fabric_wwn*.
+After doing so, the issue was resolved and we were able to boot the server successfully.
+</pre>

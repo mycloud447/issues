@@ -1,0 +1,8 @@
+---++ Doc Log 1383633785_01
+        $ Date: Tue Nov 05:: 12:13:05
+        $ Summary: boot block
+
+---++++ Details:
+<pre>
+installboot /usr/platform/`uname -i`/lib/fs/ufs/bootblk /dev/rdsk/c3t10d0s0
+</pre>

@@ -1,0 +1,38 @@
+<pre>
+# zonecfg -z gesctap1
+
+zonecfg:gesctap1> set rctl zone.cpu-shares=(priv=privileged,limit=800,action=none)
+
+zonecfg:gesctap1> info  ====> check for rctl limit value
+
+rctl:
+        name: zone.cpu-shares
+        value: (priv=privileged,limit=800,action=none)
+
+zonecfg:gesctap1> commit
+zonecfg:gesctap1>verify
+zonecfg:gesctap1>end
+
+
+
+# hares -display ZONE_gesctap1 |grep -i Shares
+ZONE_gesctap1 Shares           global        400
+
+# hares -display ZONE_gesctap1 |grep -i Critical  ========> critical set as "0" no need to freeze the service group.
+ZONE_gesctap1 Critical         global        0
+
+
+
+# cp -p /etc/VRTSvcs/conf/config/main.cf /etc/VRTSvcs/conf/config/main.cf.`date +%d%m%Y`
+
+#haconf -makerw
+
+#hares -modify ZONE_gesctap1 Shares 800
+
+#haconf -dump -makero
+
+#hagrp -offline gesctap1 -sys lonshspltp24b
+#hagrp -online gesctap1 -sys lonshspltp24b
+
+=========================================================================================================
+</pre>

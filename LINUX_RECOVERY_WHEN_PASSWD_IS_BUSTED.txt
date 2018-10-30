@@ -1,0 +1,31 @@
+---++ Doc Log 1202143364_01
+
+	$ Date: Mon Feb 04 16:42:44 2008
+	$ Summary: LINUX RECOVERY WHEN PASSWD IS BUSTED
+	$ On-Call: SYONCALL
+
+---++++ Details:
+<pre>
+1. Log onto management module, get remote console and reboot server. Check boot up messages and saw errors stating unable to open password file (i.e. /etc/passwd). This generally means that this file is corrupt and usually /etc/group and /etc/shadow are in the same state. 
+2. Find a DHCP server on the same subnet as gbnldbi05e. (lxadm -i 128.8.145 -r check_dhcpd) This shows that gbnldbi03e has an installed/not running DHCP server.
+3. Log onto gbnldbi03e, check /etc/dhcpd.conf and try to ping the network addresses detailed in the range statement. If all pings fail then start the DHCP server.
+4. Reboot gbnldbi05e, select F12 and boot from the network. (Using the remote console)
+5. At the PXE prompt select sles9res_32
+6. When the rescue disk has loaded select your keyboard and start the Automatic recovery, just to load some kernel modules. Don't actually let the recovery process make any changes though.
+7. Switch to virtual terminal 2 (I think) by pressing Alt-F2, you should get a command prompt.
+8. Run the command vgchange -a y /dev/vg00 to enable the volume groups.
+9. Run fsck against each of the volumes, in this case: /dev/vg00/lvol2,lvol3,lvol4,lvol5,lvol6. For each error that comes up perform the following:
+	
+	a) If the error is a file that is obviously a temporary / backup / or unimportant file then say 'y' to clearing the error through fsck.
+	b) If the error is a required file then say 'no' and make a note of the filename.
+	c) Any other errors related to inodes, links, fs tables etc then say 'y' let fsck fix them.
+
+10. For each logical volume that has file errors: mount the volume on /mnt (e.g. mount /dev/vg00/lvol2 /mnt)
+11. Find another server with an identical build (if possible) and scp each file noted in 9b from that server to this one. The file on this server will need to be deleted first. (To confirm the file has an issue try viewing it - you should get an Input/Output error)
+12. Umount the volume.
+13. Perform points 9, 11 until fsck passes on all volumes.
+14. Run vgchange -a n /dev/vg00 to disable volume group.
+15. Boot up the server and examine the startup messages for any other failures, missing files etc.
+16. Stop the DHCP server started in point 3.
+</pre>
+

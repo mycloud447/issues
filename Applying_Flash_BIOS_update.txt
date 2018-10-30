@@ -1,0 +1,22 @@
+---++ Doc Log 1213180140_01
+
+	$ Date: Wed Jun 11 10:29:00 2008
+	$ Summary: Applying Flash BIOS update
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+performing a Firmware Update on the BladeCenter Management Module. The correct method to use for applying a
+can be downloaded from the IBM website as follows:
+
+1/ Point web server at http://www.ibm.com/
+2/ In the search bar on that web page enter 'migr-64527' - then click search.
+
+The actual update is a shell script that has to be run (as root) on a running system.
+The shell script should be run as follows:
+
+./<scriptname> -s
+
+Once this script has run the server has to be rebooted before the BIOS upgrade process
+is complete.
+</pre>

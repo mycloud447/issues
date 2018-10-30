@@ -1,0 +1,142 @@
+---++ Doc Log 1383626778_01
+        $ Date: Tue Nov 05:: 10:16:18
+        $ Summary: iscsi
+
+---++++ Details:
+<pre>
+# iscsiadm list static-config
+
+Static Configuration Target: iqn.1992-08.com.netapp:e25kappfarm1a,10.97.73.161:3260
+
+# echo|format>/var/tmp/format_pre.orig
+
+# svcadm enable iscsi_initiator - if it's not enabled
+
+# iscsiadm list initiator-node
+
+Change the name if it is incorrect
+
+#svcadm enable iscsi_initiator
+
+#iscsiadm modify initiator-node -N iqn.1986-03.com.sun:xyz180ps
+
+#iscsiadm modify initiator-node --authentication CHAP
+
+#iscsiadm modify initiator-node --CHAP-name e25kappfarm-1a
+
+#iscsiadm modify initiator-node --CHAP-secret
+
+Enter secret: e25k.appfarm.1a
+
+Re-enter secret: e25k.appfarm.1a
+
+#iscsiadm modify discovery --static enable
+
+#iscsiadm add static-config iqn.1992-08.com.netapp:e25kappfarm1a,10.97.73.161:3260
+
+#devfsadm -v -i iscsi
+
+# echo|format>/var/tmp/format_post.orig
+
+
+Check the difference and identy the new iscsi lun which should be 40gb
+
+# sdiff -s /var/tmp/format_pre.orig /var/tmp/format_post.orig 
+
+verify there should be no hardware/software errors on the disk.
+
+#iostat -En <New iscsi lun>  
+
+Label the disk and remove any existing slice
+
+#format -d <New iscsi lun>
+
+
+#metainit d211 -p <device name ex:c4t0d0s2> -o 1 -b 83886080
+#newfs /dev/md/rdsk/d211  
+
+Please verify new F/S should be ufs file system
+
+#fstyp /dev/md/dsk/d211 
+# cp -p /etc/vfstab /etc/vfstab_<CR>_`date +%d%m%Y`
+# mkdir -p /zones/data/xyz180ab/oraproduct10g
+#chmod 755 /zones/data/xyz180ab/oraproduct10g  
+#chown oracle:dba /zones/data/xyz180ab/oraproduct10g
+
+Add the below entry into /etc/vfstab
+
+/dev/md/dsk/d211        /dev/md/rdsk/d211       /zones/data/xyz180ab/oraproduct10g       ufs     2       yes     -
+
+#zlogin xyz180ab
+#mkdir -p /opt/app/oracle
+#chmod 755 /opt/app/oracle
+#chown oracle:dba /opt/app/oracle
+
+Verify Oracle user available on xyz180ab, if not create it.
+oracle:x:150:200:616/F/*TELORA//IBMDSS, Oracle User:/ora/admin:/usr/bin/ksh
+
+lofs mount from xyz180ps to xyz180ab
+#mount -F ufs /dev/md/dsk/d211 /zones/data/xyz180ab/oraproduct10g
+#mount -F lofs /zones/data/xyz180ab/oraproduct10g  /zones/xyz180ab/root/opt/app/oracle
+
+
+
+from xyz180ab
+
+#Changing the permissions
+
+#mkdir -p /opt/app/oracle/product/10.2.0
+
+#mkdir -p /opt/app/oracle/admin
+
+#chown oracle:dba /opt/app/oracle/product/
+
+#chown oracle:dba /opt/app/oracle/product/10.2.0
+
+#chown oracle:dba /opt/app/oracle/admin
+
+#chmod 755 /opt/app/oracle/admin
+
+#chmod 755 /opt/app/oracle/product/
+
+#chmod 755 /opt/app/oracle/product/10.2.0
+
+
+From xyz180ps
+
+Updating new F/S Configur for xyz180ps
+
+xyz180ps # zonecfg -z xyz180ab
+
+zonecfg:xyz180ab> add fs
+
+zonecfg:xyz180ab:fs> set dir=/opt/app/oracle
+
+zonecfg:xyz180ab:fs> set special=/zones/data/xyz180ab/oraproduct10g
+
+zonecfg:xyz180ab:fs> set type=lofs
+
+zonecfg:xyz180ab:fs> end
+
+zonecfg:xyz180ab:fs> verify
+
+zonecfg:xyz180ab:fs> commit
+
+zonecfg:xyz180ab:fs> exit 
+
+========================================
+
+xyz180ps # zonecfg -z xyz180ab
+
+zonecfg:xyz180ab> info
+
+zonecfg:xyz180ab> remove fs dir=/opt/app/oracle
+
+zonecfg:xyz180ab> info
+
+zonecfg:xyz180ab> verify
+
+zonecfg:xyz180ab> commit
+
+zonecfg:xyz180ab> exit 
+</pre>

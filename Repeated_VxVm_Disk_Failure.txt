@@ -1,0 +1,283 @@
+---++ Doc Log 1145437280_01
+
+	$ Date: Wed Apr 19 09:01:20
+	$ Summary: Repeated VxVm Disk Failure
+
+---++++ Details:
+<pre>
+Problem:
+ 
+
+Twice, I have received the disk failure IM for tcmus001 box.  
+
+This problem is due to intermittent problems on EMC storage, 
+
+which is causing repeated disk failure status for VxVm. 
+
+This failed disk on OS side is working fine.  
+
+ 
+
+You can fix this in minutes. I would like to share the method I follow.
+
+ 
+
+Symptoms: 
+
+ 
+
+1)  First check the disk failures for VxVm using vxdisk list.
+
+ 
+
+ e.g Vxvm reports disk failure c21t2d2
+
+ 
+
+ / # vxdisk -g dg03 list
+
+DEVICE       TYPE      DISK         GROUP        STATUS
+
+c21t2d0      simple    dg0301       dg03         online
+
+c21t2d1      simple    dg0302       dg03         online
+
+c21t2d3      simple    dg0304       dg03         online
+
+c21t2d4      simple    dg0305       dg03         online
+
+c21t2d5      simple    dg0306       dg03         online
+
+         -            -         dg0303       dg03         failed was:c21t2d2
+
+ 
+
+2) Check the status on OS Side for the failed disks,
+
+ 
+
+e.g This  disk is visible to OS and the status is CLAIMED
+
+ 
+
+ /etc/vx/bin # ioscan -funH 0/12/0/0.99.39.19.0.2.2
+
+Class     I  H/W Path        Driver   S/W State   H/W Type     Description
+
+===========================================================================
+
+disk    258  0/12/0/0.99.39.19.0.2.2  sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+
+                            /dev/dsk/c21t2d2   /dev/rdsk/c21t2d2
+
+ /etc/vx/bin #
+
+ 
+
+3)   Note down the volume groups and volumes affected using vxprint .hrt and following 
+
+e.g. 
+
+ 
+
+ / # vxinfo -g dg03
+
+lvol1          gen      Started
+
+lvol15         gen      Started
+
+lvol16         gen      Started
+
+lvol17         gen      Started
+
+lvol18         gen      Started
+
+lvol19         gen      Started
+
+lvol20         gen      Started
+
+lvol21         gen      Started
+
+lvol22         gen      Started
+
+lvol23         gen      Started
+
+lvol24         gen      Started
+
+lvol14         gen      Started
+
+lvol13         gen      Unstartable
+
+lvol12         gen      Unstartable
+
+lvol2          gen      Started
+
+lvol3          gen      Started
+
+lvol4          gen      Started
+
+lvol5          gen      Started
+
+lvol6          gen      Started
+
+lvol7          gen      Started
+
+lvol8          gen      Started
+
+lvol9          gen      Unstartable
+
+lvol10         gen      Unstartable
+
+lvol11         gen      Unstartable
+
+lvol25         gen      Started
+
+ 
+
+4) Using vxdiskadm menu, choose option  .3     Remove a disk for replacement.. 
+
+    During the removal process choose .none. for replacement disk.
+
+ 
+
+Disk group: dg03
+
+ 
+
+DM NAME         DEVICE       TYPE     PRIVLEN  PUBLEN   STATE
+
+Enter disk name [<disk>,list,q,?] dg0303
+
+ 
+
+  The following volumes will lose mirrors as a result of this
+
+  operation:
+
+ 
+
+        lvol10 lvol11 lvol12 lvol13 lvol9
+
+ 
+
+  No data on these volumes will be lost.
+
+ 
+
+  The following devices are available as replacements:
+
+ 
+
+        c7t0d0 c7t0d1 c7t0d2 c7t0d3 c7t0d4 c7t0d5 c7t0d6 c7t0d7 c7t1d0 c7t1d1 c7t1d2 c7t1d3 c7t1d4 c7t1d5 c7t1d6 c7t1d7 
+
+        c7t2d0 c7t2d1 c7t2d2 c7t2d3 c7t2d4 c7t2d5 c7t2d6 c7t2d7 c7t3d0 c7t3d1 c7t3d2 c7t3d3 c7t3d4 c7t3d5 c7t3d6 c7t3d7 
+
+        c7t4d0 c7t4d1 c7t4d2 c7t4d3 c7t4d4 c7t4d5 c7t4d6 c7t4d7
+
+ 
+
+  Select "none" if you do not wish to select one.
+
+ 
+
+Choose a device, or select "none"
+
+[<device>,none,q,?] (default: c7t0d0) none
+
+ 
+
+  The requested operation is to remove disk dg0303 from disk group
+
+  dg03.  The disk name will be kept, along with any volumes using
+
+  the disk, allowing replacement of the disk.
+
+ 
+
+  Select "Replace a failed or removed disk" from the main menu
+
+  when you wish to replace the disk.
+
+ 
+
+Continue with operation? [y,n,q,?] (default: y)
+
+ 
+
+  Removal of disk dg0303 completed successfully.
+
+ 
+
+c21t2d2      simple    -            -            online
+
+ 
+
+5)  Quit vxdiskadm menu using  .q. 
+
+     Execute following command to initialize the private area of  the disk and detecting the disk again
+
+ 
+
+ /etc/vx/bin # ./vxdisksetup -f -i c21t2d2 
+
+ /etc/vx/bin # vxdctl enable
+
+ /etc/vx/bin # vxdisk scandisks
+
+ 
+
+6) Go back to vxdiskadm, select menu .4      Replace a failed or removed disk.  
+
+     Use the same disk as a replacement disk.
+
+ 
+
+e.g. Enter dg0303 as a disk to be replaced and c21t2d2 as a replacement disk.
+
+ 
+
+ 
+
+  The following devices are available as replacements:
+
+ 
+
+        c7t0d0 c7t0d1 c7t0d2 c7t0d3 c7t0d4 c7t0d5 c7t0d6 c7t0d7 c7t1d0 c7t1d1 c7t1d2 c7t1d3 c7t1d4 c7t1d5 c7t1d6 c7t1d7 c7t2d0 
+
+        c7t2d1 c7t2d2 c7t2d3 c7t2d4 c7t2d5 c7t2d6 c7t2d7 c7t3d0 c7t3d1 c7t3d2 c7t3d3 c7t3d4 c7t3d5 c7t3d6 c7t3d7 c7t4d0 c7t4d1 
+
+        c7t4d2 c7t4d3 c7t4d4 c7t4d5 c7t4d6 c7t4d7 c21t2d2
+
+ 
+
+  Select "none" if you do not wish to select one.
+
+ 
+
+Choose a device, or select "none"
+
+[<device>,none,q,?] (default: c7t0d0) c21t2d2
+
+ 
+
+7) Check disk is online and part of the right disk group using vxdisk list.
+
+ 
+
+8)  Force starts each volume using following,
+
+ 
+
+      vxvol  -g  dg03 -f  lvol9 start
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+</pre>

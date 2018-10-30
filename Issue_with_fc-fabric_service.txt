@@ -1,0 +1,16 @@
+---++ Doc Log 1383707381_01
+        $ Date: Wed Nov 06:: 08:39:41
+        $ Summary: Issue with fc-fabric service
+
+---++++ Details:
+<pre>
+We did patching on 2 hosts, after installation and reboot, one server is went to maintenance mode, when we checked svcs -xv command output we have noticed svc:/system/device/fc-fabric:default service is in maintenance state, this issue got resolved with below mentioned procedure.
+
+Reason of this issue:-
+----------------------
+In echo |format output, we have noticed few disks are in unknown state.
+
+Resolution:-
+-----------
+Take the backup copy of /etc/cfg/fp/fabric_WWN_map (Ex:- BK_`date +%d%m%Y`-fabric_WWN_map) after backup remove "fabric_WWN_map" file and reboot the node.
+</pre>

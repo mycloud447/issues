@@ -1,0 +1,294 @@
+---++ Doc Log 1383808800_01
+        $ Date: Thu Nov 07:: 12:50:00
+        $ Summary: Enabling MPXIO on Solaris 10
+
+---++++ Details:
+<pre>
+Enabling MPXIO on Solaris 10 
+
+
+
+
+The scsi_vhci driver registers with the MPxIO framework. It is the virtual host controller providing the abstraction for SCSI protocol devices. 
+
+
+
+To enable it, edit the file /kernel/drv/fp.conf file. 
+
+
+
+mpxio-disable="yes";
+
+
+
+Change yes to no and it will be enabled:
+
+
+
+
+
+sys01# cat /kernel/drv/fp.conf
+
+#
+
+# Copyright 2006 Sun Microsystems, Inc.  All rights reserved.
+
+.
+
+.<truncated>
+
+.
+
+mpxio-disable="no";
+
+disable-sata-mpxio="no";
+
+
+
+
+
+Then issue this command.
+
+
+
+sys01# stmsboot -e  
+
+
+
+Following this enabling, you are prompted to reboot. During the  reboot,  vfstab  and  the  dump configuration  will be updated to reflect the device name changes.
+
+
+
+
+
+There are three ways to check that everything is fine. 
+
+
+
+1. Look for log messages in /var/adm/messages. 
+
+
+
+As the machine comes up, you should see a message like:
+
+
+
+Dec 18 11:42:24 sys01 mpxio: [ID 669396 kern.info]
+
+/scsi_vhci/ssd@g60060e8005b237000000b3480000087c (ssd11)
+
+multipath status: optimal, path /pci@9,600000/SUNW,qlc@1/fp@0,0
+
+(fp1) to target address: 60070f9006c34826,0 is online.
+
+Load balancing: round-robin
+
+
+
+If everything's fine, you should see an optimal status. If there's a problem you should see a degraded status. 
+
+Watch out for messages like "lost all paths", we dont want to see that.
+
+
+
+
+
+2. Using mpathadm command. Just check the "Path State:", it will say if its ok or not.
+
+
+
+sys01# mpathadm show lu /dev/rdsk/c3t60060E8005B237000000B3480000087cd0s2
+
+Logical Unit:  /dev/rdsk/c3t60060E8005B237000000B3480000087cd0s2
+
+        mpath-support:  libmpscsi_vhci.so
+
+        Vendor:  HITACHI 
+
+        Product:  OPEN-V      -SUN
+
+        Revision:  6007
+
+        Name Type:  unknown type
+
+        Name:  60060e8005b237000000b3480000087c
+
+        Asymmetric:  no
+
+        Current Load Balance:  round-robin
+
+        Logical Unit Group ID:  NA
+
+        Auto Failback:  on
+
+        Auto Probing:  NA
+
+
+
+        Paths:  
+
+                Initiator Port Name:  10000000d082a05c
+
+                Target Port Name:  60070f9006c34826
+
+                Override Path:  NA
+
+                Path State:  OK
+
+                Disabled:  no
+
+
+
+                Initiator Port Name:  10000000d082a05b
+
+                Target Port Name:  50060e8005b23705
+
+                Override Path:  NA
+
+                Path State:  OK
+
+                Disabled:  no
+
+
+
+        Target Ports:
+
+                Name:  60070f9006c34826
+
+                Relative ID:  0
+
+
+
+                Name:  50060e8005b23705
+
+                Relative ID:  0
+
+
+
+
+
+3. Using luxadm command. Just check the "State:", it will say if its online or not.
+
+
+
+sys01# luxadm display /dev/rdsk/c3t60060E8005B237000000B3480000087cd0s2
+
+DEVICE PROPERTIES for disk: /dev/rdsk/c3t60060E8005B237000000B3480000087cd0s2
+
+  Vendor:               HITACHI 
+
+  Product ID:           OPEN-V      -SUN
+
+  Revision:             6007
+
+  Serial Num:           60 0C348087C
+
+  Unformatted capacity: 41679.141 MBytes
+
+  Write Cache:          Enabled
+
+  Read Cache:           Enabled
+
+    Minimum prefetch:   0x0
+
+    Maximum prefetch:   0x0
+
+  Device Type:          Disk device
+
+  Path(s):
+
+
+
+  /dev/rdsk/c3t60060E8005B237000000B3480000087cd0s2
+
+  /devices/scsi_vhci/ssd@g60060e8005b237000000b3480000087c:c,raw
+
+   Controller           /devices/pci@0/pci@0/pci@8/SUNW,emlxs@0,1/fp@0,0
+
+    Device Address              60070f9006c34826,1
+
+    Host controller port WWN    10000000d082a05c
+
+    Class                       primary
+
+    State                       ONLINE
+
+   Controller           /devices/pci@0/pci@0/pci@8/SUNW,emlxs@0/fp@0,0
+
+    Device Address              50060e8005b23705,1
+
+    Host controller port WWN    10000000d082a05b
+
+    Class                       primary
+
+    State                       ONLINE
+
+
+
+
+
+Solaris 10 8/11 MPXIO Storage Multipath 
+
+June 7, 2012
+
+It’s a bit confusing when we setup MPXIO storage multipath using old method in Solaris 10 8/11 , and I found panic message and auto rebooted server. Server is only going fine while FC cable was unplugged, it means multipath is failed.
+
+Below I post nice step using new method (it’s too late for me). I hope it can help when we need, especially at critical moment.
+
+Firstly, create backup file
+
+sh> cp /kernel/drv/mpt.conf /kernel/drv/mpt.conf.ori
+
+sh> cp /kernel/drv/fp.conf /kernel/drv/fp.conf.ori
+
+sh> cp /kernel/drv/scsi_vhci.conf /kernel/drv/scsi_vhci.conf.ori
+
+
+
+In next step, we must disable internal drive multipath
+
+sh> stmsboot -D mpt -d
+
+
+
+We need to check the result,
+
+sh> stmsboot -L
+
+sh> mpathadm list lu
+
+
+
+We also have to make sure connected HBA, 
+
+sh> luxadm -e port
+
+/devices/pci@0,60/pci@8/SUNW,qlc@0/fp@0,0:devctl         CONNECTED
+
+/devices/pci@1,70/pci@0/SUNW,qlc@0/fp@0,0:devctl         CONNECTED
+
+
+
+For example below I use HDS storage. We insert additional line into “/kernel/drv/fp.conf” file,
+
+name="fp" parent="/pci@0,60/pci@8/SUNW,qlc@0" port=0 mpxio-disable="no";
+
+name="fp" parent="/pci@1,70/pci@0/SUNW,qlc@0" port=0 mpxio-disable="no";
+
+
+
+Meanwhile, we also have to edit some information line at “/kernel/drv/scsi_vhci.conf” file,
+
+device-type-scsi-options-list="HITACHI DF600F",
+
+"symmetric-option";
+
+symmetric-option = 0x1000000;
+
+
+
+Spare 5 minutes or more to review it by your self or ask your friend to do it. After all complete and confirmed, we move to next command to execute the magic command,
+
+sh> stmsboot -e
+
+</pre>

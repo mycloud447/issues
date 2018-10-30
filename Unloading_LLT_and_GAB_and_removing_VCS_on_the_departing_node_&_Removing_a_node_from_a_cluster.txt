@@ -1,0 +1,87 @@
+---++ Doc Log 1384411870_01
+        $ Date: Nov 14 12:21:10 2013
+        $ Summary: Unloading LLT and GAB and removing VCS on the departing node & Removing a node from a cluster
+
+---++++ Details:
+<pre>
+Unloading LLT and GAB and removing VCS on the departing node
+
+Perform the tasks on the node that is departing the cluster.
+
+If you have configured VCS as part of the Storage Foundation and High Availability products, you may have to delete other dependent packages before you can delete all of the following ones.
+
+To unconfigure and unload LLT and GAB and remove VCS
+
+    If you had configured I/O fencing in enabled mode, then stop I/O fencing.
+
+    On Solaris 9:
+
+    # /etc/init.d/vxfen stop
+
+    On Solaris 10:
+
+    # /lib/svc/method/vxfen stop
+
+
+    Unconfigure GAB and LLT:
+
+    # /sbin/gabconfig -U
+    # /sbin/lltconfig -U
+
+    Unload the GAB and LLT modules from the kernel.
+
+        Determine the kernel module IDs:
+
+          # modinfo | grep gab
+          # modinfo | grep llt
+
+        The module IDs are in the left-hand column of the output.
+        Unload the module from the kernel:
+
+          # modunload -i gab_id
+          # modunload -i llt_id
+
+    Disable the startup files to prevent LLT, GAB, or VCS from starting up:
+
+
+        Solaris 9:
+
+        # /etc/init.d/llt stop
+        # /etc/init.d/gab stop
+        # /etc/init.d/vxfen stop
+        # /opt/VRTSvcs/bin/hastop
+
+        Solaris 10:
+
+        # /usr/sbin/svcadm disable llt
+        # /usr/sbin/svcadm disable gab
+        # /usr/sbin/svcadm disable vcs
+
+    To determine the packages to remove, enter:
+
+
+    # pkginfo | grep VRTS
+
+    To permanently remove the VCS packages from the system, use the pkgrm command. Start by removing the following packages, which may have been optionally installed, in the order shown:
+
+
+    # pkgrm VRTSvcsea
+    # pkgrm VRTSat
+    # pkgrm VRTScutil
+    # pkgrm VRTSvcsag
+    # pkgrm VRTScps
+    # pkgrm VRTSvcs
+    # pkgrm VRTSvxfen
+    # pkgrm VRTSgab
+    # pkgrm VRTSllt
+    # pkgrm VRTSspt
+    # pkgrm VRTSperl
+    # pkgrm VRTSvlic
+
+    Remove the LLT and GAB configuration files.
+
+    # rm /etc/llttab
+    # rm /etc/gabtab
+    # rm /etc/llthosts
+    Remove the language packages and patches.
+</pre>

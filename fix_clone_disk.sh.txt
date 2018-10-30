@@ -1,0 +1,117 @@
+---++ Doc Log 1427172585_01
+        $ Date: Mar 24 10:19:45 2015
+        $ Summary: fix_clone_disk.sh
+
+---++++ Details:
+<pre>
+#!/bin/sh
+#
+#
+#       Written by Gunter Rogenmoser, IBM, Feb. 2013
+#
+echo ""
+echo "Resolve disk udid mismatch and clear clone flag on disks for SF5.1 and higher"
+echo "-----------------------------------------------------------------------------"
+echo ""
+#
+case "$1" in
+'-g')
+        if [ -z "$2" ]
+        then
+                echo "Error:    empty Diskgroup name supplied"
+                exit 1
+        fi
+#
+        vxdg list $2 >/dev/null 2>&1
+        if [ $? -eq 0 ]
+        then
+                echo "Error:    Diskgroup $2 is imported, deport DG first"
+                exit 1
+        fi
+#
+        if [ "$2" != "nodg" ] && [ "$2" != "ALLDISKS" ]
+        then
+                Flag=`vxdisk -o alldgs list |nawk 'BEGIN {y=1} {if($4==dg || (substr($4,2,length($4)-2))==dg) y=0} END {print y}' dg=$2`
+                if [ $Flag -ne 0 ]
+                then
+                        echo "Error:    Diskgroup $2 does not exist !"
+                        exit 1
+                fi
+        fi
+#
+        if [ "$2" = "ALLDISKS" ]
+        then
+                if [ `vxdisk list |wc -l` -gt 1 ]
+                then
+                        echo "Error:    Some Diskgroups are imported, deport first:"
+                        echo ""
+                        vxdg list
+                        exit 1
+                fi
+        fi
+#
+### Process
+#
+        echo "Create list of disks and their status [/tmp/disks2.txt] ..."
+        echo ""
+#
+        vxdisk -q list | cut -f1 -d' ' | xargs -i vxdisk -v list {} | egrep '^Device|^disk:|^group:|^udid:|udid_asl' | sed 's/^udid: *//' | sed 's/.*udid_asl=//' | uniq -c > /tmp/disks.txt
+#
+        cat /tmp/disks.txt |awk '{if($2~/Device:/) printf("\n%s %s",$2,$3); if($2~/disk:/) printf("\t%s %s",$2,$3); if($2~/group:/) printf("\t%s %s",$2,$3); if($2~/^EMC/) printf("\tudid: %s %s",$1,$2)} END {print}' > /tmp/disks1.txt
+#
+#        cat /tmp/disks1.txt |nawk '/^Device/ {printf("\n%s",$2); if($3=="disk:") printf("\tonline"); else {printf("\tinvalid"); break} if(index($0,"udid:")==0) printf("\t--"); else if(substr($0,index($0,"udid:")+6,1)==1) printf("\tClone"); else printf("\tOK"); if($5=="group:") printf("\t%s",substr($6,6))} END {print ""}' > /tmp/disks2.txt
+		cat /tmp/disks1.txt |nawk '/^Device/ {printf("\n%s",$2); if($3=="disk:") printf("\tonline"); else {printf("\tinvalid"); break} if(index($0,"udid:")==0) printf("\t--"); else if(substr($0,index($0,"udid:")+6,1)==1 || substr($0,index($0,"udid:")+6,1)==2) printf("\tClone"); else printf("\tOK"); if($7=="udid:") printf("\t%s",substr($7$8,0)); if($5=="group:") printf("\t%s",substr($6,6))} END {print ""}'  > /tmp/disks2.txt
+#
+
+        if [ "$2" = "nodg" ]
+        then
+                echo "Processing all initialized disks not part of a Diskgroup ..."
+                cat /tmp/disks2.txt |awk '$3~/^Clone/ {if(NF==3) print}' > /tmp/disks3.txt
+        fi
+#
+        if [ "$2" = "ALLDISKS" ]
+        then
+                echo "Processing all Clone disks ..."
+                cat /tmp/disks2.txt |awk '$3~/^Clone/ {print}' > /tmp/disks3.txt
+        fi
+#
+#
+        if [ "$2" != "nodg" ] && [ "$2" != "ALLDISKS" ]
+        then
+                echo "Processing all disks in Diskgroup: $2 ..."
+                cat /tmp/disks2.txt |nawk '$3~/^Clone/ {if($5==dg) print}' dg=$2 > /tmp/disks3.txt
+        fi
+#
+        if [ -s "/tmp/disks3.txt" ]
+        then
+                continue
+        else
+                echo "No disks to process !"
+                exit 1
+        fi
+#
+        echo "Create command file /tmp/fixclone.sh ..."
+        cat /tmp/disks3.txt |awk 'BEGIN {print "#!/bin/sh"} $3~/^Clone/ {printf("vxdisk updateudid %s\n",$1); printf("vxdisk set %s clone=off\n",$1)}' > /tmp/fixclone.sh
+#
+        echo "Display command file /tmp/fixclone.sh ..."
+        echo ""
+        cat /tmp/fixclone.sh
+#
+        echo ""
+        echo "Execute command file /tmp/fixclone.sh ..."
+        sh /tmp/fixclone.sh
+#
+        echo " "
+        echo "End fix clone flags for EMC disks"
+        ;;
+
+*)
+        echo "Usage: $0 -g <Diskgroup>"
+        echo "-g <Diskgroup>    Clear """clone""" flag for all disks part of a selected Diskgroup"
+        echo "-g nodg           Clear """clone""" flag for all initialized disks not part of any Diskgroup"
+        echo ""
+        exit 1
+        ;;
+esac
+
+</pre>

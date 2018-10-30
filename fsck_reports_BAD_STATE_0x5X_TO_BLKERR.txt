@@ -1,0 +1,183 @@
+---++ Doc Log 1384746426_01
+        $ Date: Nov 18 09:17:06 2013
+        $ Summary:fsck reports BAD STATE 0x5X TO BLKERR 
+
+---++++ Details:
+<pre>
+* Solution 207453 : Solaris[TM] 10: fsck reports "BAD STATE 0x5X TO 
+BLKERR" and terminates *** 
+
+If a filesystem contains duplicate blocks, and one of the blocks is claimed by an inode with a link count of zero, the fatal error "BAD STATE 0x5X TO BLKERR" can appear, and the fsck will terminate without doing further repairs. 
+
+This is discussed in greater detail in Bug IDs: 6475797 & 6560171 
+
+Try the following workarounds in order: 
+
+1. Try other superblocks 
+
+e.g: 
+
+# newfs -Nv /dev/vx/rdsk/bootdg/rootvol 
+
+mkfs -F ufs -o N /dev/vx/rdsk/bootdg/rootvol 37773312 424 -1 8192 1024 203 1 167 8192 t 0 -1 8 16 n 
+
+/dev/vx/rdsk/bootdg/rootvol: 37773312 sectors in 6148 cylinders of 48 tracks, 128 sectors 
+
+18444.0MB in 385 cyl groups (16 c/g, 48.00MB/g, 5824 i/g) 
+
+super-block backups (for fsck -F ufs -o b=#) at: 
+
+32, 98464, 196896, 295328, 393760, 492192, 590624, 689056, 787488, 885920, 
+
+Initializing cylinder groups: 
+
+....... 
+
+super-block backups for last 10 cylinder groups at: 
+
+36871072, 36969504, 37067936, 37166368, 37264800, 37363232, 37461664, 
+
+37560096, 37658528, 37748768 
+
+# fsck -F ufs -o b=# /dev/vx/rdsk/bootdg/rootvol 
+
+2. Try the other root disk 
+
+# init 0 
+
+ok boot rootmirror (or appropriate alias) 
+
+3. The workaround from Bug 6475797 uses ncheck(1m) & clri(1m) to find and clear the bad duplicate inode. 
+
+# fsck -F ufs -y /dev/vx/dsk/bootdg/rootvol 
+
+** /dev/vx/rdsk/bootdg/rootvol 
+
+** Last Mounted on / 
+
+** Phase 1 - Check Blocks and Sizes 
+
+FRAGMENT 8855 DUP I=373 LFN 0 
+
+** Phase 1b - Rescan For More DUPS 
+
+FRAGMENT 8855 DUP I=31 LFN 0 
+
+BAD STATE 0x54 TO BLKERR 
+
+
+Run: 
+
+
+# ncheck -i 373,31 /dev/vx/dsk/bootdg/rootvol 
+
+373 = /opt/ctmagent.profile (only 373 showed up) 
+
+inode 373 is the master inode so we need to delete 31 (the bad duplicate) 
+
+
+# clri /dev/vx/dsk/bootdg/rootvol 31 
+
+4. ncheck may sometimes fail with: 
+
+ncheck: hsize of %d is too small 
+e.g: 
+ncheck: hsize of 5 is too small 
+
+As ncheck simply generates a list of path names versus i-numbers an alternative method is to use find(1m) to do the same job. 
+
+# fsck -F ufs /dev/vx/rdsk/bootdg/rootvol 
+
+** /dev/vx/rdsk/bootdg/rootvol 
+
+** Last Mounted on 
+
+** Phase 1 - Check Blocks and Sizes 
+
+FRAGMENT 2003115 DUP I=233215 LFN 0 
+
+FRAGMENT 2003113 DUP I=233394 LFN 0 
+
+FRAGMENT 2003111 DUP I=233445 LFN 0 
+
+** Phase 1b - Rescan For More DUPS 
+
+FRAGMENT 2003115 DUP I=233138 LFN 0 
+
+FRAGMENT 2003111 DUP I=233212 LFN 0 
+
+BAD STATE 0x54 TO BLKERR 
+
+
+
+# ncheck -i 233215,233138 /dev/vx/rdsk/bootdg/rootvol 
+
+ncheck: hsize of 5 is too small 
+
+# ncheck -i 233445,233212 /dev/vx/rdsk/bootdg/rootvol 
+
+ncheck: hsize of 5 is too small 
+
+
+
+Use find to isolate the duplicate/bad inodes: 
+
+
+
+e,g: 
+
+
+
+# find / -inum 233215 -mount 
+
+# find / -inum 233394 -mount 
+
+/dev/rdsk/c9t50060E80042BF662d119s3 
+
+# find / -inum 233445 -mount 
+
+/root/.ssh/authorized_keys 
+
+# find / -inum 233138 -mount 
+
+/dev/rmt/0u 
+
+# find / -inum 233212 ?mount 
+
+# cat /root/.ssh/authorized_keys 
+
+The bad inodes are the ones which don't return anything, i.e. point nowhere. These are the ones we need to clear using clri(1m) 
+
+# clri /dev/vx/rdsk/bootdg/rootvol 233215 
+
+clearing 233215 
+
+# clri /dev/vx/rdsk/bootdg/rootvol 233212 
+
+clearing 233212 
+
+
+Now fsck should run through: 
+
+# fsck -F ufs -of /dev/vx/rdsk/bootdg/rootvol 
+
+** /dev/vx/rdsk/bootdg/rootvol 
+
+** Last Mounted on 
+
+** Phase 1 - Check Blocks and Sizes 
+
+** Phase 2 - Check Pathnames 
+
+** Phase 3a - Check Connectivity 
+
+** Phase 3b - Verify Shadows/ACLs 
+
+** Phase 4 - Check Reference Counts 
+
+** Phase 5 - Check Cylinder Groups 
+
+190948 files, 7718142 used, 2614078 free (97102 frags, 314622 blocks, 0.9% fragmentation)
+
+
+</pre>

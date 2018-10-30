@@ -1,0 +1,131 @@
+---++ Doc Log 1132136791_01
+<pre>
+
+	$ Date: Wed Nov 16 10:26:31 2005
+	$ Summary: Power path storage problems
+</pre>
+---++++ Details:
+<pre>
+
+Server is having storage problems after this event;
+--------------
+
+The host was all screwed up with the new luns.
+As powerpath was screwed up as well (showing degraded overall with dead 
+devices), showing things like below, then I cleaned up those first;
+
+Pseudo name=emcpower227a
+CLARiiON ID=CK200042200169
+Logical device ID=60060160973811001382B746A325D911 [LUN 531]
+state=alive; policy=CLAROpt; priority=0; queued-IOs=0
+Owner: default=SP A, current=SP A
+==============================================================================
+---------------- Host ---------------   - Stor -   -- I/O Path -  -- Stats ---
+### HW Path                 I/O Paths    Interf.   Mode    State  Q-IOs Errors
+==============================================================================
+1280 pci@13c/fibre-channel@1   c8t17d243s0 SP B0     active  dead       0      1
+1280 pci@13c/fibre-channel@1   c8t18d243s0 SP A2     active  dead       0      1
+1281 pci@13c/fibre-channel@1   c9t17d243s0 SP A0     active  dead       0      1
+1281 pci@13c/fibre-channel@1   c9t18d243s0 SP B2     active  dead       0      1
+
+CLARiiON ID=CK200042200169 [OPSCO -  Rman Etc]
+Logical device ID=600601609738110038771C9D912EDA11 [LUN 254 - Silver CLP ]
+state=alive; policy=CLAROpt; priority=0; queued-IOs=0
+Owner: default=SP A, current=SP B
+==============================================================================
+---------------- Host ---------------   - Stor -   -- I/O Path -  -- Stats ---
+### HW Path                 I/O Paths    Interf.   Mode    State  Q-IOs Errors
+==============================================================================
+1280 pci@13c/fibre-channel@1   c8t17d171s0 SP B0     active  dead       0      1
+1280 pci@13c/fibre-channel@1   c8t17d250s0 SP B0     active  alive      0      0
+1280 pci@13c/fibre-channel@1   c8t18d171s0 SP A2     active  dead       0      1
+1280 pci@13c/fibre-channel@1   c8t18d250s0 SP A2     active  alive      0      0
+1281 pci@13c/fibre-channel@1   c9t17d171s0 SP A0     active  dead       0      1
+1281 pci@13c/fibre-channel@1   c9t17d250s0 SP A0     active  alive      0      0
+1281 pci@13c/fibre-channel@1   c9t18d171s0 SP B2     active  dead       0      1
+1281 pci@13c/fibre-channel@1   c9t18d250s0 SP B2     active  alive      0      0
+
+First DBA stop the databases using diskgroups and deported the diskgroups.
+
+Ran powermt check and removed the dead devices.  Had problems with d170 and d171
+as it said they were still being used - so I had to remove these from Veritas
+control first (vxdisk offline c8t17d170s2), then I could clear them out of 
+powerpath.
+
+So at this stage, (don't have a history that long) powerpath is showing optimal
+but not with all paths.  Run devfsadm (note, this server has every possible LUN
+id configured in sd.conf, so no need to reboot with SAN changes) and checked 
+that all new LUNs are there and that I could do a format-analyse-read against 
+them (just a quick test and then ctrl-c).
+
+Then ran powermt config to get in all the new LUNs and powermt display is now;
+
+# powermt display
+Symmetrix logical device count=0
+CLARiiON logical device count=286
+==============================================================================
+----- Host Bus Adapters ---------  ------ I/O Paths -----  ------ Stats ------
+### HW Path                        Summary   Total   Dead  IO/Sec Q-IOs Errors
+==============================================================================
+1280 pci@13c/fibre-channel@1        optimal     572      0       -     0   1496
+1281 pci@13c/fibre-channel@1        optimal     572      0       -     0   1496
+
+Yippee.  That's two down and one to go...only Veritas now.
+
+A vxdctl enable (takes about 4-5 minutes on this box) got in all the new LUNs, 
+but due to the whole mix-up and the fact that I think they weren't quite removed
+cleanly from the system, the only problem left is that d170 and d171 in Vx are
+showing 8 paths instead of 4 as they have seemingly merged with D249 and d250;
+
+# vxdmpadm getsubpaths dmpnodename=c8t17d170s2    
+NAME         STATE      PATH-TYPE[M] CTLR-NAME  ENCLR-TYPE   ENCLR-NAME    ATTRS
+================================================================================
+c8t17d170s2  ENABLED      -          c8         Disk         Disk             -
+c9t18d170s2  ENABLED      -          c9         Disk         Disk             -
+c9t17d170s2  ENABLED      -          c9         Disk         Disk             -
+c8t18d170s2  ENABLED      -          c8         Disk         Disk             -
+c9t18d249s2  DISABLED     -          c9         Disk         Disk             -
+c9t17d249s2  DISABLED     -          c9         Disk         Disk             -
+c8t18d249s2  DISABLED     -          c8         Disk         Disk             -
+c8t17d249s2  DISABLED     -          c8         Disk         Disk             -
+# vxdmpadm getsubpaths dmpnodename=c8t17d171s2
+NAME         STATE      PATH-TYPE[M] CTLR-NAME  ENCLR-TYPE   ENCLR-NAME    ATTRS
+================================================================================
+c8t17d171s2  ENABLED      -          c8         Disk         Disk             -
+c9t18d171s2  ENABLED      -          c9         Disk         Disk             -
+c9t17d171s2  ENABLED      -          c9         Disk         Disk             -
+c8t18d171s2  ENABLED      -          c8         Disk         Disk             -
+c9t18d250s2  ENABLED      -          c9         Disk         Disk             -
+c9t17d250s2  ENABLED      -          c9         Disk         Disk             -
+c8t18d250s2  ENABLED      -          c8         Disk         Disk             -
+c8t17d250s2  ENABLED      -          c8         Disk         Disk             -
+
+Opened a ticket with Veritas Support - 
+
+With Jean's assistance (Veritas Support), proved that DMP should be seeing them 
+separately as they have different serial numbers;
+
+# /etc/vx/diag.d/vxdmpinq /dev/rdsk/c8t17d170s2
+
+Inquiry for /dev/rdsk/c8t17d170s2, evpd 0x0, page code 0x0, flags 0x4
+        Vendor id                        : DGC     
+        Product id                       : RAID 5          
+        Revision                         : 0216
+        Serial Number                    : 2E0000F2C6CL
+ # /etc/vx/diag.d/vxdmpinq /dev/rdsk/c8t17d249s2
+
+Inquiry for /dev/rdsk/c8t17d249s2, evpd 0x0, page code 0x0, flags 0x4
+        Vendor id                        : DGC     
+        Product id                       : RAID 5          
+        Revision                         : 0216
+        Serial Number                    : FF00003AEACL
+
+However, even after restarting vxconfigd (don't do this on a cluster as it can 
+cause it to fail) using "vxconfigd -k" -- which took a mighty long time -- and
+rerunning "vxdctl enable" to scan, then the disks are still showing 8 paths.
+
+Running /etc/vx/diag.d/vxasldebug and the VRTSexplorer (separately) and sending
+output to Jean.  Initially we are looking for a way to recover without rebooting, 
+but don't really believe that this will be possible.  Jean is suggesting a 
+reconfigure reboot.
+</pre>

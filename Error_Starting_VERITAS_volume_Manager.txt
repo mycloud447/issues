@@ -1,0 +1,27 @@
+---++ Doc Log 1162203944_01
+	$ Date: Mon Oct 30 10:25:44 2006
+	$ Summary: 090 - Error Starting VERITAS volume Manager
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+090 - ERROR STARTING VERITAS VOLUME MANAGER
+
+IM raised for Tobias Brecker090 - ERROR STARTING VERITAS VOLUME MANAGER
+
+IM raised for Tobias Brecker
+
+==================
+
+we have been having issues starting the OPSCO data volumes using  Veritas volume manager, they would not start and as a result, the backups would not start. 
+We ran a vxconfigd -k this was hanging. we killed vxconffigd using vxdctl disable then enable. All volumes seem to be enabled active at the moment.
+
+all volumes are now running 
+
+
+# vxprint -Ath | egrep -i "(fail|nodev)"
+# date
+Mon Oct 30 10:30:48 GMT 2006
+#
+
+</pre>

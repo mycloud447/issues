@@ -1,0 +1,80 @@
+---++ Doc Log 1143203931_01
+	$ Date: Fri Mar 24 12:38:51 2006
+	$ Summary: rootdisk mirrored in sds
+
+---++++ Details:
+<pre>
+went to mirror the rootdisk using SDS and found that the installation
+of the SUNWmd package wasn't any good...devices were not there etc. 
+(probably due to me...I believe that I copied over the whole /dev
+tree so that we could run the box on the netra).
+
+so, removed them and reinstalled SUNWmd from the Solaris 2.6 CD that
+we have in the cupboard ("Solaris Server Intranet Extensions 1.0" CD).
+(did abortively try to install DiskSuite 4.2.1 off the jumpstart 
+server, but apparently this version is not supported for either 2.6 
+or 7) 
+
+then had to reboot to let it create devices, etc.
+
+then could finally start setting up the rootdisk for mirroring;
+
+metadb -a -c 3 -f c0t1d0s7
+metadb -a -c 3 c0t0d0s7
+metainit -f d10 1 1 c0t1d0s0
+metainit d0 -m d10
+metaroot d0
+metainit -f d11 1 1 c0t1d0s1
+metainit -f d14 1 1 c0t1d0s4
+metainit -f d15 1 1 c0t1d0s5
+metainit -f d16 1 1 c0t1d0s6
+metainit -f d20 1 1 c0t0d0s0
+metainit -f d21 1 1 c0t0d0s1
+metainit -f d24 1 1 c0t0d0s4
+metainit -f d25 1 1 c0t0d0s5
+metainit -f d26 1 1 c0t0d0s6
+metainit d1 -m d11
+metainit d4 -m d14
+metainit d5 -m d15
+metainit d6 -m d16
+cp vfstab vfstab.nosds
+vi vfstab
+
+and change entries to the sds ones..
+
+/dev/md/dsk/d1  -		 -		 swap	 -		 no		-
+/dev/md/dsk/d0  /dev/md/rdsk/d0 /		 ufs	  1		 no		-
+/dev/md/dsk/d4  /dev/md/rdsk/d4 /Quasar			ufs	  2		 yes	  -
+#/dev/md/dsk/d5 /dev/md/rdsk/d5 /SunAccounts	 ufs	  3		 yes	  -
+/dev/md/dsk/d6  /dev/md/rdsk/d6 /REPOSITORY1	 ufs	  4		 yes	  -
+
+then reboot (init 6) and let it mount sds volumes.  then you can attach
+the mirrors;
+
+metattach d0 d20
+metattach d1 d21
+metattach d4 d24
+metattach d5 d25
+metattach d6 d26
+
+and watch until it's all finished;
+# metastat |grep progress
+	 Resync in progress: 3 % done
+	 Resync in progress: 85 % done
+	 Resync in progress: 16 % done
+	 Resync in progress: 68 % done
+	 Resync in progress: 21 % done
+# 
+
+and also need to make the root mirror bootable
+
+# installboot /usr/platform/`uname -i`/lib/fs/ufs/bootblk /dev/rdsk/c0t0d0s0		
+
+and the OBP settings were also updated;
+# eeprom nvramrc='devalias rootdisk /pci@1f,0/pci@1,1/scsi@2/sd@1,0:a
+> devalias rootmirror /pci@1f,0/pci@1,1/scsi@2/sd@0,0:a'
+root@lonuxsa001 # eeprom boot-device="disk1 disk0 rootdisk rootmirror"
+
+
+</pre>
+

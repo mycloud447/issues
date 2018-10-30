@@ -1,0 +1,46 @@
+---++ Doc Log 1239201934_01
+
+	$ Date: Wed Apr 08 14:45:34 2009
+	$ Summary: problem remirroring disk private region set incorrectly by vxdisksetup
+	$ On-Call: UNSPECIFIED
+
+---++++ Details:
+<pre>
+The disk which was being remirrored after performing vxdisksetup looked the incorrect size
+On investigation :
+# vxdisk list rootmirror
+Device:    c1t0d0s2
+devicetag: c1t0d0
+type:      sliced
+hostid:    nsubu130
+disk:      name=rootmirror id=1239197403.2157.nsubu130
+group:     name=rootdg id=1076352552.1025.nsubd134
+info:      privoffset=1
+
+The privoffset had been set to 1 setting the sector to 0
+
+Before Split
+dg rootdg       default      default  0        1076352552.1025.nsubd134
+
+dm rootdisk     c0t0d0s2     sliced   2888     71124291 -
+dm rootdisk01   c0t1d0s2     sliced   2632     71121402 -
+dm rootmirror   c1t0d0s2     sliced   2888     71124291 -
+dm rootmirr01   c1t1d0s2     sliced   2632     71121402 -
+
+after vxdisksetup
+dg rootdg       rootdg       -        -        -        -        -       -
+
+dm rootdisk     c0t0d0s2     -        71124291 -        -        -       -
+dm rootdisk01   c0t1d0s2     -        71121402 -        -        -       -
+dm rootmirror   c1t0d0s2     -        71121402 -        -        -       -
+dm rootmirr01   c1t1d0s2     -        71121402 -        -        -       -
+
+
+Performed vxdiskunsetup -C c1t0d0
+
+Then performed 
+vxdisksetup -i c1t0d0 privoffset=0
+
+
+This resolved the issue
+</pre>

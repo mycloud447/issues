@@ -1,0 +1,78 @@
+---++ Doc Log 1141302769_01
+	$ Date: Thu Mar 02 12:32:49 2006
+	$ Summary: symm disk causing kern.warning
+
+---++++ Details:
+<pre>
+one single disk that has no label.
+
+c5t0d0: configured with capacity of 6.56MB
+
+AVAILABLE DISK SELECTIONS:
+       0. c0t0d0 <SUN146G cyl 14087 alt 2 hd 24 sec 848>
+          /pci@8,700000/pci@3/SUNW,qlc@4/fp@0,0/ssd@w500000e0111a96d2,0
+       1. c0t1d0 <SUN146G cyl 14087 alt 2 hd 24 sec 848>
+          /pci@8,700000/pci@3/SUNW,qlc@4/fp@0,0/ssd@w500000e0111b0aa2,0
+       2. c2t0d0 <SUN146G cyl 14087 alt 2 hd 24 sec 848>
+          /pci@9,600000/SUNW,qlc@2/fp@0,0/ssd@w500000e0111a96d1,0
+       3. c2t1d0 <SUN146G cyl 14087 alt 2 hd 24 sec 848>
+          /pci@9,600000/SUNW,qlc@2/fp@0,0/ssd@w500000e0111b0aa1,0
+       4. c4t17d78 <EMC-SYMMETRIX-5568 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@8,600000/lpfc@1/sd@11,4e
+       5. c4t17d79 <EMC-SYMMETRIX-5568 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@8,600000/lpfc@1/sd@11,4f
+       6. c4t17d80 <EMC-SYMMETRIX-5568 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@8,600000/lpfc@1/sd@11,50
+       7. c4t17d81 <EMC-SYMMETRIX-5568 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@8,600000/lpfc@1/sd@11,51
+       8. c5t0d0 <EMC-SYMMETRIX-5568 cyl 14 alt 2 hd 15 sec 64>
+          /pci@8,600000/lpfc@1,1/sd@0,0
+Specify disk (enter its number):
+
+this is one of the gatekeeper luns, but have got no idea why it is there and 
+why there is no multipathing to the symm storage.  
+
+server configuration has only one connection to SAN (/kernel/drv/lpfc.conf);
+fcp-bind-WWPN="500604843e0c570c:lpfc0t17";
+
+using the lputil utility (/usr/sbin/lpfc/lputil) examined the automapped 
+targets and found that there was one down lpfc1, so got it to bind to that
+and then went and changed the target number in the lpfc.conf (lputil likes
+to default to 0, which we don't use, so we don't see the gatekeepers).  Kept 
+a copy of the previous lpfc.conf as well.  Touched /reconfigure and asking 
+ops about when I can reboot it.
+
+Just rebooted it now - got the other disks and everything okay with respect
+to the oracle disks;
+
+# vxdisk list c4t17d78s2
+Device:    c4t17d78s2
+devicetag: c4t17d78
+type:      auto
+hostid:    csl233
+disk:      name= id=1125925490.10.csl233
+group:     name=oracle id=1125925687.22.abc233
+info:      format=cdsdisk,privoffset=256,pubslice=2,privslice=2
+flags:     online ready private autoconfig noautoimport
+pubpaths:  block=/dev/vx/dmp/c4t17d78s2 char=/dev/vx/rdmp/c4t17d78s2
+version:   3.1
+iosize:    min=512 (bytes) max=256 (blocks)
+public:    slice=2 offset=2304 len=70703616 disk_offset=0
+private:   slice=2 offset=256 len=2048 disk_offset=0
+update:    time=1140861772 seqno=0.91
+ssb:       actual_seqno=0.0
+headers:   0 240
+configs:   count=1 len=1280
+logs:      count=1 len=192
+Defined regions:
+ config   priv 000048-000239[000192]: copy=01 offset=000000 enabled
+ config   priv 000256-001343[001088]: copy=01 offset=000192 enabled
+ log      priv 001344-001535[000192]: copy=01 offset=000000 enabled
+ lockrgn  priv 001536-001679[000144]: part=00 offset=000000
+Multipathing information:
+numpaths:   2
+c4t17d78s2      state=enabled
+c5t17d78s2      state=enabled
+# 
+
+</pre>

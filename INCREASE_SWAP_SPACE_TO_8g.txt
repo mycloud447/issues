@@ -1,0 +1,28 @@
+---++ Doc Log 1170753820_01
+
+	$ Date: Tue Feb 06 09:23:40 2007
+	$ Summary: - INCREASE SWAP SPACE TO 8g
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+Swap should have 8g of space and has 2 volumes assigned to it in the fstab but when i looked there was only one. I therefore added the missing one /dev/vg00/lvol7  to Swap and it now has 8g of space.  Using mkswap and swapon.
+
+/dev/vg00/lvol1      swap                 swap       pri=42                0 0  
+/dev/vg00/lvol7      swap                 swap       pri=42                0 0  
+
+# mkswap /dev/vg00/lvol7 4096000
+
+# swapon /dev/vg00/lvol7
+
+/proc$ more swaps 
+Filename                                Type            Size    Used    Priority 
+/dev/mapper/vg00-lvol1                  partition       4194296 4029316 42 
+/dev/mapper/vg00-lvol7                  partition       4095992 298452  -2
+
+#/proc$ free -m 
+             total       used       free     shared    buffers     cached 
+Mem:          7972       6024       1948          0         20       3295 
+-/+ buffers/cache:       2708       5264 
+Swap:         8095       4226       3869 
+</pre>

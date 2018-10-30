@@ -1,0 +1,94 @@
+---++ Doc Log 1385895252_01
+        $ Date: Dec 01 16:24:12 2013
+        $ Summary: Add new DG & FS to Cluster Configuration  and made those FS as NFS mount to other node
+
+---++++ Details:
+<pre>
+Create a mount resource and modify its attributes
+==================================================
+
+# /opt/VRTSvcs/bin/hares -add data43-mnt Mount dcsmaster-sg
+# /opt/VRTSvcs/bin/hares -modify data43-mnt MountPoint "/apps/dcs/data43"
+# /opt/VRTSvcs/bin/hares -modify data43-mnt BlockDevice "/dev/vx/dsk/data03_dg/data43_vol"
+# /opt/VRTSvcs/bin/hares -modify data43-mnt FSType vxfs
+# /opt/VRTSvcs/bin/hares -modify data43-mnt FsckOpt "%-y"
+# /opt/VRTSvcs/bin/hares -modify data43-mnt ReuseMntPt 1
+# /opt/VRTSvcs/bin/hares -modify data43-mnt Enabled 1
+# /opt/VRTSvcs/bin/hares -modify data43-mnt Critical 0
+# /opt/VRTSvcs/bin/hares -state data43-mnt
+
+Create a NFS share resource and modify its attributes
+=====================================================
+# /opt/VRTSvcs/bin/hares -add data43-share Share dcsmaster-sg
+# /opt/VRTSvcs/bin/hares -modify data43-share Critical 0
+# /opt/VRTSvcs/bin/hares -modify data43-share PathName "/apps/dcs/data43"
+# /opt/VRTSvcs/bin/hares -modify data43-share Enabled 1
+# /opt/VRTSvcs/bin/hares -state data43-share
+
+Create a nfs_mount resource and modify its attributes
+=======================================================
+
+# /opt/VRTSvcs/bin/hares -add data43_nfs-mnt Mount dcsslave-sg
+# /opt/VRTSvcs/bin/hares -modify data43_nfs-mnt MountPoint "/apps/dcs/data43"
+# /opt/VRTSvcs/bin/hares -modify data43_nfs-mnt BlockDevice "dcsappl01:/apps/dcs/data43"
+# /opt/VRTSvcs/bin/hares -modify data43_nfs-mnt FSType nfs
+# /opt/VRTSvcs/bin/hares -modify data43_nfs-mnt MountOpt "rw,hard,intr"
+# /opt/VRTSvcs/bin/hares -modify data43_nfs-mnt FsckOpt "%-n"
+# /opt/VRTSvcs/bin/hares -modify data43_nfs-mnt Critical 0
+# /opt/VRTSvcs/bin/hares -modify data43_nfs-mnt Enabled 1
+# /opt/VRTSvcs/bin/hares -state data43_nfs-mnt
+
+Link the resources, check the state and dependencies and online the resources.
+=============================================================================
+# /opt/VRTSvcs/bin/hares -link data43-mnt data03-dg
+# /opt/VRTSvcs/bin/hares -link data43-share data43-mnt
+# /opt/VRTSvcs/bin/hares -link data43-share server-nfs
+
+# /opt/VRTSvcs/bin/hares -state data43-mnt
+# /opt/VRTSvcs/bin/hares -state data43-share
+# /opt/VRTSvcs/bin/hares -state data43_nfs-mnt
+
+# /opt/VRTSvcs/bin/hares -dep data43-mnt
+# /opt/VRTSvcs/bin/hares -dep data43-share
+
+# /opt/VRTSvcs/bin/hares -online data43-mnt -sys host1
+# df -h /apps/dcs/data43       ----- Check this on host host1
+# /opt/VRTSvcs/bin/hares -online data43-share -sys host1
+
+# /opt/VRTSvcs/bin/hares -online data43_nfs-mnt -sys host2
+# df -h /apps/dcs/data43       ----- Check this on host host2
+
+===============
+BACKOUT PLANi =
+==============
+
+Unlink the dependencies and disable the resources
+=================================================
+# df -h /apps/dcs/data43
+# /opt/VRTSvcs/bin/hares -unlink data43-share server-nfs
+# /opt/VRTSvcs/bin/hares -unlink data43-share data43-mnt
+# /opt/VRTSvcs/bin/hares -unlink data43-mnt data03-dg
+
+# /opt/VRTSvcs/bin/hares -modify data43_nfs-mnt Enabled 0
+# /opt/VRTSvcs/bin/hares -modify data43-share Enabled 0
+# /opt/VRTSvcs/bin/hares -modify data43-mnt Enabled 0
+
+# /opt/VRTSvcs/bin/hares -state data43_nfs-mnt
+# /opt/VRTSvcs/bin/hares -state data43-share
+# /opt/VRTSvcs/bin/hares -state data43-mnt
+
+# /opt/VRTSvcs/bin/hares -dep data43-share
+# /opt/VRTSvcs/bin/hares -dep data43-mnt
+
+Offline & delete the resources
+==============================
+
+# /opt/VRTSvcs/bin/hares -offline data43_nfs-mnt -sys host2
+# /opt/VRTSvcs/bin/hares -offline data43-share -sys host1
+# /opt/VRTSvcs/bin/hares -offline data43-mnt -sys host1
+
+# /opt/VRTSvcs/bin/hares -delete data43_nfs-mnt
+# /opt/VRTSvcs/bin/hares -delete data43-share
+# /opt/VRTSvcs/bin/hares -delete data43-mnt
+# df -h /apps/dcs/data43
+</pre>

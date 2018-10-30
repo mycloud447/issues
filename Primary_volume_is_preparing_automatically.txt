@@ -1,0 +1,233 @@
+---++ Doc Log 1424317915_01
+        $ Date: Feb 19 09:21:55 2015
+        $ Summary: Primary volume is preparing automatically
+
+---++++ Details:
+<pre>
+For the snapshot preparation, there is a default file for creating snapshot. You need to turn that flag off otherwise a mirror command would prepare the volumes.
+
+The default values that the vxassist command uses may be specified in the file /etc/default/vxassist. The defaults listed in this file take effect if you do not override them on the command line
+
+In your case either you need to create /etc/default/vxassist file and add "logtype=none" in /etc/default/vxassist  (or) along with vxassist command you have to pass the logtype=none argument.
+
+
+
+ $ ls -l /etc/default/vxassist
+
+/etc/default/vxassist: No such file or directory
+
+$
+
+The following is a sample vxassist defaults file:
+
+# vxassist help showattrs
+
+#  By default:
+
+#  create unmirrored, unstriped volumes
+
+#  allow allocations to span drives
+
+#  with RAID-5 create a log, with mirroring don't create a log
+
+#  align allocations on cylinder boundaries
+
+    layout=nomirror,nostripe,span,nocontig,raid5log,noregionlog,
+
+    diskalign
+
+#  use the fsgen usage type, except when creating RAID-5 volumes
+
+    usetype=fsgen
+
+#  allow only root access to a volume
+
+     mode=u=rw,g=,o=
+
+     user=root
+
+     group=root
+
+
+#  when mirroring, create two mirrors
+
+     nmirror=2
+
+#  for regular striping, by default create between 2 and 8 stripe 
+
+#  columns
+
+     max_nstripe=8
+
+     min_nstripe=2
+
+
+
+#  for RAID-5, by default create between 3 and 8 stripe columns
+
+     max_nraid5stripe=8
+
+     min_nraid5stripe=3
+
+
+
+#  by default, create 1 log copy for both mirroring and RAID-5 volumes
+
+    nregionlog=1
+
+    nraid5log=1
+
+
+
+#  by default, limit mirroring log lengths to 32Kbytes
+
+    max_regionloglen=32k
+
+
+
+#  use 64K as the default stripe unit size for regular volumes
+
+    stripe_stwid=64k
+
+
+
+#  use 16K as the default stripe unit size for RAID-5 volumes
+
+    raid5_stwid=16k
+
+==========================================================
+On this host after migration the "dcl" vol created with two plexes. We need to find out the why these are created.
+
+
+
+ $ modinfo |grep -i vx
+
+ 38 7be3c000  57900 302   1  vxdmp (VxVM 6.0.1 Multipathing Driver)
+
+ 40 7c002000 28f758 303   1  vxio (VxVM 6.0.1 I/O driver)
+
+ 42 7be8a940   1190 304   1  vxspec (VxVM 6.0.1 control/status drive)
+
+232 7b7b73c0    db0 305   1  vxportal (VxFS 6.0.100.000 portal driver)
+
+233 7c26c000 241ee0  21   1  vxfs (VxFS 6.0.100.000 SunOS 5.10)
+
+237 7aff2000   22f0 317   1  vxlo (Veritas Loopback Driver 0.1)
+
+251 7aa78000   bc30 306   1  fdd (VxQIO 6.0.100.000 Quick I/O dri)
+
+ $
+
+ 
+
+
+
+Before migration:
+-----------------
+
+
+
+ $ vxprint -ht
+
+
+
+v  appdatavl    -            ENABLED  ACTIVE   1782579200 SELECT  -        fsgen
+
+pl appdatavl-02 appdatavl    ENABLED  ACTIVE   1782579200 CONCAT  -        RW
+
+sd appdg09-01   appdatavl-02 appdg09  0        141346048 0        emc2_092d ENA
+
+sd appdg10-01   appdatavl-02 appdg10  0        141346048 141346048 emc2_05c1 ENA
+
+sd appdg11-01   appdatavl-02 appdg11  0        141346048 282692096 emc2_05c5 ENA
+
+sd appdg12-01   appdatavl-02 appdg12  0        141346048 424038144 emc2_0915 ENA
+
+sd appdg13-01   appdatavl-02 appdg13  0        141346048 565384192 emc2_0919 ENA
+
+sd appdg14-01   appdatavl-02 appdg14  0        141346048 706730240 emc2_0925 ENA
+
+sd appdg15-01   appdatavl-02 appdg15  0        141346048 848076288 emc2_091d ENA
+
+sd appdg16-01   appdatavl-02 appdg16  0        141346048 989422336 emc2_05c9 ENA
+
+sd appdg17-01   appdatavl-02 appdg17  0        141346048 1130768384 emc2_0929 ENA
+
+sd appdg18-01   appdatavl-02 appdg18  0        141346048 1272114432 emc2_0931 ENA
+
+sd appdg19-01   appdatavl-02 appdg19  0        141346048 1413460480 emc2_0921 ENA
+
+sd appdg20-01   appdatavl-02 appdg20  0        141346048 1554806528 emc2_0911 ENA
+
+sd appdg21-01   appdatavl-02 appdg21  0        86426624 1696152576 emc2_0935 ENA
+
+
+
+v  optappvl     -            ENABLED  ACTIVE   100663296 SELECT   -        fsgen
+
+pl optappvl-02  optappvl     ENABLED  ACTIVE   100663296 CONCAT   -        RW
+
+sd appdg08-01   optappvl-02  appdg08  0        100663296 0        emc2_0939 ENA
+
+$
+
+
+After Migration:
+----------------
+
+$ vxdg list
+
+v  appdatavl    -            ENABLED  ACTIVE   1782579200 PREFER  appdatavl-01 fsgen
+
+pl appdatavl-01 appdatavl    ENABLED  ACTIVE   1782579200 CONCAT  -        RW
+
+sd pri0001_app_dm-01 appdatavl-01 pri0001_app_dm 0 420398848 0    emc3_0f2d ENA
+
+sd pri0002_app_dm-01 appdatavl-01 pri0002_app_dm 0 420398848 420398848 emc3_0f2e ENA
+
+sd pri0003_app_dm-01 appdatavl-01 pri0003_app_dm 0 420398848 840797696 emc3_0f32 ENA
+
+sd pri0004_app_dm-01 appdatavl-01 pri0004_app_dm 0 420398848 1261196544 emc3_0f33 ENA
+
+sd pri0005_app_dm-01 appdatavl-01 pri0005_app_dm 0 100983808 1681595392 emc3_0f34 ENA
+
+pl appdatavl-02 appdatavl    ENABLED  ACTIVE   1782579200 CONCAT  -        RW
+
+sd appdg09-01   appdatavl-02 appdg09  0        141346048 0        emc2_092d ENA
+
+sd appdg10-01   appdatavl-02 appdg10  0        141346048 141346048 emc2_05c1 ENA
+
+sd appdg11-01   appdatavl-02 appdg11  0        141346048 282692096 emc2_05c5 ENA
+
+sd appdg12-01   appdatavl-02 appdg12  0        141346048 424038144 emc2_0915 ENA
+
+sd appdg13-01   appdatavl-02 appdg13  0        141346048 565384192 emc2_0919 ENA
+
+sd appdg14-01   appdatavl-02 appdg14  0        141346048 706730240 emc2_0925 ENA
+
+sd appdg15-01   appdatavl-02 appdg15  0        141346048 848076288 emc2_091d ENA
+
+sd appdg16-01   appdatavl-02 appdg16  0        141346048 989422336 emc2_05c9 ENA
+
+sd appdg17-01   appdatavl-02 appdg17  0        141346048 1130768384 emc2_0929 ENA
+
+sd appdg18-01   appdatavl-02 appdg18  0        141346048 1272114432 emc2_0931 ENA
+
+sd appdg19-01   appdatavl-02 appdg19  0        141346048 1413460480 emc2_0921 ENA
+
+sd appdg20-01   appdatavl-02 appdg20  0        141346048 1554806528 emc2_0911 ENA
+
+sd appdg21-01   appdatavl-02 appdg21  0        86426624 1696152576 emc2_0935 ENA
+
+dc appdatavl_dco appdatavl   appdatavl_dcl
+
+v  appdatavl_dcl -           ENABLED  ACTIVE   122832   SELECT    -        gen
+
+pl appdatavl_dcl-01 appdatavl_dcl ENABLED ACTIVE 122832 CONCAT    -        RW
+
+sd appdg21-02   appdatavl_dcl-01 appdg21 86426624 122832 0        emc2_0935 ENA
+
+pl appdatavl_dcl-02 appdatavl_dcl ENABLED ACTIVE 122832 CONCAT    -        RW
+
+sd pri0005_app_dm-04 appdatavl_dcl-02 pri0005_app_dm 201654560 122832 0 emc3_0f34 ENA
+</pre>

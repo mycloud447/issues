@@ -1,0 +1,157 @@
+---++ Doc Log 1401165076_01
+        $ Date: May 27 10:01:16 2014
+        $ Summary: Jumbo frames
+
+---++++ Details:
+<pre>
+	Step by step to increase the MTU size, on Solaris.
+	==================================================
+By default, if you type “ifconfig -a” you will get the MTU size is 1500:
+
+bash-3.00# ifconfig -a
+lo0: flags=2001000849<UP,LOOPBACK,RUNNING,MULTICAST,IPv4,VIRTUAL> mtu 8232 index 1
+inet 127.0.0.1 netmask ff000000
+
+e1000g0: flags=201000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4,CoS> mtu 1500 index 2
+inet 10.32.16.1 netmask ffffff00 broadcast 10.32.16.255
+ether 8:0:27:73:25:e8
+
+e1000g1: flags=201000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4,CoS> mtu 1500 index 3
+inet 10.32.16.2 netmask ffffff00 broadcast 10.32.16.255
+ether 8:0:27:6a:34:ae
+
+you can change MTU size by running “ifconfig <interface> mtu <mtu_size>”, but it doesn’t work for e1000g if the max default is still 1500. try and you will got error like this:
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+bash-3.00# ifconfig e1000g1 mtu 8000
+ifconfig: setifmtu: SIOCSLIFMTU: e1000g1: Invalid argument
+
+root@server # ifconfig bge2 mtu 8000
+ifconfig: setifmtu: SIOCSLIFMTU: bge2: Invalid argument
+
+root@server # dladm set-linkprop -p mtu=8000 bge2
+dladm: warning: invalid link property ‘mtu’
+
+Change MTU size for E1000g (Intel PRO/1000 Gigabit family device driver) interface:
+-----------------------------------------------------------------------------------
+
+I have 2 interface; e1000g0 and e1000g1. I need to change the MTU size to 8000  for e1000g1 interface only.
+
+1.  Check current config with “ifconfig -a”
+2. edit file “/kernel/drv/e1000g.conf”
+go to “MaxFrameSize” line, change the zero values number like this:
+MaxFrameSize=0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0;
+
+# 0 is for normal ethernet frames.
+# 1 is for upto 4k size frames.
+# 2 is for upto 8k size frames.
+# 3 is for upto 16k size frames.
+# These are maximum frame limits, not the actual ethernet frame
+# size. Your actual ethernet frame size would be determined by
+# protocol stack configuration (please refer to ndd command man pages)
+# For Jumbo Frame Support (9k ethernet packet)
+# use 3 (upto 16k size frames)
+
+Note: Above configuration only affect to e1000g1.
+
+If you want to change MTU size to all interface, just simply change all zero values with 1,2,3 as you need:
+----------------------------------------------------------------------------------------------------------
+
+Example: MaxFrameSize=2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2;
+then, all your interface will support 8K MTU.
+3. reboot
+4. check the result with “ifconfig -a | grep mtu”
+
+bash-3.00# ifconfig -a | grep mtu
+lo0: flags=2001000849<UP,LOOPBACK,RUNNING,MULTICAST,IPv4,VIRTUAL> mtu 8232 index 1
+e1000g0: flags=201000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4,CoS> mtu 1500 index 2
+e1000g1: flags=1201000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4,CoS> mtu 8106 index 3
+bash-3.00#
+
+5. After reboot, the MTU size is 8106. if you want 8000 mtu size, then edit file “/etc/hostname.e1000g1″:
+bash-3.00# cat /etc/hostname.e1000g1
+solaris10 mtu 8000
+
+bash-3.00# ifconfig -a
+lo0: flags=2001000849<UP,LOOPBACK,RUNNING,MULTICAST,IPv4,VIRTUAL> mtu 8232 index 1
+inet 127.0.0.1 netmask ff000000
+e1000g0: flags=201000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4,CoS> mtu 1500 index 2
+inet 10.32.16.1 netmask ffffff00 broadcast 10.32.16.255
+ether 8:0:27:73:25:e8
+e1000g1: flags=1201000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4,CoS,FIXEDMTU> mtu 8000 index 3
+inet 10.32.16.2 netmask ffffff00 broadcast 10.32.16.255
+ether 8:0:27:6a:34:ae
+
+Change MTU size for bge (Broadcom Gigabit Ethernet device driver) interface:
+
+bash# grep bge /etc/path_to_inst
+“/pci@0,600000/pci@0/pci@8/pci@0/network@2″ 0 “bge”
+“/pci@0,600000/pci@0/pci@8/pci@0/network@2,1″ 1 “bge”
+
+bash3.00# cat /etc/system
+set bge:bge_jumbo_enable = 1
+
+bash3.00# cat /platform/sun4u/kernel/drv/bge.conf
+default_mtu=9000;
+name=”bge” parent=”/pci@0,600000″ unitaddress=”2″ default_mtu=9000;
+bash3.00# reboot
+bash3.00# ifconfig -a
+
+==================================================================================================================
+
+Setting 9000 MTU for e1000gx
+---------------------------
+
+$/kernel/drv/e1000g.conf 
+
+MaxFrameSize=0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0;
+
+        # 0 is for normal ethernet frames.
+
+        # 1 is for upto 4k size frames.
+
+        # 2 is for upto 8k size frames.
+
+        # 3 is for upto 16k size frames.
+
+        # These are maximum frame limits, not the actual ethernet frame
+
+        # size. Your actual ethernet frame size would be determined by
+
+        # protocol stack configuration (please refer to ndd command man pages)
+
+        # For Jumbo Frame Support (9k ethernet packet)
+
+        # use 3 (upto 16k size frames)
+
+
+Now set MTU to 9000 instead of 16K by editing file hostname.e1000g1. hostname.e1000g1 is interface configuration file, the first entry is your ip address or a name, the name must be resolvable in /etc/hosts.
+
+$/etc/hostname.e1000g1
+ip/name mtu 9000
+
+#shutdown -i6 to reboot to take effect.
+
+dladm is supposed to be the new method, But it didn't work.
+
+#dladm show-linkprop -p mtu e1000g1
+
+LINK         PROPERTY        PERM VALUE          DEFAULT        POSSIBLE
+
+e1000g1      mtu             rw   16298          1500           -- 
+
+#dladm set-linkprop -p mtu=9000  e1000g1
+dladm: warning: cannot set link property 'mtu' on 'e1000g1': try again later
+
+==============================================================================================================
+
+Script for all ce interfaces
+#!/usr/bin/ksh
+for i in `kstat -p |grep link_speed |cut -f2 -d:`
+do
+   ndd -set /dev/ce instance $i
+   jumbo=`ndd -get /dev/ce accept_jumbo`
+   echo "ce$i\\t$jumbo"
+done
+
+</pre>

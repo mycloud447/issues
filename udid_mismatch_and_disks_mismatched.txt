@@ -1,0 +1,158 @@
+---++ Doc Log 1383641053_01
+        $ Date: Tue Nov 05:: 14:14:13
+        $ Summary: udid mismatch and disks mismatched
+
+---++++ Details:
+<pre>
+The customer zones luns out of the san.  Then sometime later new luns are zoned back in.  In the lower revisions
+of 5.0, 5.0mp3 and 5.1 vxconfigd does not know how to handle the missing devices and the new devices properly and can drop an application core.  It can also sometimes give a false udid mismatch. This problem was solved a while ago in the higher revisions and if you send me modinfo | grep vx I can get you the patches.
+ 
+Even though the core drop issue was resolved in the higher patch revs the following problem remains.  Veritas hangs onto the old device, PowerPath hangs onto the old device and in many later versions of Solaris 10 the OS hangs onto the old device even in the absence of PowerPath and Veritas.  Clearing devices and rebooting solves the problem automatically but if the customer absolutely can’t reboot the customer can clear the devices manually the highest layer first which is Veritas, then PowerPath, then every path on each device in Solaris 10 that needs to be cleared.  At that point the vxconfigd application core should stop dropping in the lower patch revisions because there are no stub devices to confuse it.  
+ 
+Once the old devices are gone adding the new devices is comparatively easy.  Add the lowest layer first which is the OS, then PowerPath then Veritas.
+ 
+# devfsadm -Cv
+# powermt -cf
+# powermt config
+# powermt save
+# vxconfigd -k -x cleartempdir -x syslog -m enable
+# vxdisk scandisks
+
+
+# vxdg init newdg disk01=c1t6d0s2
+# vxassist -g newdg make vol01 100m
+# mkfs -F vxfs /dev/vx/rdsk/newdg/vol01
+# mount -F vxfs /dev/vx/dsk/newdg/vol01 /vol01
+# dd if=/dev/rdsk/c1t6d0s2 of=/dev/rdsk/c1t5d0s2
+^C32721603+0 records in
+32721603+0 records out
+# vxdisk -o alldgs list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c0t0d0s2     auto:none       -            -            online invalid
+c1t5d0s2     auto:cdsdisk    -            (newdg)      online udid_mismatch
+c1t6d0s2     auto:cdsdisk    disk01       newdg        online
+# vxdg -n newdg2 -o useclonedev=on -o updateid -Cf import newdg
+# vxdisk -o alldgs list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c0t0d0s2     auto:none       -            -            online invalid
+c1t5d0s2     auto:cdsdisk    disk01       newdg2       online clone_disk
+c1t6d0s2     auto:cdsdisk    disk01       newdg        online
+
+# vxdisk -o alldgs list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c0t0d0s2     auto:none       -            -            online invalid
+c1t5d0s2     auto:cdsdisk    disk01       newdg2       online clone_disk
+c1t6d0s2     auto:cdsdisk    disk01       newdg3       online
+# vxdisk -g newdg2 set disk01 clone=off
+# vxdisk -o alldgs list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c0t0d0s2     auto:none       -            -            online invalid
+c1t5d0s2     auto:cdsdisk    disk01       newdg2       online
+c1t6d0s2     auto:cdsdisk    disk01       newdg3       online
+# vxdisk -g newdg2 set disk01 clone=on
+# vxdisk -o alldgs list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c0t0d0s2     auto:none       -            -            online invalid
+c1t5d0s2     auto:cdsdisk    disk01       newdg2       online clone_disk
+c1t6d0s2     auto:cdsdisk    disk01       newdg3       online
+
+-------------------------------------------------------------------------
+
+Easiest way to clear device discovery but involves a reconfiguration reboot.
+
+Move every file in /etc/vx ending in .info to force a remake.
+
+In some versions you might not see disk.info.
+mv /etc/vx/disk.info /etc/vx/disk.info.bak
+mv /etc/vx/array.info /etc/vx/array.info.bak
+cd /dev/vx (Clear devices in dmp and rdmp.  You can move the directories
+   and remake them with same ownerships and permissions.  Sometime in
+   later versions you can't because it says device busy.)
+touch /reconfigure ; init 6
+
+-------------------------------------------------------------------------
+
+Got it working without rebooting.
+
+Removed all disks from VxVM with:
+
+# vxdisk rm <diskname>
+
+Got list of devices:
+
+# cfgadm -al -o show_FCP_dev
+
+Disabled paths in VxVM with
+
+# vxdmpadm disable path=<device>
+
+Off-lined paths:
+
+# luxadm -e offline /dev/dsk/<device>
+
+Unconfigured them in Solaris:
+
+# cfgadm -f -o unusable_FCP_dev -c unconfigure <device>
+
+Cleaned up devicetree
+
+# devfsadm -Cv
+
+Stopped vxconfigd:
+
+# vxdctl stop
+
+Removed disk.info, array.info and jbod.info.
+
+# rm /etc/vx/disk.info /etc/vx/array.info /etc/vx/jbod.info
+
+Started vxconfigd
+
+# vxconfigd -x syslog
+
+Scanned one controller in Solaris, and added them back in VxVXM
+
+# cfgadm -c configure c1
+# vxdctl enable
+
+And then the other controller
+
+# cfgadm -c configure c2
+# vxdctl enable
+
+After this, I was able to see the disks correctly in VxVM.
+
+------------------------------------------------------------
+
+cfgadm -o show_FCP_dev -la | grep unusable
+Example
+=======
+c5::50060482cb1b8182,2742 disk connected configured unusable <<<< masked earlier
+c5::50060482cb1b8192,493 disk connected configured unusable <<<< masked earlier
+
+Use the cfgadm unusable option to unconfigure the removed luns
+# cfgadm -o unusable_FCP_dev -c unconfigure c5::50060482cb1b8182
+# cfgadm -o unusable_FCP_dev -c unconfigure c5::50060482cb1b8192
+
+Confirm that the remove luns have gone from the cfgadm output
+cfgadm -o show_FCP_dev -la | grep unusable
+
+
+Delete the device entries in /dev/[r]dsk and /devices
+# devfsadm -C
+
+------------------------------------------------------
+If PowerPath is present:
+
+# vxdisk rm <disk>
+# rm -rf /dev/vx/rdmp/emcpower0*
+# rm -rf /dev/vx/dmp/emcpower0*
+# rm -rf /dev/rdsk/emcpowerc
+# rm -rf /dev/dsk/emcpowerc
+# devfsadm -Cv
+# powermt -cf
+# powermt config
+# powermt save
+# vxconfigd -k -x cleartempdir -x syslog -m enable
+# vxdisk scandisks
+</pre>

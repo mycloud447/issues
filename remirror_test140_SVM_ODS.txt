@@ -1,0 +1,471 @@
+---++ Doc Log 1241280341_01
+
+	$ Date: Sat May 02 16:05:41 2009
+	$ Summary: remirror test140 SVM ODS
+	$ On-Call: LNONCALL
+
+---++++ Details:
+<pre>
+(root_test140)@/root # metadb
+        flags           first blk       block count
+     a        u         16              8192            /dev/dsk/c1t0d0s7
+     a        u         8208            8192            /dev/dsk/c1t0d0s7
+     a        u         16400           8192            /dev/dsk/c1t0d0s7
+     a        u         16              8192            /dev/dsk/c1t1d0s7
+     a        u         8208            8192            /dev/dsk/c1t1d0s7
+     a        u         16400           8192            /dev/dsk/c1t1d0s7
+(root_test140)@/root # prtvtoc /dev/dsk/c1t0d0s0
+* /dev/dsk/c1t0d0s0 partition map
+*
+* Dimensions:
+*     512 bytes/sector
+*     848 sectors/track
+*      24 tracks/cylinder
+*   20352 sectors/cylinder
+*   14089 cylinders
+*   14087 accessible cylinders
+*
+* Flags:
+*   1: unmountable
+*  10: read-only
+*
+*                          First     Sector    Last
+* Partition  Tag  Flags    Sector     Count    Sector  Mount Directory
+       0      2    00   41945472 160780800 202726271   /
+       1      3    01          0  41945472  41945471
+       2      5    00          0 286698624 286698623
+       5      7    00  202726272  41945472 244671743   /var
+       6      0    00  244671744  41945472 286617215   /var/crash
+       7      0    00  286617216     81408 286698623
+(root_test140)@/root # prtvtoc /dev/dsk/c1t1d0s0
+* /dev/dsk/c1t1d0s0 partition map
+*
+* Dimensions:
+*     512 bytes/sector
+*     848 sectors/track
+*      24 tracks/cylinder
+*   20352 sectors/cylinder
+*   14089 cylinders
+*   14087 accessible cylinders
+*
+* Flags:
+*   1: unmountable
+*  10: read-only
+*
+*                          First     Sector    Last
+* Partition  Tag  Flags    Sector     Count    Sector  Mount Directory
+       0      2    00   41945472 160780800 202726271
+       1      3    01          0  41945472  41945471
+       2      5    00          0 286698624 286698623
+       5      7    00  202726272  41945472 244671743
+       6      0    00  244671744  41945472 286617215
+       7      0    00  286617216     81408 286698623
+(root_test140)@/root #
+(root_test140)@/root #
+(root_test140)@/root # metainit -f d10 1 1 /dev/dsk/c1t0d0s0^C
+(root_test140)@/root # df -k /
+Filesystem            kbytes    used   avail capacity  Mounted on
+/dev/dsk/c1t0d0s0    79173174 39663501 38717942    51%    /
+(root_test140)@/root # metainit -f d10 1 1 /dev/dsk/c1t0d0s0
+d10: Concat/Stripe is setup
+(root_test140)@/root # metainit d20 1 1 /dev/dsk/c1t1d0s0
+d20: Concat/Stripe is setup
+(root_test140)@/root # metastat
+d20: Concat/Stripe
+    Size: 160780800 blocks (76 GB)
+    Stripe 0:
+        Device     Start Block  Dbase   Reloc
+        c1t1d0s0          0     No      Yes
+
+d10: Concat/Stripe
+    Size: 160780800 blocks (76 GB)
+    Stripe 0:
+        Device     Start Block  Dbase   Reloc
+        c1t0d0s0          0     No      Yes
+
+Device Relocation Information:
+Device   Reloc  Device ID
+c1t1d0   Yes    id1,sd@SSEAGATE_ST314685LSUN146G1881MAMD____________3KN1MAMD
+c1t0d0   Yes    id1,sd@SSEAGATE_ST314685LSUN146G12839RBW____________3KN39RBW
+(root_test140)@/root # metainit d0 -m d10
+d0: Mirror is setup
+(root_test140)@/root #
+(root_test140)@/root # metaroot d0
+(root_test140)@/root #
+(root_test140)@/root #
+(root_test140)@/root # metainit -f d11 1 1 /dev/dsk/c1t0d0s1
+d11: Concat/Stripe is setup
+(root_test140)@/root # metainit d21 1 1 /dev/dsk/c1t1d0s1
+d21: Concat/Stripe is setup
+(root_test140)@/root # metainit d1 -m d11
+d1: Mirror is setup
+(root_test140)@/root #
+(root_test140)@/root #
+(root_test140)@/root # metainit -f d15 1 1 /dev/dsk/c1t0d0s5
+d15: Concat/Stripe is setup
+(root_test140)@/root # metainit d25 1 1 /dev/dsk/c1t1d0s5
+d25: Concat/Stripe is setup
+(root_test140)@/root # metainit d5 -m d15
+d5: Mirror is setup
+(root_test140)@/root #
+(root_test140)@/root # metainit -f d16 1 1 /dev/dsk/c1t0d0s6
+d16: Concat/Stripe is setup
+(root_test140)@/root # metainit d26 1 1 /dev/dsk/c1t1d0s6
+d26: Concat/Stripe is setup
+(root_test140)@/root # metainit d6 -m d16
+d6: Mirror is setup
+(root_test140)@/root #
+(root_test140)@/root #
+(root_test140)@/root # metastat
+d6: Mirror
+    Submirror 0: d16
+      State: Okay
+    Pass: 1
+    Read option: roundrobin (default)
+    Write option: parallel (default)
+    Size: 41945472 blocks (20 GB)
+
+d16: Submirror of d6
+    State: Okay
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t0d0s6          0     No            Okay   Yes
+d5: Mirror
+    Submirror 0: d15
+      State: Okay
+    Pass: 1
+    Read option: roundrobin (default)
+    Write option: parallel (default)
+    Size: 41945472 blocks (20 GB)
+
+d15: Submirror of d5
+    State: Okay
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t0d0s5          0     No            Okay   Yes
+
+
+d1: Mirror
+    Submirror 0: d11
+      State: Okay
+    Pass: 1
+    Read option: roundrobin (default)
+    Write option: parallel (default)
+    Size: 41945472 blocks (20 GB)
+
+d11: Submirror of d1
+    State: Okay
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t0d0s1          0     No            Okay   Yes
+
+
+d0: Mirror
+    Submirror 0: d10
+      State: Okay
+    Pass: 1
+    Read option: roundrobin (default)
+    Write option: parallel (default)
+    Size: 160780800 blocks (76 GB)
+
+d10: Submirror of d0
+    State: Okay
+    Size: 160780800 blocks (76 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t0d0s0          0     No            Okay   Yes
+
+
+d26: Concat/Stripe
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase   Reloc
+        c1t1d0s6          0     No      Yes
+
+d25: Concat/Stripe
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase   Reloc
+        c1t1d0s5          0     No      Yes
+
+d21: Concat/Stripe
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase   Reloc
+        c1t1d0s1          0     No      Yes
+
+d20: Concat/Stripe
+    Size: 160780800 blocks (76 GB)
+    Stripe 0:
+        Device     Start Block  Dbase   Reloc
+        c1t1d0s0          0     No      Yes
+
+Device Relocation Information:
+Device   Reloc  Device ID
+c1t1d0   Yes    id1,sd@SSEAGATE_ST314685LSUN146G1881MAMD____________3KN1MAMD
+c1t0d0   Yes    id1,sd@SSEAGATE_ST314685LSUN146G12839RBW____________3KN39RBW
+(root_test140)@/root # df -k
+Filesystem            kbytes    used   avail capacity  Mounted on
+/dev/dsk/c1t0d0s0    79173174 39660706 38720737    51%    /
+/devices                   0       0       0     0%    /devices
+ctfs                       0       0       0     0%    /system/contract
+proc                       0       0       0     0%    /proc
+mnttab                     0       0       0     0%    /etc/mnttab
+swap                 116718984    1272 116717712     1%    /etc/svc/volatile
+objfs                      0       0       0     0%    /system/object
+/platform/sun4u-us3/lib/libc_psr/libc_psr_hwcap2.so.1
+                     79173174 39660706 38720737    51%    /platform/sun4u-us3/lib/libc_psr.so.1
+/platform/sun4u-us3/lib/sparcv9/libc_psr/libc_psr_hwcap2.so.1
+                     79173174 39660706 38720737    51%    /platform/sun4u-us3/lib/sparcv9/libc_psr.so.1
+fd                         0       0       0     0%    /dev/fd
+/dev/dsk/c1t0d0s5    20655025 14249099 6199376    70%    /var
+swap                 116879288  161576 116717712     1%    /tmp
+swap                 116717760      48 116717712     1%    /var/run
+swap                 116717712       0 116717712     0%    /dev/vx/dmp
+swap                 116717712       0 116717712     0%    /dev/vx/rdmp
+/dev/dsk/c1t0d0s6    20655025   20500 20427975     1%    /var/crash
+
+lockfs -fa
+sync;sync;sync;init 6
+
+(root_test140)@/root # metastat
+d6: Mirror
+    Submirror 0: d16
+      State: Okay
+    Pass: 1
+    Read option: roundrobin (default)
+    Write option: parallel (default)
+    Size: 41945472 blocks (20 GB)
+
+d16: Submirror of d6
+    State: Okay
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t0d0s6          0     No            Okay   Yes
+
+
+d5: Mirror
+    Submirror 0: d15
+      State: Okay
+    Pass: 1
+    Read option: roundrobin (default)
+    Write option: parallel (default)
+    Size: 41945472 blocks (20 GB)
+
+d15: Submirror of d5
+    State: Okay
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t0d0s5          0     No            Okay   Yes
+
+
+d1: Mirror
+    Submirror 0: d11
+      State: Okay
+    Pass: 1
+    Read option: roundrobin (default)
+    Write option: parallel (default)
+    Size: 41945472 blocks (20 GB)
+d11: Submirror of d1
+    State: Okay
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t0d0s1          0     No            Okay   Yes
+
+
+d0: Mirror
+    Submirror 0: d10
+      State: Okay
+    Pass: 1
+    Read option: roundrobin (default)
+    Write option: parallel (default)
+    Size: 160780800 blocks (76 GB)
+
+d10: Submirror of d0
+    State: Okay
+    Size: 160780800 blocks (76 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t0d0s0          0     No            Okay   Yes
+
+
+d26: Concat/Stripe
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase   Reloc
+        c1t1d0s6          0     No      Yes
+
+d25: Concat/Stripe
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase   Reloc
+        c1t1d0s5          0     No      Yes
+
+d21: Concat/Stripe
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase   Reloc
+        c1t1d0s1          0     No      Yes
+
+d20: Concat/Stripe
+    Size: 160780800 blocks (76 GB)
+    Stripe 0:
+        Device     Start Block  Dbase   Reloc
+        c1t1d0s0          0     No      Yes
+
+Device Relocation Information:
+Device   Reloc  Device ID
+c1t1d0   Yes    id1,sd@SSEAGATE_ST314685LSUN146G1881MAMD____________3KN1MAMD
+c1t0d0   Yes    id1,sd@SSEAGATE_ST314685LSUN146G12839RBW____________3KN39RBW
+(root_test140)@/root # metaattach d0 d20
+sh: metaattach:  not found
+(root_test140)@/root # metattach d0 d20
+d0: submirror d20 is attached
+(root_test140)@/root # metattach d1 d21
+d1: submirror d21 is attached
+(root_test140)@/root # metattach d5 d25
+d5: submirror d25 is attached
+(root_test140)@/root # metattach d6 d26
+d6: submirror d26 is attached
+(root_test140)@/root # metastat
+d6: Mirror
+    Submirror 0: d16
+      State: Okay
+    Submirror 1: d26
+      State: Resyncing
+    Resync in progress: 0 % done
+    Pass: 1
+    Read option: roundrobin (default)
+    Write option: parallel (default)
+    Size: 41945472 blocks (20 GB)
+
+d16: Submirror of d6
+    State: Okay
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t0d0s6          0     No            Okay   Yes
+
+
+d26: Submirror of d6
+    State: Resyncing
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t0d0s6          0     No            Okay   Yes
+
+
+d26: Submirror of d6
+    State: Resyncing
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t1d0s6          0     No            Okay   Yes
+
+
+d5: Mirror
+    Submirror 0: d15
+      State: Okay
+    Submirror 1: d25
+      State: Resyncing
+    Resync in progress: 0 % done
+    Pass: 1
+    Read option: roundrobin (default)
+    Write option: parallel (default)
+    Size: 41945472 blocks (20 GB)
+
+d15: Submirror of d5
+    State: Okay
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t0d0s5          0     No            Okay   Yes
+
+
+d25: Submirror of d5
+    State: Resyncing
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t1d0s5          0     No            Okay   Yes
+
+
+d1: Mirror
+    Submirror 0: d11
+      State: Okay
+    Submirror 1: d21
+      State: Resyncing
+    Resync in progress: 0 % done
+    Pass: 1
+    Read option: roundrobin (default)
+    Write option: parallel (default)
+    Size: 41945472 blocks (20 GB)
+
+d11: Submirror of d1
+    State: Okay
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t0d0s1          0     No            Okay   Yes
+
+
+d21: Submirror of d1
+    State: Resyncing
+    Size: 41945472 blocks (20 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t1d0s1          0     No            Okay   Yes
+
+
+d0: Mirror
+    Submirror 0: d10
+      State: Okay
+    Submirror 1: d20
+      State: Resyncing
+    Resync in progress: 0 % done
+    Pass: 1
+    Read option: roundrobin (default)
+    Write option: parallel (default)
+    Size: 160780800 blocks (76 GB)
+
+d10: Submirror of d0
+    State: Okay
+    Size: 160780800 blocks (76 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t0d0s0          0     No            Okay   Yes
+
+
+d20: Submirror of d0
+    State: Resyncing
+    Size: 160780800 blocks (76 GB)
+    Stripe 0:
+        Device     Start Block  Dbase        State Reloc Hot Spare
+        c1t1d0s0          0     No            Okay   Yes
+
+
+Device Relocation Information:
+Device   Reloc  Device ID
+c1t1d0   Yes    id1,sd@SSEAGATE_ST314685LSUN146G1881MAMD____________3KN1MAMD
+c1t0d0   Yes    id1,sd@SSEAGATE_ST314685LSUN146G12839RBW____________3KN39RBW
+(root_test140)@/root # metastat |grep sync
+      State: Resyncing
+    Resync in progress: 0 % done
+    State: Resyncing
+      State: Resyncing
+    Resync in progress: 0 % done
+    State: Resyncing
+      State: Resyncing
+    Resync in progress: 0 % done
+    State: Resyncing
+      State: Resyncing
+    Resync in progress: 0 % done
+    State: Resyncing
+
+</pre>

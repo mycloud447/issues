@@ -1,0 +1,30 @@
+---++ Doc Log 1383886580_01
+        $ Date: Nov 08 10:26:20 2013
+        $ Summary: VERITAS I/O fencing is running in disabled mode for Oracle RAC, which is a pre-requisite for Quorum migration and diskgroup split.
+
+---++++ Details:
+<pre>
+ISSUE:  VERITAS I/O fencing is running in disabled mode for Oracle RAC, which is a pre-requisite for Quorum migration and diskgroup split.
+ 
+Sample issue output: 
+
+$ vxfenadm -d
+
+I/O Fencing Cluster Information:
+================================
+
+ Fencing Protocol Version: 201
+ Fencing Mode: Disabled
+ Cluster Members:
+
+          0 (tels2)
+        * 1 (tels3)
+
+ RFSM State Information:
+        node   0 in state  8 (running)
+        node   1 in state  8 (running)
+
+Note:-
+
+Make sure I/O fencing is enable mode or not before proceeding with SAN DP Clean up activities.
+</pre>

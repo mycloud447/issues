@@ -1,0 +1,112 @@
+---++ Doc Log 1383641427_01
+        $ Date: Tue Nov 05:: 14:20:27
+        $ Summary: Finding Global Zone from Non Global Zone
+
+---++++ Details:
+<pre>
+Login to any Non_Global zone  and sudo
+
+
+
+1.) #ifconfig -a(test590ph is Non Global Zone)
+
+
+
+# ifconfig -a
+
+lo0:14: flags=2001000849<UP,LOOPBACK,RUNNING,MULTICAST,IPv4> mtu 8232 index 1
+
+        inet 127.0.0.1 netmask ff000000
+
+ce4:9: flags=1000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4> mtu 9194 index 10
+
+        inet 10.106.202.218 netmask fffffc00 broadcast 10.106.203.255
+
+ce11:14: flags=1000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4> mtu 9194 index 3
+
+        inet 10.174.2.156 netmask ffffffc0 broadcast 10.174.2.191
+
+ce298006:8: flags=201000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4,CoS> mtu 1500 index 8-------------DNS Registered IP for Non-Global Zone
+
+        inet 146.132.9.82 netmask fffffc00 broadcast 146.132.11.255
+
+#
+
+please  check nslookup ip and find the that ip is using which interface in ifconfig -a  output.
+
+
+
+2.) # nslookup hostname
+
+
+
+3.) #arp -a |grep -i SP |grep -i physical Interface of above IP
+
+
+
+#arp -a |grep -i SP |grep -i ce298006
+
+
+
+you will get some output by running above command.
+
+In that   you can find one ip which is not having any hostname.
+
+
+
+4.)Try to login using with above ip, directly you can login to Global Zone.
+
+
+
+
+
+# ssh user@zone
+
+Password:
+
+# zoneadm list -cv
+
+  ID NAME             STATUS     PATH                           BRAND    IP
+
+   0 global           running    /                              native   shared
+
+  20 testpc         running    /zones/testpc                solaris9 shared
+
+  26 testpl         running    /zones/testpl                solaris9 shared
+
+  30 testpj         running    /zones/testpj                solaris9 shared
+
+  35 testpi         running    /zones/testpi                solaris9 shared
+
+  39 testpj         running    /zones/testpj                solaris9 shared
+
+  42 testpe         running    /zones/testpe                solaris9 shared
+
+  50 testpe         running    /zones/testpe                solaris9 shared
+
+  51 testpc         running    /zones/testpc                solaris9 shared
+
+  54 testpa         running    /zones/testpa                solaris9 shared
+
+  65 testpk         running    /zones/testpk                solaris9 shared
+
+  72 testpb         running    /zones/testpb                solaris9 shared
+
+  73 testph         running    /zones/test590ph                solaris9 shared
+
+  83 testpd         running    /zones/testpd                solaris9 shared
+
+  86 testpa         running    /zones/test735pa                solaris9 shared
+
+  87 testpa         running    /zones/testpa                solaris9 shared
+
+  88 testpa         running    /zones/test590pa                solaris9 shared
+
+  89 testpa         running    /zones/testpa                solaris9 shared
+
+  90 testpb         running    /zones/test590pb                solaris9 shared
+
+   - sol10            installed  /zonebuild/sol10               native   shared
+
+#
+</pre>

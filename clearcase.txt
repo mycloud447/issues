@@ -1,0 +1,61 @@
+---++ Doc Log 1432170425_01
+        $ Date: May 21 06:37:05 2015
+        $ Summary: clearcase
+
+---++++ Details:
+<pre>
+Problem(Abstract)
+================
+Attempts to mount IBM Rational ClearCase VOBs result in an error, env: mount.mvfs: No such file or directory, on newly installed ClearCase 7.1 installations on Linux.
+Symptom
+
+You install ClearCase 7.1.x on Linux kernel but found that MVFS did not load, You then try to rebuild MVFS manually and it seems to work. Cleartool -ver does show MVFS is loaded but you are unable to mount VOBs which reports an error.
+
+/usr/atria/bin/cleartool mount -a
+
+env: mount.mvfs: No such file or directory
+
+
+Cause
+=====
+The link found in /mount.mvfs is incorrect. This may be because an install was done to a non-default directory.
+
+Diagnosing the problem
+
+Make sure that the link for mount.mvfs points to the correct location.
+
+"No such file or directory" indicates that the link points to a non-existent directory.
+
+Resolving the problem
+
+Find the link for mount.mvfs in /var/adm/rational/clearcase/mvfs/mvfs_src
+
+
+Make sure it points to the right location.
+
+cd /var/adm/rational/clearcase/mvfs/mvfs_src
+
+
+Example:
+# ls -la /sbin/mount.mvfs                                          
+
+                                                                   
+
+lrwxrwxrwx 1 root root 46 2010-08-09 15:36 /sbin/mount.mvfs ->      
+
+/opt/ibm/RationalSDLC/clearcase/etc/mount_mvfs                                                                                        
+
+# rm /sbin/mount.mvfs    
+
+
+Correct the link by recreating the link to point to the location where ClearCase was installed.
+
+# ln -s /whereitis/RationalSDLC/clearcase/etc/mount_mvfs
+
+/sbin/mount.mvfs  
+
+
+Try the mount command again to verify the fix.
+
+/usr/atria/bin/cleartool mount -a
+</pre>

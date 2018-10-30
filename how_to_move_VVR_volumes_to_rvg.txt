@@ -1,0 +1,375 @@
+---++ Doc Log 1189872210_01
+
+	$ Date: Sat Sep 15 16:03:30 2007
+	$ Summary: how to move VVR volumes to rvg
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+Make sure the volumes are created on the other side before doing this....... you can add the volumes to the rvg whilst replication is running. 
+
+first you create the vols on the other side then, you have to sync the individual volumes to other side. 
+
+the volumes have to be created the exact same size once volumes are synced they are the same then just adde them to the rvg group..... 
+
+(root_testserver) @ / # vradmin -g sybdg01_192 syncvol lvol18,lvol19,lvol20,lvol21,lvol22,lvol23,lvol24,lvol25 syrep1>
+vradmin: WARNING:  Volumes on remote hosts syrep192 will be overwritten. Continue with syncvol (y/n)? y
+Message from Primary:
+Message from Primary:
+Message from Primary:
+Message from Primary:
+vxrsync: INFO: Starting differences volume synchronization to remote
+vxrsync: INFO:    Source host:         128.31.11.192
+vxrsync: INFO:    Destination host(s): 128.9.69.79
+vxrsync: INFO:    Total volumes:       8
+vxrsync: INFO:    Total size:          984.000 MB
+
+Eps_time Dest_host       Src_vol     Dest_vol     F'shed/Tot_sz  Diff  Done
+00:00:02 128.9.69.79     lvol18      lvol18           0M/112M      0%    0%
+00:00:12 128.9.69.79     lvol18      lvol18          68M/112M     79%   61%
+00:00:15 128.9.69.79     lvol18      lvol18         112M/112M     49%  100%
+00:00:15 128.9.69.79     lvol19      lvol19           0M/112M      0%    0%
+00:00:23 128.9.69.79     lvol19      lvol19         112M/112M      1%  100%
+00:00:24 128.9.69.79     lvol20      lvol20           0M/112M      0%    0%
+00:00:32 128.9.69.79     lvol20      lvol20         112M/112M      1%  100%
+00:00:32 128.9.69.79     lvol21      lvol21           0M/112M      0%    0%
+00:00:41 128.9.69.79     lvol21      lvol21         112M/112M      1%  100%Message from Primary:
+Message from Primary:
+Message from Primary:
+Message from Primary:
+Message from Primary:
+Message from Primary:
+Message from Primary:
+
+00:00:41 128.9.69.79     lvol22      lvol22           0M/112M      0%    0%
+00:00:51 128.9.69.79     lvol22      lvol22         102M/112M      2%   91%
+00:00:52 128.9.69.79     lvol22      lvol22         112M/112M      1%  100%
+00:00:52 128.9.69.79     lvol23      lvol23           0M/112M      0%    0%
+00:01:02 128.9.69.79     lvol23      lvol23          84M/112M      2%   75%
+00:01:05 128.9.69.79     lvol23      lvol23         112M/112M      1%  100%
+00:01:05 128.9.69.79     lvol24      lvol24           0M/112M      0%    0%
+00:01:15 128.9.69.79     lvol24      lvol24          68M/112M      2%   61%
+00:01:19 128.9.69.79     lvol24      lvol24         112M/112M      1%  100%
+00:01:19 128.9.69.79     lvol25      lvol25           0M/200M      0%    0%
+00:01:29 128.9.69.79     lvol25      lvol25          52M/200M    100%   26%
+00:01:39 128.9.69.79     lvol25      lvol25         104M/200M     51%   52%
+00:01:49 128.9.69.79     lvol25      lvol25         152M/200M     35%   76%
+00:01:58 128.9.69.79     lvol25      lvol25         200M/200M     27%  100%
+vxrsync: INFO: VxRSync operation completed.
+vxrsync: INFO: Total elapsed time: 0:01:58
+
+(root_testserver) @ / # vradmin -g sybdg01_192 addvol sybdg01_192_rvg lvol17
+vradmin: WARNING:  Make sure volumes are synchronized before running addvol.
+vradmin: Continue with addvol (y/n)? y
+(root_testserver) @ / # vradmin -g sybdg01_192 addvol sybdg01_192_rvg lvol18
+vradmin: WARNING:  Make sure volumes are synchronized before running addvol.
+vradmin: Continue with addvol (y/n)? y
+(root_testserver) @ / # vradmin -g sybdg01_192 addvol sybdg01_192_rvg lvol19
+vradmin: WARNING:  Make sure volumes are synchronized before running addvol.
+vradmin: Continue with addvol (y/n)? y
+(root_testserver) @ / # vradmin -g sybdg01_192 addvol sybdg01_192_rvg lvol20
+vradmin: WARNING:  Make sure volumes are synchronized before running addvol.
+vradmin: Continue with addvol (y/n)? y
+(root_testserver) @ / # vradmin -g sybdg01_192 addvol sybdg01_192_rvg lvol21
+vradmin: WARNING:  Make sure volumes are synchronized before running addvol.
+vradmin: Continue with addvol (y/n)? y
+(root_testserver) @ / # vradmin -g sybdg01_192 addvol sybdg01_192_rvg lvol22
+vradmin: WARNING:  Make sure volumes are synchronized before running addvol.
+vradmin: Continue with addvol (y/n)? y
+(root_testserver) @ / # vradmin -g sybdg01_192 addvol sybdg01_192_rvg lvol23
+vradmin: WARNING:  Make sure volumes are synchronized before running addvol.
+vradmin: Continue with addvol (y/n)? y
+(root_testserver) @ / # vradmin -g sybdg01_192 addvol sybdg01_192_rvg lvol24
+vradmin: WARNING:  Make sure volumes are synchronized before running addvol.
+vradmin: Continue with addvol (y/n)? y
+(root_testserver) @ / # vradmin -g sybdg01_192 addvol sybdg01_192_rvg lvol25
+vradmin: WARNING:  Make sure volumes are synchronized before running addvol.
+vradmin: Continue with addvol (y/n)? y
+
+
+AFTER*****
+rv sybdg01_192_rvg 1         ENABLED  ACTIVE   primary  25        srl_log
+rl to_syrep192  sybdg01_192_rvg CONNECT ACTIVE syrep192 sybdg01_192 csrep192
+v  lvol1        sybdg01_192_rvg ENABLED ACTIVE 2097152  ROUND     -        fsgen
+pl lvol1-01     lvol1        ENABLED  ACTIVE   2097152  CONCAT    -        RW
+sd disk01-16    lvol1-01     disk01   0        2097152  0         c12t2d5  ENA
+pl lvol1-02     lvol1        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-17    lvol1-02     disk01   15159296 32       LOG       c12t2d5  ENA
+v  lvol2        sybdg01_192_rvg ENABLED ACTIVE 4194304  ROUND     -        fsgen
+pl lvol2-01     lvol2        ENABLED  ACTIVE   4194304  CONCAT    -        RW
+sd disk01-15    lvol2-01     disk01   2097152  4194304  0         c12t2d5  ENA
+pl lvol2-02     lvol2        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-18    lvol2-02     disk01   15159328 32       LOG       c12t2d5  ENA
+v  lvol14       sybdg01_192_rvg ENABLED ACTIVE 1024000  ROUND     -        fsgen
+pl lvol14-01    lvol14       ENABLED  ACTIVE   1024000  CONCAT    -        RW
+sd disk01-14    lvol14-01    disk01   11575296 1024000  0         c12t2d5  ENA
+pl lvol14-02    lvol14       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-30    lvol14-02    disk01   15159472 16       LOG       c12t2d5  ENA
+v  lvol3        sybdg01_192_rvg ENABLED ACTIVE 524288   ROUND     -        gen
+pl lvol3-01     lvol3        ENABLED  ACTIVE   524288   CONCAT    -        RW
+sd disk01-13    lvol3-01     disk01   6291456  524288   0         c12t2d5  ENA
+pl lvol3-02     lvol3        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-19    lvol3-02     disk01   15159360 12       LOG       c12t2d5  ENA
+v  lvol4        sybdg01_192_rvg ENABLED ACTIVE 524288   ROUND     -        gen
+pl lvol4-01     lvol4        ENABLED  ACTIVE   524288   CONCAT    -        RW
+sd disk01-12    lvol4-01     disk01   6815744  524288   0         c12t2d5  ENA
+pl lvol4-02     lvol4        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-20    lvol4-02     disk01   15159372 12       LOG       c12t2d5  ENA
+v  lvol5        sybdg01_192_rvg ENABLED ACTIVE 262144   ROUND     -        gen
+pl lvol5-01     lvol5        ENABLED  ACTIVE   262144   CONCAT    -        RW
+sd disk01-11    lvol5-01     disk01   7340032  262144   0         c12t2d5  ENA
+pl lvol5-02     lvol5        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-21    lvol5-02     disk01   15159384 8        LOG       c12t2d5  ENA
+v  lvol6        sybdg01_192_rvg ENABLED ACTIVE 262144   ROUND     -        gen
+pl lvol6-01     lvol6        ENABLED  ACTIVE   262144   CONCAT    -        RW
+sd disk01-10    lvol6-01     disk01   7602176  262144   0         c12t2d5  ENA
+pl lvol6-02     lvol6        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-22    lvol6-02     disk01   15159392 8        LOG       c12t2d5  ENA
+v  lvol7        sybdg01_192_rvg ENABLED ACTIVE 102400   ROUND     -        gen
+pl lvol7-01     lvol7        ENABLED  ACTIVE   102400   CONCAT    -        RW
+sd disk01-09    lvol7-01     disk01   7864320  102400   0         c12t2d5  ENA
+pl lvol7-02     lvol7        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-23    lvol7-02     disk01   15159400 4        LOG       c12t2d5  ENA
+v  lvol8        sybdg01_192_rvg ENABLED ACTIVE 155648   ROUND     -        gen
+pl lvol8-01     lvol8        ENABLED  ACTIVE   155648   CONCAT    -        RW
+sd disk01-08    lvol8-01     disk01   7966720  155648   0         c12t2d5  ENA
+pl lvol8-02     lvol8        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-24    lvol8-02     disk01   15159404 4        LOG       c12t2d5  ENA
+v  lvol9        sybdg01_192_rvg ENABLED ACTIVE 1048576  ROUND     -        gen
+pl lvol9-01     lvol9        ENABLED  ACTIVE   1048576  CONCAT    -        RW
+sd disk01-07    lvol9-01     disk01   8122368  1048576  0         c12t2d5  ENA
+pl lvol9-02     lvol9        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-25    lvol9-02     disk01   15159408 20       LOG       c12t2d5  ENA
+v  lvol10       sybdg01_192_rvg ENABLED ACTIVE 102400   ROUND     -        gen
+pl lvol10-01    lvol10       ENABLED  ACTIVE   102400   CONCAT    -        RW
+sd disk01-06    lvol10-01    disk01   9170944  102400   0         c12t2d5  ENA
+pl lvol10-02    lvol10       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-26    lvol10-02    disk01   15159428 4        LOG       c12t2d5  ENA
+v  lvol11       sybdg01_192_rvg ENABLED ACTIVE 102400   ROUND     -        gen
+pl lvol11-01    lvol11       ENABLED  ACTIVE   102400   CONCAT    -        RW
+sd disk01-05    lvol11-01    disk01   9273344  102400   0         c12t2d5  ENA
+pl lvol11-02    lvol11       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-27    lvol11-02    disk01   15159432 4        LOG       c12t2d5  ENA
+v  lvol12       sybdg01_192_rvg ENABLED ACTIVE 102400   ROUND     -        gen
+pl lvol12-01    lvol12       ENABLED  ACTIVE   102400   CONCAT    -        RW
+sd disk01-04    lvol12-01    disk01   9375744  102400   0         c12t2d5  ENA
+pl lvol12-02    lvol12       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-28    lvol12-02    disk01   15159436 4        LOG       c12t2d5  ENA
+v  lvol13       sybdg01_192_rvg ENABLED ACTIVE 2097152  ROUND     -        gen
+pl lvol13-01    lvol13       ENABLED  ACTIVE   2097152  CONCAT    -        RW
+sd disk01-03    lvol13-01    disk01   9478144  2097152  0         c12t2d5  ENA
+pl lvol13-02    lvol13       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-29    lvol13-02    disk01   15159440 32       LOG       c12t2d5  ENA
+v  lvol15       sybdg01_192_rvg ENABLED ACTIVE 1536000  ROUND     -        gen
+pl lvol15-01    lvol15       ENABLED  ACTIVE   1536000  CONCAT    -        RW
+sd disk01-02    lvol15-01    disk01   12599296 1536000  0         c12t2d5  ENA
+pl lvol15-02    lvol15       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-31    lvol15-02    disk01   15159488 24       LOG       c12t2d5  ENA
+v  lvol16       sybdg01_192_rvg ENABLED ACTIVE 1024000  ROUND     -        gen
+pl lvol16-01    lvol16       ENABLED  ACTIVE   1024000  CONCAT    -        RW
+sd disk01-01    lvol16-01    disk01   14135296 1024000  0         c12t2d5  ENA
+pl lvol16-02    lvol16       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-32    lvol16-02    disk01   15159512 16       LOG       c12t2d5  ENA
+v  lvol17       sybdg01_192_rvg ENABLED ACTIVE 114688   SELECT    -        fsgen
+pl lvol17-01    lvol17       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-33    lvol17-01    disk01   15159528 114688   0         c12t2d5  ENA
+pl lvol17-02    lvol17       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-42    lvol17-02    disk01   16281832 4        LOG       c12t2d5  ENA
+v  lvol18       sybdg01_192_rvg ENABLED ACTIVE 114688   SELECT    -        fsgen
+pl lvol18-01    lvol18       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-34    lvol18-01    disk01   15274216 114688   0         c12t2d5  ENA
+pl lvol18-02    lvol18       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-43    lvol18-02    disk01   16281836 4        LOG       c12t2d5  ENA
+v  lvol19       sybdg01_192_rvg ENABLED ACTIVE 114688   SELECT    -        fsgen
+pl lvol19-01    lvol19       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-35    lvol19-01    disk01   15388904 114688   0         c12t2d5  ENA
+pl lvol19-02    lvol19       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-44    lvol19-02    disk01   16281840 4        LOG       c12t2d5  ENA
+v  lvol20       sybdg01_192_rvg ENABLED ACTIVE 114688   SELECT    -        fsgen
+pl lvol20-01    lvol20       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-36    lvol20-01    disk01   15503592 114688   0         c12t2d5  ENA
+pl lvol20-02    lvol20       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-45    lvol20-02    disk01   16281844 4        LOG       c12t2d5  ENA
+v  lvol21       sybdg01_192_rvg ENABLED ACTIVE 114688   SELECT    -        fsgen
+pl lvol21-01    lvol21       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-37    lvol21-01    disk01   15618280 114688   0         c12t2d5  ENA
+pl lvol21-02    lvol21       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-46    lvol21-02    disk01   16281848 4        LOG       c12t2d5  ENA
+v  lvol22       sybdg01_192_rvg ENABLED ACTIVE 114688   SELECT    -        fsgen
+pl lvol22-01    lvol22       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-38    lvol22-01    disk01   15732968 114688   0         c12t2d5  ENA
+pl lvol22-02    lvol22       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-47    lvol22-02    disk01   16281852 4        LOG       c12t2d5  ENA
+v  lvol23       sybdg01_192_rvg ENABLED ACTIVE 114688   SELECT    -        fsgen
+pl lvol23-01    lvol23       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-39    lvol23-01    disk01   15847656 114688   0         c12t2d5  ENA
+pl lvol23-02    lvol23       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-48    lvol23-02    disk01   16281856 4        LOG       c12t2d5  ENA
+v  lvol24       sybdg01_192_rvg ENABLED ACTIVE 114688   SELECT    -        fsgen
+pl lvol24-01    lvol24       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-40    lvol24-01    disk01   15962344 114688   0         c12t2d5  ENA
+pl lvol24-02    lvol24       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-49    lvol24-02    disk01   16281860 4        LOG       c12t2d5  ENA
+v  lvol25       sybdg01_192_rvg ENABLED ACTIVE 204800   SELECT    -        fsgen
+pl lvol25-01    lvol25       ENABLED  ACTIVE   204800   CONCAT    -        RW
+sd disk01-41    lvol25-01    disk01   16077032 204800   0         c12t2d5  ENA
+pl lvol25-02    lvol25       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-50    lvol25-02    disk01   16281864 4        LOG       c12t2d5  ENA
+v  srl_log      sybdg01_192_rvg ENABLED ACTIVE 35352288 SELECT    -        SRL
+pl srl_log-01   srl_log      ENABLED  ACTIVE   35352288 CONCAT    -        RW
+sd srldisk01-01 srl_log-01   srldisk01 0       35352288 0         c12t1d4  ENA
+
+
+see 17-25 volumes...
+
+
+BEFORE*****
+
+dg sybdg01_192  default      default  6563000  1064060773.1118.testserver
+
+dm disk01       c12t2d5      simple   1152     35348480 -
+dm srldisk01    c12t1d4      simple   1024     35352288 -
+
+v  lvol17       -            ENABLED  ACTIVE   114688   SELECT    -        fsgen
+pl lvol17-01    lvol17       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-33    lvol17-01    disk01   15159528 114688   0         c12t2d5  ENA
+pl lvol17-02    lvol17       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-42    lvol17-02    disk01   16281832 4        LOG       c12t2d5  ENA
+
+v  lvol18       -            ENABLED  ACTIVE   114688   SELECT    -        fsgen
+pl lvol18-01    lvol18       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-34    lvol18-01    disk01   15274216 114688   0         c12t2d5  ENA
+pl lvol18-02    lvol18       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-43    lvol18-02    disk01   16281836 4        LOG       c12t2d5  ENA
+
+v  lvol19       -            ENABLED  ACTIVE   114688   SELECT    -        fsgen
+pl lvol19-01    lvol19       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-35    lvol19-01    disk01   15388904 114688   0         c12t2d5  ENA
+pl lvol19-02    lvol19       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-44    lvol19-02    disk01   16281840 4        LOG       c12t2d5  ENA
+
+v  lvol20       -            ENABLED  ACTIVE   114688   SELECT    -        fsgen
+pl lvol20-01    lvol20       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-36    lvol20-01    disk01   15503592 114688   0         c12t2d5  ENA
+pl lvol20-02    lvol20       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-45    lvol20-02    disk01   16281844 4        LOG       c12t2d5  ENA
+
+v  lvol21       -            ENABLED  ACTIVE   114688   SELECT    -        fsgen
+pl lvol21-01    lvol21       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-37    lvol21-01    disk01   15618280 114688   0         c12t2d5  ENA
+pl lvol21-02    lvol21       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-46    lvol21-02    disk01   16281848 4        LOG       c12t2d5  ENA
+
+v  lvol22       -            ENABLED  ACTIVE   114688   SELECT    -        fsgen
+pl lvol22-01    lvol22       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-38    lvol22-01    disk01   15732968 114688   0         c12t2d5  ENA
+pl lvol22-02    lvol22       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-47    lvol22-02    disk01   16281852 4        LOG       c12t2d5  ENA
+
+v  lvol23       -            ENABLED  ACTIVE   114688   SELECT    -        fsgen
+pl lvol23-01    lvol23       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-39    lvol23-01    disk01   15847656 114688   0         c12t2d5  ENA
+pl lvol23-02    lvol23       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-48    lvol23-02    disk01   16281856 4        LOG       c12t2d5  ENA
+
+v  lvol24       -            ENABLED  ACTIVE   114688   SELECT    -        fsgen
+pl lvol24-01    lvol24       ENABLED  ACTIVE   114688   CONCAT    -        RW
+sd disk01-40    lvol24-01    disk01   15962344 114688   0         c12t2d5  ENA
+pl lvol24-02    lvol24       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-49    lvol24-02    disk01   16281860 4        LOG       c12t2d5  ENA
+
+v  lvol25       -            ENABLED  ACTIVE   204800   SELECT    -        fsgen
+pl lvol25-01    lvol25       ENABLED  ACTIVE   204800   CONCAT    -        RW
+sd disk01-41    lvol25-01    disk01   16077032 204800   0         c12t2d5  ENA
+pl lvol25-02    lvol25       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-50    lvol25-02    disk01   16281864 4        LOG       c12t2d5  ENA
+
+rv sybdg01_192_rvg 1         ENABLED  ACTIVE   primary  16        srl_log
+rl to_syrep192  sybdg01_192_rvg DETACHED STALE syrep192 sybdg01_192 csrep192
+v  lvol1        sybdg01_192_rvg ENABLED ACTIVE 2097152  ROUND     -        fsgen
+pl lvol1-01     lvol1        ENABLED  ACTIVE   2097152  CONCAT    -        RW
+sd disk01-16    lvol1-01     disk01   0        2097152  0         c12t2d5  ENA
+pl lvol1-02     lvol1        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-17    lvol1-02     disk01   15159296 32       LOG       c12t2d5  ENA
+v  lvol2        sybdg01_192_rvg ENABLED ACTIVE 4194304  ROUND     -        fsgen
+pl lvol2-01     lvol2        ENABLED  ACTIVE   4194304  CONCAT    -        RW
+sd disk01-15    lvol2-01     disk01   2097152  4194304  0         c12t2d5  ENA
+pl lvol2-02     lvol2        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-18    lvol2-02     disk01   15159328 32       LOG       c12t2d5  ENA
+v  lvol14       sybdg01_192_rvg ENABLED ACTIVE 1024000  ROUND     -        fsgen
+pl lvol14-01    lvol14       ENABLED  ACTIVE   1024000  CONCAT    -        RW
+sd disk01-14    lvol14-01    disk01   11575296 1024000  0         c12t2d5  ENA
+pl lvol14-02    lvol14       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-30    lvol14-02    disk01   15159472 16       LOG       c12t2d5  ENA
+v  lvol3        sybdg01_192_rvg ENABLED ACTIVE 524288   ROUND     -        gen
+pl lvol3-01     lvol3        ENABLED  ACTIVE   524288   CONCAT    -        RW
+sd disk01-13    lvol3-01     disk01   6291456  524288   0         c12t2d5  ENA
+pl lvol3-02     lvol3        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-19    lvol3-02     disk01   15159360 12       LOG       c12t2d5  ENA
+v  lvol4        sybdg01_192_rvg ENABLED ACTIVE 524288   ROUND     -        gen
+pl lvol4-01     lvol4        ENABLED  ACTIVE   524288   CONCAT    -        RW
+sd disk01-12    lvol4-01     disk01   6815744  524288   0         c12t2d5  ENA
+pl lvol4-02     lvol4        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-20    lvol4-02     disk01   15159372 12       LOG       c12t2d5  ENA
+v  lvol5        sybdg01_192_rvg ENABLED ACTIVE 262144   ROUND     -        gen
+pl lvol5-01     lvol5        ENABLED  ACTIVE   262144   CONCAT    -        RW
+sd disk01-11    lvol5-01     disk01   7340032  262144   0         c12t2d5  ENA
+pl lvol5-02     lvol5        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-21    lvol5-02     disk01   15159384 8        LOG       c12t2d5  ENA
+v  lvol6        sybdg01_192_rvg ENABLED ACTIVE 262144   ROUND     -        gen
+pl lvol6-01     lvol6        ENABLED  ACTIVE   262144   CONCAT    -        RW
+sd disk01-10    lvol6-01     disk01   7602176  262144   0         c12t2d5  ENA
+pl lvol6-02     lvol6        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-22    lvol6-02     disk01   15159392 8        LOG       c12t2d5  ENA
+v  lvol7        sybdg01_192_rvg ENABLED ACTIVE 102400   ROUND     -        gen
+pl lvol7-01     lvol7        ENABLED  ACTIVE   102400   CONCAT    -        RW
+sd disk01-09    lvol7-01     disk01   7864320  102400   0         c12t2d5  ENA
+pl lvol7-02     lvol7        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-23    lvol7-02     disk01   15159400 4        LOG       c12t2d5  ENA
+v  lvol8        sybdg01_192_rvg ENABLED ACTIVE 155648   ROUND     -        gen
+pl lvol8-01     lvol8        ENABLED  ACTIVE   155648   CONCAT    -        RW
+sd disk01-08    lvol8-01     disk01   7966720  155648   0         c12t2d5  ENA
+pl lvol8-02     lvol8        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-24    lvol8-02     disk01   15159404 4        LOG       c12t2d5  ENA
+v  lvol9        sybdg01_192_rvg ENABLED ACTIVE 1048576  ROUND     -        gen
+pl lvol9-01     lvol9        ENABLED  ACTIVE   1048576  CONCAT    -        RW
+sd disk01-07    lvol9-01     disk01   8122368  1048576  0         c12t2d5  ENA
+pl lvol9-02     lvol9        ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-25    lvol9-02     disk01   15159408 20       LOG       c12t2d5  ENA
+v  lvol10       sybdg01_192_rvg ENABLED ACTIVE 102400   ROUND     -        gen
+pl lvol10-01    lvol10       ENABLED  ACTIVE   102400   CONCAT    -        RW
+sd disk01-06    lvol10-01    disk01   9170944  102400   0         c12t2d5  ENA
+pl lvol10-02    lvol10       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-26    lvol10-02    disk01   15159428 4        LOG       c12t2d5  ENA
+v  lvol11       sybdg01_192_rvg ENABLED ACTIVE 102400   ROUND     -        gen
+pl lvol11-01    lvol11       ENABLED  ACTIVE   102400   CONCAT    -        RW
+sd disk01-05    lvol11-01    disk01   9273344  102400   0         c12t2d5  ENA
+pl lvol11-02    lvol11       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-27    lvol11-02    disk01   15159432 4        LOG       c12t2d5  ENA
+v  lvol12       sybdg01_192_rvg ENABLED ACTIVE 102400   ROUND     -        gen
+pl lvol12-01    lvol12       ENABLED  ACTIVE   102400   CONCAT    -        RW
+sd disk01-04    lvol12-01    disk01   9375744  102400   0         c12t2d5  ENA
+pl lvol12-02    lvol12       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-28    lvol12-02    disk01   15159436 4        LOG       c12t2d5  ENA
+v  lvol13       sybdg01_192_rvg ENABLED ACTIVE 2097152  ROUND     -        gen
+pl lvol13-01    lvol13       ENABLED  ACTIVE   2097152  CONCAT    -        RW
+sd disk01-03    lvol13-01    disk01   9478144  2097152  0         c12t2d5  ENA
+pl lvol13-02    lvol13       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-29    lvol13-02    disk01   15159440 32       LOG       c12t2d5  ENA
+v  lvol15       sybdg01_192_rvg ENABLED ACTIVE 1536000  ROUND     -        gen
+pl lvol15-01    lvol15       ENABLED  ACTIVE   1536000  CONCAT    -        RW
+sd disk01-02    lvol15-01    disk01   12599296 1536000  0         c12t2d5  ENA
+pl lvol15-02    lvol15       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-31    lvol15-02    disk01   15159488 24       LOG       c12t2d5  ENA
+v  lvol16       sybdg01_192_rvg ENABLED ACTIVE 1024000  ROUND     -        gen
+pl lvol16-01    lvol16       ENABLED  ACTIVE   1024000  CONCAT    -        RW
+sd disk01-01    lvol16-01    disk01   14135296 1024000  0         c12t2d5  ENA
+pl lvol16-02    lvol16       ENABLED  ACTIVE   LOGONLY  CONCAT    -        RW
+sd disk01-32    lvol16-02    disk01   15159512 16       LOG       c12t2d5  ENA
+v  srl_log      sybdg01_192_rvg ENABLED ACTIVE 35352288 SELECT    -        SRL
+pl srl_log-01   srl_log      ENABLED  ACTIVE   35352288 CONCAT    -        RW
+sd srldisk01-01 srl_log-01   srldisk01 0       35352288 0         c12t1d4  ENA
+
+
+see 17-25 are NOT in the rvg disk group..... >>>
+</pre>

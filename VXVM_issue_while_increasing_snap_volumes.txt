@@ -1,0 +1,81 @@
+---++ Doc Log 1383809779_01
+        $ Date: Thu Nov 07:: 13:06:19
+        $ Summary: VXVM issue while increasing snap volumes
+
+---++++ Details:
+<pre>
+Increase size of snapshot and parent volume for PFIbatchprogvl_01/batchprogvl
+Symantec suggested mounting the snapshot volume to be increased and grow it in this fashion due to a known issue with the vxassist growto command when dcl logs are involved:
+mount -F vxfs /dev/vx/dsk/testdb11dg/PFIbatchprogvl_01 /mnt
+
+./vxresize -b -F vxfs -g testdb11dg PFIbatchprogvl_01 1090g alloc=528testdb11dn,529testdb11dn,530testdb11dn,531testdb11dn,532testdb11dn,539testdb11dn,545testdb11dn,546testdb11dn,521testdb11dn,522testdb11dn,523testdb11dn
+
+$ VxVM vxedit ERROR V-5-1-693 Incorrect usage
+
+Usage: vxedit [-VPvpsdGrf] [-e pattern] rm [name ...]
+
+VxVM vxresize ERROR V-5-1-4703 Problem running vxassist command for volume PFIbatchprogvl_01, in diskgroup testdb11dg
+
+However, the vxresize command terminated with an error. Again, it looks like it is part of an known incident in the Volume manager code for the superseded and now End-of-Live version 5.0mp1rp3.
+
+Symantec suggests disassociating the snapshot volume from its parent and trying to unprepared [remove DCO log volume], then try to grow the snapshot volume:
+
+vxsanp -g testdb11dg dis PFIbatchprogvl_01
+vxsnap -g testdb11dg unprepare PFIbatchprogvl_01
+vxsnap -g testdb11dg -f unprepare PFIbatchprogvl_01
+VxVM vxassist ERROR V-5-1-10127 changing volume PFIbatchprogvl_2d_dcl:
+
+        Operation requires transaction
+
+
+The unprepare errors out unexpectedly. Symantec suggest increasing a volume manager tunable so the operation would not time out and restart vxconfigd. Symantec also cautious us that this could induce a machine panic. So, we declined to go ahead with this solution.
+
+
+Symantec suggest increasing another tuneable that can be changed temporarily on the fly and then try to unprepare the snapshot volume again:
+
+export VXVM_TRANS_MAX_TIMEOUT=3000
+
+vxtune volpagemod_max_memsz 524288
+
+vxconfigd -k 
+
+vxsnap -g testdb11dg -f unprepare PFIbatchprogvl_01
+
+VxVM vxassist ERROR V-5-1-10127 changing volume PFIbatchprogvl_2d_dcl:
+
+        Operation requires transaction
+
+We run into the same problem again.
+
+Symantec suggests to take an outage, failover the ServiceGroup where the snapshot volume is located to a standby server where we would prior set the tuneable for vxconfigd. However we could not go down this road without an outage.
+
+In a conference call, it was decided to go for complete the change with incident.
+
+Backout needed to re-establish the snapshot:
+
+test $ vxsnap -g testdb11dg make source=batchprogvl/snapvol=PFIbatchprogvl_01/sync=yes
+
+
+-----------------------------------------------------------------------
+
+Need to resize the parent volume called batchprogvl. The snapshot was successfully increased a week ago.
+
+Increasing the batchprogvl succeeded without problems.
+
+./vxresize -b -F vxfs -g testdb09dg batchprogvl 1090g alloc,084testdb09dn,085testdb09dn,086testdb09dn,087testdb09dn,088testdb09dn,089testdb09dn,095testdb09dn,096testdb09dn,097testdb09dn,098testdb09dn
+
+
+$ df -h|grep batchprog
+
+/dev/vx/dsk/testdb09dg/batchprogvl   1.1T   440G   645G    41%    /apps/bss/BatchProg
+
+vxsnap -g testdb09dg refresh PFIbatchprogvl_ef
+
+$ vxsnap -g testdb09dg print |grep batch
+
+batchprogvl --           volume   --       --           --       100.00
+
+PFIbatchprogvl_ef_snp1  volume   --       PFIbatchprogvl_ef 0.01     --
+
+PFIbatchprogvl_ef batchprogvl_snp volume   batchprogvl -- 0.01 100.00
+</pre>

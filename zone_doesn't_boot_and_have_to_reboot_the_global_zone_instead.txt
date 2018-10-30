@@ -1,0 +1,31 @@
+---++ Doc Log 1383807480_01
+        $ Date: Thu Nov 07:: 12:28:00
+        $ Summary: zone doesn't boot and have to reboot the global zone instead
+
+---++++ Details:
+<pre>
+This Bug looks related -> 15710774 - SUNBT7038404-SOLARIS_11 outstanding zone references should not cause zone_destroy
+
+Sun BugId: 7038404, Oracle BugID: 15710774
+BugId PatchID Size Date Synopsis
+--------------------------------------------------------------------------------
+7038404 147147-26 69M Feb/06/2013 SunOS 5.10: kernel patch
+7038404 147148-26 46M Feb/06/2013 SunOS 5.10_x86: kernel patch
+--------------------------------------------------------------------------------
+
+!REQUIRED! : Patch 147147 is missing. Install 147147-26. (RC) SunOS 5.10: kernel patch
+
+Action Plan:
+
+2nd. Install the latest recommended patch set, which includes 147147-26 
+
+Action plan I suggest:
+=====================
+
+1.Check kernel level before schedule the change. 
+2. If it is lower than 147148-26 , try to plan  global zone  patching  first.
+3. If patching is impossible, plan the outage for the global zone and all
+local zones. However you should still  try reboot zone first as this bug may
+not always happen,  reboot global zone should be the last approach. 
+ 
+</pre>

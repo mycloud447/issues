@@ -1,0 +1,50 @@
+---++ Doc Log 1248019610_01
+
+	$ Date: Sun Jul 19 16:06:50 2009
+	$ Summary: Quick Procedure For Confirming Disk/Lun IDS in Linux Veritas
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+Just a quick doc to show how to tell which disk within Veritas is the newly allocated LUN
+
+For server 0206s a new LUN was allocated as follows:
+
+	SN Disk Size Host Name Lun ID (Hex) 
+	1 1x 8 GB 0206s 0B6
+
+First thing to do is translate the Lun ID to Dec:
+
+	0B6 = 182
+
+Now check lsscsi for the disk to make sure it's visible:
+
+	0206s:/opt/iwatch # lsscsi | grep 182
+	[1:0:0:182]  disk    EMC      SYMMETRIX        5671  /dev/sde
+	[2:0:0:182]  disk    EMC      SYMMETRIX        5671  /dev/sdbg
+
+This gives us the two paths to the disk and the devices ID's specified. This should be enough to confirm your disk, by now running a vxdisk list (note the below shows the disk assigned, I had already set it up, normally it would be in error state):
+
+	0206s:/opt/iwatch # vxdisk -e -o alldgs list | grep sde
+	sdbj         auto      syb_bin_uat_206_d02a  syb_bin_prod_206_dg online       sde
+
+So we now know the veritas device is /dev/vx/rdsk/sdbj, we can confirm this running a vxdisk list on this device:
+
+	0206s:/opt/iwatch # vxdisk list sdbj | grep state
+	sde     state=enabled
+	sdbg    state=enabled
+
+This again shows our two paths as seen in the lsscsi. If you need to double check, you can use the emcgrab "inq" tool:
+
+	0206s:/opt/emcgrab/tools/bin # ./inq.LinuxAMD64 -no_dots -sym_wwn | grep /dev/vx/rdmp/sdbj
+	/dev/vx/rdmp/sdbj  000287750508   00BE9     6006048000028775050853594d424539
+
+Use this information and run it again to get the physical paths:
+
+	0206s:/opt/emcgrab/tools/bin # ./inq.LinuxAMD64 -no_dots -sym_wwn | grep 00BE9
+	/dev/sde           000287750508   00BE9     6006048000028775050853594d424539
+	/dev/sdbg          000287750508   00BE9     6006048000028775050853594d424539
+	/dev/vx/rdmp/sdbj  000287750508   00BE9     6006048000028775050853594d424539
+
+So again you can confirm your two physical paths "sde" and "sdbg" as seen in the lsscsi and your veritas device "sdbj"
+</pre>

@@ -1,0 +1,1881 @@
+---++ Doc Log 1383633990_01
+        $ Date: Tue Nov 05:: 12:16:30
+        $ Summary: live patching with zfs root  and zfs zones
+
+---++++ Details:
+<pre>
+Pree checks
+===============================
+
+# uname -a
+
+SunOS test01 5.10 Generic_147440-05 sun4v sparc SUNW,Netra-T2000
+
+
+
+# zoneadm list -cv
+
+  ID NAME             STATUS     PATH                           BRAND    IP    
+
+   0 global           running    /                              native   shared
+
+   1 test01-app3 running    /zones/test01-app3        native   shared
+
+   2 test01-app  running    /zones/test01-app         native   shared
+
+   3 test01-app4 running    /zones/test01-app4        native   shared
+
+   4 test01-app2 running    /zones/test01-app2        native   shared
+
+
+
+#  for i in test01-app3  test01-app test01-app4  test01-app2
+
+> do
+
+> zlogin -S $i `/usr/bin/uname -a'
+
+> done
+
+SunOS test01-app3 5.10 Generic_147440-05 sun4v sparc SUNW,Netra-T2000
+
+SunOS test01-app 5.10 Generic_147440-05 sun4v sparc SUNW,Netra-T2000
+
+SunOS test01-app4 5.10 Generic_147440-05 sun4v sparc SUNW,Netra-T2000
+
+SunOS test01-app2 5.10 Generic_147440-05 sun4v sparc SUNW,Netra-T2000
+
+
+
+# cd /var/tmp
+
+# cksum 10_Recommended.zip
+
+1848255573      2142125730      10_Recommended.zip
+
+
+
+# cd /etc/lu/
+
+# cp -pr /etc/lutab /etc/lutab.backup_08082013
+
+# cp -pr /etc/lu/ICF* /etc/lu/ICF*_08082013
+
+
+
+#mkdir /var/tmp/CONFIG.`uname -n`.`date '+%d%m%y'` ; cd /var/tmp/CONFIG.`uname -n`.`date '+%d%m%y'`
+
+# scp -p user@server:/usr/local/bin/sysinfo_patch.ksh .
+
+
+
+#  nohup ./sysinfo_patch.ksh &
+
+
+
+# tar -cvf CONFIG.test01.070813.tar CONFIG.test01.070813
+
+
+
+# gzip CONFIG.test01.070813.tar
+
+
+
+============> save CONFIG.test01.070813.tar and sun explorer to your local desktop
+
+
+
+# cp -p /etc/mail/sendmail.cf /etc/mail/sendmail.cf.`date +%d%m%Y`
+
+# cp -p /etc/mail/submit.cf    /etc/mail/submit.cf.`date +%d%m%Y`
+
+# cp -p /etc/ssh/sshd_config /etc/ssh/sshd_config.`date +%d%m%Y`
+
+# cd /etc/zones
+
+
+
+# cp -pr test01-app3.xml test01-app3.xml.`date +%d%m%Y`
+
+# cp -pr test01-app.xml test01-app.xml.`date +%d%m%Y`
+
+# cp -pr test01-app4.xml test01-app4.xml.`date +%d%m%Y`
+
+# cp -pr test01-app2.xml test01-app2.xml.`date +%d%m%Y`
+
+# cp -pr index index.`date +%d%m%Y`
+
+# java -version
+
+java version "1.6.0_29"
+
+Java(TM) SE Runtime Environment (build 1.6.0_29-b11)
+
+Java HotSpot(TM) Server VM (build 20.4-b02, mixed mode)
+
+
+
+# ifconfig -a | grep -i failed
+
+# echo | format
+
+Searching for disks...done
+
+
+
+
+
+AVAILABLE DISK SELECTIONS:
+
+       0. c0t1d0 <SUN300G cyl 46873 alt 2 hd 20 sec 625>
+
+          /pci@780/pci@0/pci@9/scsi@0/sd@1,0
+
+       1. c0t3d0 <SUN300G cyl 46873 alt 2 hd 20 sec 625>
+
+          /pci@780/pci@0/pci@9/scsi@0/sd@3,0
+
+Specify disk (enter its number): Specify disk (enter its number): 
+
+
+
+# df -h /
+
+Filesystem             size   used  avail capacity  Mounted on
+
+rpool/ROOT/OS10_SPARC_1010
+
+                       274G   128G   112G    54%    /
+
+# uptime
+
+ 11:31pm  up 48 day(s),  9:29,  1 user,  load average: 6.73, 6.81, 7.56
+
+
+
+#  prtconf -pv | grep -i boot
+
+        bootarchive:  '/ramdisk-root'
+
+        zfs-bootfs:  'rpool/50'
+
+        bootfs:  fec9ded0
+
+        bootargs:  00
+
+        bootpath:  '/pci@780/pci@0/pci@9/scsi@0/disk@1,0:a'
+
+        reboot-command:  
+
+        auto-boot-on-error?:  'false'
+
+        auto-boot?:  'false'
+
+        network-boot-arguments:  
+
+        boot-command:  'boot'
+
+        boot-file:  
+
+        boot-device:  'rootdisk rootmirror net'
+
+        multipath-boot?:  'false'
+
+        boot-device-index:  '0'
+
+        error-reset-recovery:  'boot'
+
+
+
+# psrinfo ; prtconf -v | grep Memory
+
+0	on-line   since 06/20/2013 14:02:17
+
+1	on-line   since 06/20/2013 14:02:19
+
+2	on-line   since 06/20/2013 14:02:19
+
+3	on-line   since 06/20/2013 14:02:19
+
+4	on-line   since 06/20/2013 14:02:19
+
+5	on-line   since 06/20/2013 14:02:19
+
+6	on-line   since 06/20/2013 14:02:19
+
+7	on-line   since 06/20/2013 14:02:19
+
+8	on-line   since 06/20/2013 14:02:19
+
+9	on-line   since 06/20/2013 14:02:19
+
+10	on-line   since 06/20/2013 14:02:19
+
+11	on-line   since 06/20/2013 14:02:19
+
+12	on-line   since 06/20/2013 14:02:19
+
+13	on-line   since 06/20/2013 14:02:19
+
+14	on-line   since 06/20/2013 14:02:19
+
+15	on-line   since 06/20/2013 14:02:19
+
+16	on-line   since 06/20/2013 14:02:19
+
+17	on-line   since 06/20/2013 14:02:19
+
+18	on-line   since 06/20/2013 14:02:19
+
+19	on-line   since 06/20/2013 14:02:19
+
+20	on-line   since 06/20/2013 14:02:19
+
+21	on-line   since 06/20/2013 14:02:19
+
+22	on-line   since 06/20/2013 14:02:19
+
+23	on-line   since 06/20/2013 14:02:19
+
+24	on-line   since 06/20/2013 14:02:19
+
+25	on-line   since 06/20/2013 14:02:19
+
+26	on-line   since 06/20/2013 14:02:19
+
+27	on-line   since 06/20/2013 14:02:19
+
+28	on-line   since 06/20/2013 14:02:19
+
+29	on-line   since 06/20/2013 14:02:19
+
+30	on-line   since 06/20/2013 14:02:19
+
+31	on-line   since 06/20/2013 14:02:19
+
+
+
+Memory size: 65408 Megabytes
+
+
+
+# /usr/platform/`uname -i`/sbin/prtdiag
+
+
+Memory size: 65408 Megabytes
+
+
+
+================================ Virtual CPUs ================================
+
+
+
+
+
+CPU ID Frequency Implementation         Status
+
+------ --------- ---------------------- -------
+
+0      1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+1      1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+2      1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+3      1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+4      1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+5      1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+6      1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+7      1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+8      1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+9      1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+10     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+11     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+12     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+13     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+14     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+15     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+16     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+17     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+18     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+19     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+20     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+21     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+22     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+23     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+24     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+25     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+26     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+27     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+28     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+29     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+30     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+31     1200 MHz  SUNW,UltraSPARC-T1     on-line  
+
+
+
+======================= Physical Memory Configuration ========================
+
+Segment Table:
+
+--------------------------------------------------------------
+
+Base           Segment  Interleave  Bank     Contains
+
+Address        Size     Factor      Size     Modules
+
+--------------------------------------------------------------
+
+0x0            64 GB    4           8 GB     MB/CMP0/CH0/R0/D0
+
+                                             MB/CMP0/CH0/R0/D1
+
+                                    8 GB     MB/CMP0/CH0/R1/D0
+
+                                             MB/CMP0/CH0/R1/D1
+
+                                    8 GB     MB/CMP0/CH1/R0/D0
+
+                                             MB/CMP0/CH1/R0/D1
+
+                                    8 GB     MB/CMP0/CH1/R1/D0
+
+                                             MB/CMP0/CH1/R1/D1
+
+                                    8 GB     MB/CMP0/CH2/R0/D0
+
+                                             MB/CMP0/CH2/R0/D1
+
+                                    8 GB     MB/CMP0/CH2/R1/D0
+
+                                             MB/CMP0/CH2/R1/D1
+
+                                    8 GB     MB/CMP0/CH3/R0/D0
+
+                                             MB/CMP0/CH3/R0/D1
+
+                                    8 GB     MB/CMP0/CH3/R1/D0
+
+                                             MB/CMP0/CH3/R1/D1
+
+
+
+
+
+========================= IO Configuration =========================
+
+
+
+            IO                                                                                         
+
+
+----------- ----- ---- --------------------------------------------- ------------------------- ---------
+
+IOBD/NET0    PCIE IOBD                /pci@780/pci@0/pci@1/network@0    network-pciex8086,105e          
+
+IOBD/NET1    PCIE IOBD              /pci@780/pci@0/pci@1/network@0,1    network-pciex8086,105e          
+
+IOBD/PCIE    PCIE IOBD                   /pci@780/pci@0/pci@9/scsi@0         scsi-pciex1000,56 LSI,1064E
+
+IOBD/PCIX    PCIX IOBD              /pci@7c0/pci@0/pci@1/pci@0/isa@2                       isa          
+
+IOBD/PCIX    PCIX IOBD              /pci@7c0/pci@0/pci@1/pci@0/usb@5       usb-pciclass,0c0310          
+
+IOBD/PCIX    PCIX IOBD              /pci@7c0/pci@0/pci@1/pci@0/usb@6       usb-pciclass,0c0310          
+
+IOBD/PCIX    PCIX IOBD              /pci@7c0/pci@0/pci@1/pci@0/ide@8          ide-pci10b9,5229          
+
+IOBD/NET2    PCIE IOBD                /pci@7c0/pci@0/pci@2/network@0    network-pciex8086,105e          
+
+IOBD/NET3    PCIE IOBD              /pci@7c0/pci@0/pci@2/network@0,1    network-pciex8086,105e          
+
+
+
+============================ Environmental Status ============================
+
+Fan sensors:
+
+All fan sensors are OK.
+
+
+
+Temperature sensors:
+
+All temperature sensors are OK.
+
+
+
+Current sensors:
+
+All current sensors are OK.
+
+
+
+Current indicators:
+
+All current indicators are OK.
+
+
+
+Voltage sensors:
+
+All voltage sensors are OK.
+
+
+
+============================ FRU Status ============================
+
+All FRUs are enabled.
+
+
+
+# df -h
+
+Filesystem             size   used  avail capacity  Mounted on
+
+rpool/ROOT/OS10_SPARC_1010
+
+                       274G   128G   112G    54%    /
+
+/devices                 0K     0K     0K     0%    /devices
+
+ctfs                     0K     0K     0K     0%    /system/contract
+
+proc                     0K     0K     0K     0%    /proc
+
+mnttab                   0K     0K     0K     0%    /etc/mnttab
+
+swap                    16G   408K    16G     1%    /etc/svc/volatile
+
+objfs                    0K     0K     0K     0%    /system/object
+
+sharefs                  0K     0K     0K     0%    /etc/dfs/sharetab
+
+/platform/SUNW,Netra-T2000/lib/libc_psr/libc_psr_hwcap1.so.1
+
+                       241G   128G   112G    54%    /platform/sun4v/lib/libc_psr.so.1
+
+/platform/SUNW,Netra-T2000/lib/sparcv9/libc_psr/libc_psr_hwcap1.so.1
+
+                       241G   128G   112G    54%    /platform/sun4v/lib/sparcv9/libc_psr.so.1
+
+fd                       0K     0K     0K     0%    /dev/fd
+
+swap                    16G   8.0M    16G     1%    /tmp
+
+swap                    16G    72K    16G     1%    /var/run
+
+rpool/export           274G    23K   112G     1%    /export
+
+rpool/export/home      274G    27K   112G     1%    /export/home
+
+rpool                  274G    97K   112G     1%    /rpool
+
+10.120.80.1:/vol/home_vol1
+
+                       400G   240G   160G    61%    /data/home
+
+nskntjust01:/data/jumpstart
+
+                       492G   302G   190G    62%    /data/jumpstart
+
+# uname -a
+
+SunOS test01 5.10 Generic_147440-05 sun4v sparc SUNW,Netra-T2000
+
+
+
+# netstat -nrv
+
+
+
+IRE Table: IPv4
+
+  Destination             Mask           Gateway          Device Mxfrg Rtt   Ref Flg  Out  In/Fwd 
+
+-------------------- --------------- -------------------- ------ ----- ----- --- --- ----- ------ 
+
+default              0.0.0.0         61.9.173.65                  1500*    0   1 UG  5707991      0 
+
+default              0.0.0.0         61.9.173.65          e1000g0:1  1500*    0   1 UG  2713755      0 
+
+default              0.0.0.0         10.157.188.1         e1000g0:1  1500*    0   1 UG  2839885      0 
+
+10.120.80.0          255.255.255.128 10.120.80.25         e1000g2:1  1500*    0   1 U   2894752      0 
+
+10.120.80.0          255.255.255.128 10.120.80.25         e1000g2  1500*    0   1 U        0      0 
+
+10.120.80.0          255.255.255.128 10.120.80.25         e1000g3  1500*    0   1 U     5251      0 
+
+61.9.173.64          255.255.255.192 61.9.173.70          e1000g0:1  1500*    0   1 U      310      0 
+
+61.9.173.64          255.255.255.192 61.9.173.70          e1000g0  1500*    0   1 U        0      0 
+
+61.9.173.64          255.255.255.192 61.9.173.70          e1000g1  1500*    0   1 U     1563      0 
+
+224.0.0.0            240.0.0.0       61.9.173.70          e1000g0:1  1500*    0   1 U        0      0 
+
+127.0.0.1            255.255.255.255 127.0.0.1            lo0     8232*    0  10 UH  123054      0 
+
+
+
+#  zpool status -xv
+
+  pool: rpool
+
+ state: ONLINE
+
+status: The pool is formatted using an older on-disk format.  The pool can
+
+	still be used, but some features are unavailable.
+
+action: Upgrade the pool using 'zpool upgrade'.  Once this is done, the
+
+	pool will no longer be accessible on older software versions.
+
+ scan: resilvered 45.5G in 0h58m with 0 errors on Tue Oct  2 12:00:09 2012
+
+config:
+
+
+
+	NAME          STATE     READ WRITE CKSUM
+
+	rpool         ONLINE       0     0     0
+
+	  mirror-0    ONLINE       0     0     0
+
+	    c0t1d0s0  ONLINE       0     0     0
+
+	    c0t3d0s0  ONLINE       0     0     0
+
+
+
+errors: No known data errors
+
+
+
+# svcs -xv
+
+svc:/application/print/server:default (LP print server)
+
+ State: disabled since Thu Jun 20 14:02:26 2013
+
+Reason: Disabled by an administrator.
+
+   See: http://sun.com/msg/SMF-8000-05
+
+   See: man -M /usr/share/man -s 1M lpsched
+
+Impact: 1 dependent service is not running:
+
+        svc:/application/print/rfc1179:default
+
+
+
+svc:/network/rpc/smserver:default (removable media management)
+
+ State: disabled since Thu Jun 20 14:02:49 2013
+
+Reason: Disabled by an administrator.
+
+   See: http://sun.com/msg/SMF-8000-05
+
+   See: man -M /usr/share/man -s 1M rpc.smserverd
+
+Impact: 1 dependent service is not running:
+
+        svc:/system/filesystem/volfs:default
+
+
+
+# zfs list
+
+NAME                         USED  AVAIL  REFER  MOUNTPOINT
+
+rpool                        162G   112G    97K  /rpool
+
+rpool/ROOT                   128G   112G    21K  legacy
+
+rpool/ROOT/OS10_SPARC_1010   128G   112G   128G  /
+
+rpool/dump                    16K   112G    16K  -
+
+rpool/export                50.5K   112G    23K  /export
+
+rpool/export/home           27.5K   112G  27.5K  /export/home
+
+rpool/swap                  33.0G   145G  13.3M  -
+
+
+
+# zpool list
+
+NAME    SIZE  ALLOC   FREE    CAP  HEALTH  ALTROOT
+
+rpool   278G   129G   149G    46%  ONLINE  -
+
+
+
+# zfs mount
+
+rpool/ROOT/OS10_SPARC_1010      /
+
+rpool/export                    /export
+
+rpool/export/home               /export/home
+
+rpool                           /rpool
+
+
+
+# showrev -p > /var/tmp/`uname -n`_showrev_pre.out
+
+# eeprom
+
+ttya-rts-dtr-off=false
+
+ttya-ignore-cd=true
+
+keyboard-layout=US-English
+
+reboot-command: data not available.
+
+security-mode=none
+
+security-password: data not available.
+
+security-#badlogins=0
+
+verbosity=min
+
+pci-mem64?=false
+
+diag-switch?=true
+
+local-mac-address?=true
+
+fcode-debug?=false
+
+scsi-initiator-id=7
+
+oem-logo: data not available.
+
+oem-logo?=false
+
+oem-banner: data not available.
+
+oem-banner?=false
+
+ansi-terminal?=true
+
+screen-#columns=80
+
+screen-#rows=34
+
+ttya-mode=9600,8,n,1,-
+
+output-device=virtual-console
+
+input-device=virtual-console
+
+auto-boot-on-error?=false
+
+load-base=16384
+
+auto-boot?=false
+
+network-boot-arguments: data not available.
+
+boot-command=boot
+
+boot-file: data not available.
+
+boot-device=rootdisk rootmirror net
+
+multipath-boot?=false
+
+boot-device-index=0
+
+use-nvramrc?=true
+
+nvramrc=
+
+devalias rootdisk /pci@780/pci@0/pci@9/scsi@0/disk@1,0
+
+devalias rootmirror /pci@780/pci@0/pci@9/scsi@0/disk@3,0
+
+error-reset-recovery=boot
+
+
+
+# eeprom auto-boot>?
+
+auto-boot?=false
+
+
+
+# cp -pr /etc/path/pdo.conf /etc/path/pdo.conf.`date +%d%m%Y`
+
+
+
+# grep -i num_proc /etc/patch/pdo.conf
+
+num_proc=1 # default entry
+
+
+
+# psrinfo |grep -i on-line |wc -l
+
+      32
+
+
+
+# grep -i num_proc /etc/patch/pdo.conf  ==========> change the num_proc to 48 (number of cpus online * 1.5) so that patching will be happen parallel in zones
+
+num_proc=48 # default entry
+
+
+
+#  zfs list -t snap
+
+no datasets available
+
+
+
+# zfs snapshot  rpool/ROOT/OS10_SPARC_1010@test01_root_BP
+
+
+
+# zfs list -t snap
+
+NAME                                             USED  AVAIL  REFER  MOUNTPOINT
+
+rpool/ROOT/OS10_SPARC_1010@test01_root_BP      0      -   129G  -
+
+
+
+# lustatus
+
+Boot Environment           Is       Active Active    Can    Copy      
+
+Name                       Complete Now    On Reboot Delete Status    
+
+-------------------------- -------- ------ --------- ------ ----------
+
+OS10_SPARC_1010            yes      yes    yes       no     -         
+
+
+
+# iostat -en
+
+  ---- errors --- 
+
+  s/w h/w trn tot device
+
+    0   0   0   0 c0t1d0
+
+    0   0   0   0 c0t3d0
+
+    0   0   2   2 c1t0d0
+
+    0   0   0   0 nskntjust01:/data/jumpstart
+
+    0   0   0   0 10.120.80.1:/vol/home_vol1
+
+    0   0   0   0 10.157.190.1:/vol/blogphotos_logarchive
+
+    0   0   0   0 10.157.190.1:/vol/blogphotos_logarchive
+
+    0   0   0   0 nskntjust01:/data/jumpstart
+
+    0   0   0   0 10.157.191.252:/vol/um_data
+
+    0   0   0   0 10.157.190.1:/vol/home_vol1
+
+    0   0   0   0 10.157.190.1:/vol/blogphotos_media
+
+    0   0   0   0 10.157.190.1:/vol/content
+
+    0   0   0   0 10.157.191.252:/vol/um_data
+
+    0   0   0   0 nskntjust01:/data/jumpstart
+
+    0   0   0   0 10.157.190.1:/vol/content
+
+    0   0   0   0 10.157.191.253:/vol/cms_content
+
+    0   0   0   0 10.157.190.1:/vol/home_vol1
+
+    0   0   0   0 10.157.190.1:/vol/blogphotos_media
+
+    0   0   0   0 10.157.191.253:/vol/cms_content
+
+    0   0   0   0 10.157.190.1:/vol/blogphotos_logarchive
+
+    0   0   0   0 10.120.80.1:/vol/blogphotos_logarchive
+
+    0   0   0   0 10.120.80.126:/vol/um_data
+
+    0   0   0   0 nskntjust01:/data/jumpstart
+
+    0   0   0   0 10.120.80.1:/vol/home_vol1
+
+    0   0   0   0 10.120.80.1:/vol/blogphotos_media
+
+    0   0   0   0 10.120.80.1:/vol/content
+
+    0   0   0   0 10.120.80.83:/vol/cms_content
+
+    0   0   0   0 10.157.191.252:/vol/um_data
+
+    0   0   0   0 nskntjust01:/data/jumpstart
+
+    0   0   0   0 10.157.190.1:/vol/home_vol1
+
+    0   0   0   0 10.157.190.1:/vol/blogphotos_media
+
+    0   0   0   0 10.157.190.1:/vol/content
+
+    0   0   0   0 10.157.191.253:/vol/cms_content
+
+
+
+# zpool get bootfs rpool
+
+NAME   PROPERTY  VALUE                       SOURCE
+
+rpool  bootfs    rpool/ROOT/OS10_SPARC_1010  local
+
+
+
+========================================== Implementation ================================
+
+$  scp -pr /export/software/Veritas/install/v5.1sp1/121430-87.zip  user@testserver:/var/tmp/
+
+$ ssh testserver
+
+
+
+# unzip 121430-87.zip
+
+# cd 121430-87
+
+# pkgadd -d .
+
+
+
+The following packages are available:
+
+  1  SUNWlucfg     Live Upgrade Configuration
+
+                   (sparc) 11.10,REV=2007.03.09.13.13
+
+  2  SUNWlur       Live Upgrade (root)
+
+                   (sparc) 11.10,REV=2005.01.10.00.03
+
+  3  SUNWluu       Live Upgrade (usr)
+
+                   (sparc) 11.10,REV=2005.01.10.00.03
+
+
+
+Select package(s) you wish to process (or 'all' to process
+
+all packages). (default: all) [?,??,q]: all
+
+## Verifying package <SUNWlucfg> dependencies in zone <test01-app3>
+
+## Verifying package <SUNWlucfg> dependencies in zone <test01-app>
+
+## Verifying package <SUNWlucfg> dependencies in zone <test01-app2>
+
+## Verifying package <SUNWlucfg> dependencies in zone <test01-app4>
+
+## Verifying package <SUNWlur> dependencies in zone <test01-app3>
+
+## Verifying package <SUNWlur> dependencies in zone <test01-app>
+
+## Verifying package <SUNWlur> dependencies in zone <test01-app2>
+
+## Verifying package <SUNWlur> dependencies in zone <test01-app4>
+
+## Verifying package <SUNWluu> dependencies in zone <test01-app3>
+
+## Verifying package <SUNWluu> dependencies in zone <test01-app>
+
+## Verifying package <SUNWluu> dependencies in zone <test01-app2>
+
+## Verifying package <SUNWluu> dependencies in zone <test01-app4>
+
+
+
+#  zfs list -t snap
+
+no datasets available
+
+
+
+# zfs list
+
+NAME                         USED  AVAIL  REFER  MOUNTPOINT
+
+rpool                        162G   112G    97K  /rpool
+
+rpool/ROOT                   128G   112G    21K  legacy
+
+rpool/ROOT/OS10_SPARC_1010   128G   112G   128G  /
+
+rpool/dump                    16K   112G    16K  -
+
+rpool/export                50.5K   112G    23K  /export
+
+rpool/export/home           27.5K   112G  27.5K  /export/home
+
+rpool/swap                  33.0G   145G  13.3M  -
+
+
+
+=====================> Create snap on "/" and "/var" if both are separate F/S
+
+ 
+
+# zfs snapshot  rpool/ROOT/OS10_SPARC_1010@test01_root_BP
+
+# zfs list -t snap
+
+NAME                                             USED  AVAIL  REFER  MOUNTPOINT
+
+rpool/ROOT/OS10_SPARC_1010@test01_root_BP      0      -   129G  -
+
+
+
+# zfs get canmount
+
+NAME                                            PROPERTY  VALUE     SOURCE
+
+rpool                                           canmount  on        local
+
+rpool/ROOT                                      canmount  on        default
+
+rpool/ROOT/OS10_SPARC_1010                      canmount  noauto    local
+
+rpool/ROOT/OS10_SPARC_1010@test01_root_BP  canmount  -         -
+
+rpool/dump                                      canmount  -         -
+
+rpool/export                                    canmount  noauto    local
+
+rpool/export/home                               canmount  noauto    local
+
+rpool/swap                                      canmount  -         -
+
+
+
+# showrev -p |grep 121430
+
+Patch: 121430-53 Obsoletes: 121435-04, 121437-02 Requires:  Incompatibles:  Packages: SUNWlucfg, SUNWluu, SUNWlur
+
+Patch: 121430-87 Obsoletes: 121435-04, 121437-02 Requires:  Incompatibles:  Packages: SUNWlucfg, SUNWluu, SUNWlur
+
+Patch: 121428-13 Obsoletes:  Requires: 120235-01, 121430-16 Incompatibles:  Packages: SUNWluzone
+
+Patch: 121428-15 Obsoletes:  Requires: 120235-01, 121430-16 Incompatibles:  Packages: SUNWluzone
+
+
+
+# zfs list
+
+NAME                                             USED  AVAIL  REFER  MOUNTPOINT
+
+rpool                                            164G   110G    97K  /rpool
+
+rpool/ROOT                                       131G   110G    21K  legacy
+
+rpool/ROOT/OS10_SPARC_1010                       131G   110G   120G  /
+
+rpool/ROOT/OS10_SPARC_1010@test01_root_BP  10.8G      -   129G  -
+
+rpool/dump                                        16K   110G    16K  -
+
+rpool/export                                    50.5K   110G    23K  /export
+
+rpool/export/home                               27.5K   110G  27.5K  /export/home
+
+rpool/swap                                      33.0G   143G  13.3M  -
+
+
+
+# lustatus
+
+Boot Environment           Is       Active Active    Can    Copy      
+
+Name                       Complete Now    On Reboot Delete Status    
+
+-------------------------- -------- ------ --------- ------ ----------
+
+OS10_SPARC_1010            yes      yes    yes       no     -   
+
+
+
+===================================================================================================================
+
+# lucreate -c OS10_SPARC_1010 -n s10patched -l /var/crash/luerror1.txt -o /var/crash/luout1.txt
+
+Analyzing system configuration.
+
+Updating boot environment description database on all BEs.
+
+Updating system configuration files.
+
+Creating configuration for boot environment <s10patched>.
+
+Source boot environment is <OS10_SPARC_1010>.
+
+Creating file systems on boot environment <s10patched>.
+
+Populating file systems on boot environment <s10patched>.
+
+Temporarily mounting zones in PBE <OS10_SPARC_1010>.
+
+Analyzing zones.
+
+Duplicating ZFS datasets from PBE to ABE.
+
+Creating snapshot for <rpool/ROOT/OS10_SPARC_1010> on <rpool/ROOT/OS10_SPARC_1010@s10patched>.
+
+Creating clone for <rpool/ROOT/OS10_SPARC_1010@s10patched> on <rpool/ROOT/s10patched>.
+
+Mounting ABE <s10patched>.
+
+Generating file list.
+
+Finalizing ABE.
+
+Fixing zonepaths in ABE.
+
+Unmounting ABE <s10patched>.
+
+Fixing properties on ZFS datasets in ABE.
+
+Reverting state of zones in PBE <OS10_SPARC_1010>.
+
+Making boot environment <s10patched> bootable.
+
+Population of boot environment <s10patched> successful.
+
+Creation of boot environment <s10patched> successful.
+
+
+
+# tail -f /var/crash/luout1.txt
+
+Analyzing system configuration.
+
+No name for current boot environment.
+
+Current boot environment is named <OS10_SPARC_1010>.
+
+Creating initial configuration for primary boot environment <OS10_SPARC_1010>.
+
+PBE configuration successful: PBE name <OS10_SPARC_1010> PBE Boot Device </dev/dsk/c0t1d0s0>.
+
+Comparing source boot environment <OS10_SPARC_1010> file systems with the file system(s) you specified for the new boot environment. Determining which file systems should be in the new boot environment.
+
+Updating boot environment description database on all BEs.
+
+Updating system configuration files.
+
+Creating configuration for boot environment <s10patched>.
+
+Source boot environment is <OS10_SPARC_1010>.
+
+Creating boot environment <s10patched>.
+
+Cloning file systems from boot environment <OS10_SPARC_1010> to create boot environment <s10patched>.
+
+Creating snapshot for <rpool/ROOT/OS10_SPARC_1010> on <rpool/ROOT/OS10_SPARC_1010@s10patched>.
+
+Creating clone for <rpool/ROOT/OS10_SPARC_1010@s10patched> on <rpool/ROOT/s10patched>.
+
+Setting canmount=noauto for </> in zone <global> on <rpool/ROOT/s10patched>.
+
+Creating dataset <rpool/ROOT/s10patched/zoneds/test01-app3-s10patched> for zone <test01-app3>
+
+Copying root of zone <test01-app3>.
+
+ERROR: Zone <test01-app3> in BE <OS10_SPARC_1010>: cannot copy root
+
+        See </tmp/.liveupgrade.8623.20464/.lulib.cpio_err.test01-app3> for details.
+
+Creating dataset <rpool/ROOT/s10patched/zoneds/test01-app-s10patched> for zone <test01-app>
+
+Copying root of zone <test01-app>.
+
+INFORMATION: Interrupted (Signal received): cleaning up...
+
+ERROR: Unable to clone the existing file systems from boot environment <OS10_SPARC_1010> to create boot environment <s10patched>.
+
+ERROR: Cannot make file systems for boot environment <s10patched>.
+
+new boot environment <s10patched> already exists
+
+ERROR: new boot environment <s10patched> already exists
+
+ERROR: cannot create new boot environment using options provided
+
+Analyzing system configuration.
+
+No name for current boot environment.
+
+Current boot environment is named <OS10_SPARC_1010>.
+
+Creating initial configuration for primary boot environment <OS10_SPARC_1010>.
+
+INFORMATION: No BEs are configured on this system.
+
+PBE configuration successful: PBE name <OS10_SPARC_1010> PBE Boot Device </dev/dsk/c0t1d0s0>.
+
+Updating boot environment description database on all BEs.
+
+Updating system configuration files.
+
+Creating configuration for boot environment <s10patched>.
+
+Source boot environment is <OS10_SPARC_1010>.
+
+Creating file systems on boot environment <s10patched>.
+
+Populating file systems on boot environment <s10patched>.
+
+Temporarily mounting zones in PBE <OS10_SPARC_1010>.
+
+Analyzing zones.
+
+Duplicating ZFS datasets from PBE to ABE.
+
+Creating snapshot for <rpool/ROOT/OS10_SPARC_1010> on <rpool/ROOT/OS10_SPARC_1010@s10patched>.
+
+ERROR: cannot create snapshot 'rpool/ROOT/OS10_SPARC_1010@s10patched': dataset already exists
+
+ERROR: Unable to snapshot <rpool/ROOT/OS10_SPARC_1010> on <rpool/ROOT/OS10_SPARC_1010@s10patched>.
+
+ERROR: Unable to create a duplicate of <rpool/ROOT/OS10_SPARC_1010> dataset in PBE. <rpool/ROOT/s10patched> dataset in ABE already exists.
+
+Reverting state of zones in PBE <OS10_SPARC_1010>.
+
+ERROR: Unable to copy file systems from boot environment <OS10_SPARC_1010> to BE <s10patched>.
+
+ERROR: Unable to populate file systems on boot environment <s10patched>.
+
+Removing incomplete BE <s10patched>.
+
+ERROR: Cannot mount BE <s10patched>.
+
+WARNING: Force flag specified, going ahead. Skipping deletion of zone related filesystems.
+
+WARNING: Deleting ZFS dataset <rpool/ROOT/s10patched>.
+
+Updating boot environment configuration database.
+
+Updating boot environment description database on all BEs.
+
+Updating all boot environment configuration databases.
+
+ERROR: Cannot make file systems for boot environment <s10patched>.
+
+# tail -f /var/crash/luout1.txt
+
+ERROR: Unable to populate file systems on boot environment <s10patched>.
+
+Removing incomplete BE <s10patched>.
+
+ERROR: Cannot mount BE <s10patched>.
+
+WARNING: Force flag specified, going ahead. Skipping deletion of zone related filesystems.
+
+WARNING: Deleting ZFS dataset <rpool/ROOT/s10patched>.
+
+Updating boot environment configuration database.
+
+Updating boot environment description database on all BEs.
+
+Updating all boot environment configuration databases.
+
+ERROR: Cannot make file systems for boot environment <s10patched>.
+
+Analyzing system configuration.
+
+Updating boot environment description database on all BEs.
+
+Updating system configuration files.
+
+Creating configuration for boot environment <s10patched>.
+
+Source boot environment is <OS10_SPARC_1010>.
+
+Creating file systems on boot environment <s10patched>.
+
+Populating file systems on boot environment <s10patched>.
+
+Temporarily mounting zones in PBE <OS10_SPARC_1010>.
+
+Analyzing zones.
+
+Duplicating ZFS datasets from PBE to ABE.
+
+Creating snapshot for <rpool/ROOT/OS10_SPARC_1010> on <rpool/ROOT/OS10_SPARC_1010@s10patched>.
+
+Creating clone for <rpool/ROOT/OS10_SPARC_1010@s10patched> on <rpool/ROOT/s10patched>.
+
+Mounting ABE <s10patched>.
+
+Generating file list.
+
+Finalizing ABE.
+
+Fixing zonepaths in ABE.
+
+Unmounting ABE <s10patched>.
+
+Fixing properties on ZFS datasets in ABE.
+
+Reverting state of zones in PBE <OS10_SPARC_1010>.
+
+Making boot environment <s10patched> bootable.
+
+=================================================================================================================
+
+
+
+# lustatus
+
+Boot Environment           Is       Active Active    Can    Copy      
+
+Name                       Complete Now    On Reboot Delete Status    
+
+-------------------------- -------- ------ --------- ------ ----------
+
+OS10_SPARC_1010            yes      yes    yes       no     -         
+
+s10patched                 yes      no     no        yes    -         
+
+
+
+# df -h
+
+Filesystem             size   used  avail capacity  Mounted on
+
+rpool/ROOT/OS10_SPARC_1010
+
+                       274G   120G   110G    53%    /
+
+/devices                 0K     0K     0K     0%    /devices
+
+ctfs                     0K     0K     0K     0%    /system/contract
+
+proc                     0K     0K     0K     0%    /proc
+
+mnttab                   0K     0K     0K     0%    /etc/mnttab
+
+swap                    19G   416K    19G     1%    /etc/svc/volatile
+
+objfs                    0K     0K     0K     0%    /system/object
+
+sharefs                  0K     0K     0K     0%    /etc/dfs/sharetab
+
+/platform/SUNW,Netra-T2000/lib/libc_psr/libc_psr_hwcap1.so.1
+
+                       230G   120G   110G    53%    /platform/sun4v/lib/libc_psr.so.1
+
+/platform/SUNW,Netra-T2000/lib/sparcv9/libc_psr/libc_psr_hwcap1.so.1
+
+                       230G   120G   110G    53%    /platform/sun4v/lib/sparcv9/libc_psr.so.1
+
+fd                       0K     0K     0K     0%    /dev/fd
+
+swap                    19G   8.0M    19G     1%    /tmp
+
+swap                    19G    72K    19G     1%    /var/run
+
+rpool/export           274G    23K   110G     1%    /export
+
+rpool/export/home      274G    27K   110G     1%    /export/home
+
+rpool                  274G    97K   110G     1%    /rpool
+
+10.120.80.1:/vol/home_vol1
+
+                       400G   240G   160G    61%    /data/home
+
+nskntjust01:/data/jumpstart
+
+                       492G   303G   190G    62%    /data/jumpstart
+
+rpool/ROOT/s10patched
+
+                       274G   120G   110G    53%    /a
+
+/rpool                 110G    97K   110G     1%    /a/rpool
+
+swap                    19G    24K    19G     1%    /a/var/run
+
+swap                    19G     0K    19G     0%    /a/tmp
+
+swap                    19G     8K    19G     1%    /a/zones/test01-app3/lu
+
+swap                    19G     8K    19G     1%    /a/zones/test01-app/lu
+
+swap                    19G     8K    19G     1%    /a/zones/test01-app2/lu
+
+=========================================================================================================
+
+# mkdir -p /var/crash/PATCHES
+
+
+
+# /usr/sbin/luupgrade -n "s10patched" -s /var/tmp/10_Recommended/patches -t `cat /var/tmp/10_Recommended/patch_order` > /var/crash/PATCHES/luu 2>&1
+
+
+
+# tail -f /var/crash/PATCHES/luu
+
+
+
+Validating the contents of the media </var/tmp/10_Recommended/patches>.
+
+The media contains 343 software patches that can be added.
+
+Mounting the BE <s10patched>.
+
+Adding patches to the BE <s10patched>.
+
+Validating patches...
+
+
+
+Loading patches installed on the system...
+
+
+
+Done!
+
+
+
+Loading patches requested to install.
+
+
+
+Version of package SUNWcakr from directory SUNWcakr.u in patch 143527-01 differs from the package installed on the system.
+
+Version of package SUNWcakr from directory SUNWcakr.us in patch 144500-19 differs from the package installed on the system.
+
+Architecture for package SUNWiopc from directory SUNWiopc.u in patch 144500-19 differs from the package installed on the system.
+
+
+
+Patching zone test01-app4
+
+
+
+Checking installed patches...
+
+Executing prepatch script...
+
+Installing patch packages...
+
+
+
+Patch 144112-02 has been successfully installed.
+
+See /a/var/sadm/patch/144112-02/log for details
+
+Executing postpatch script...
+
+
+
+Patch packages installed:
+
+  SUNWluxop
+
+  SUNWluxopr
+
+
+
+Done!
+
+
+
+Patching global zone
+
+Adding patches...
+
+
+
+Checking installed patches...
+
+Executing prepatch script...
+
+Installing patch packages...
+
+
+
+Patch 148657-01 has been successfully installed.
+
+See /a/var/sadm/patch/148657-01/log for details
+
+Executing postpatch script...
+
+
+
+Patch packages installed:
+
+  SUNWtnetc
+
+
+
+Done!
+
+Unmounting the BE <s10patched>.
+
+The patch add to the BE <s10patched> completed.
+
+
+
+===================================================================================================
+
+
+
+# zfs list
+
+NAME                                             USED  AVAIL  REFER  MOUNTPOINT
+
+rpool                                            172G   102G    97K  /rpool
+
+rpool/ROOT                                       139G   102G    21K  legacy
+
+rpool/ROOT/OS10_SPARC_1010                       131G   102G   120G  /
+
+rpool/ROOT/OS10_SPARC_1010@test01_root_BP  10.8G      -   129G  -
+
+rpool/ROOT/OS10_SPARC_1010@s10patched            418M      -   120G  -
+
+rpool/ROOT/s10patched                           7.62G   102G   123G  /a
+
+rpool/dump                                        16K   102G    16K  -
+
+rpool/export                                    50.5K   102G    23K  /export
+
+rpool/export/home                               27.5K   102G  27.5K  /export/home
+
+rpool/swap                                      33.0G   135G  13.3M  -
+
+
+
+# lustatus
+
+Boot Environment           Is       Active Active    Can    Copy      
+
+Name                       Complete Now    On Reboot Delete Status    
+
+-------------------------- -------- ------ --------- ------ ----------
+
+OS10_SPARC_1010            yes      yes    yes       no     -         
+
+s10patched                 yes      no     no        yes    -         
+
+
+
+# zpool get bootfs rpool
+
+NAME   PROPERTY  VALUE                       SOURCE
+
+rpool  bootfs    rpool/ROOT/OS10_SPARC_1010  local
+
+
+
+# lustatus
+
+Boot Environment           Is       Active Active    Can    Copy      
+
+Name                       Complete Now    On Reboot Delete Status    
+
+-------------------------- -------- ------ --------- ------ ----------
+
+OS10_SPARC_1010            yes      yes    yes       no     -         
+
+s10patched                 yes      no     no        yes    -         
+
+
+
+# luactivate s10patched
+
+A Live Upgrade Sync operation will be performed on startup of boot environment <s10patched>.
+
+
+
+
+
+**********************************************************************
+
+
+
+The target boot environment has been activated. It will be used when you 
+
+reboot. NOTE: You MUST NOT USE the reboot, halt, or uadmin commands. You 
+
+MUST USE either the init or the shutdown command when you reboot. If you 
+
+do not use either init or shutdown, the system will not boot using the 
+
+target BE.
+
+
+
+**********************************************************************
+
+
+
+In case of a failure while booting to the target BE, the following process 
+
+needs to be followed to fallback to the currently working boot environment:
+
+
+
+1. Enter the PROM monitor (ok prompt).
+
+
+
+2. Boot the machine to Single User mode using a different boot device 
+
+(like the Solaris Install CD or Network). Examples:
+
+
+
+     At the PROM monitor (ok prompt):
+
+     For boot to Solaris CD:  boot cdrom -s
+
+     For boot to network:     boot net -s
+
+
+
+3. Mount the Current boot environment root slice to some directory (like 
+
+/mnt). You can use the following commands in sequence to mount the BE:
+
+
+
+     zpool import rpool
+
+     zfs inherit -r mountpoint rpool/ROOT/OS10_SPARC_1010
+
+     zfs set mountpoint=<mountpointName> rpool/ROOT/OS10_SPARC_1010 
+
+     zfs mount rpool/ROOT/OS10_SPARC_1010
+
+
+
+4. Run <luactivate> utility with out any arguments from the Parent boot 
+
+environment root slice, as shown below:
+
+
+
+     <mountpointName>/sbin/luactivate
+
+
+
+5. luactivate, activates the previous working boot environment and 
+
+indicates the result.
+
+6. umount /mnt
+
+7. zfs set mountpoint=/ rpool/ROOT/OS10_SPARC_1010 
+
+8. Exit Single User mode and reboot the machine.
+
+
+
+**********************************************************************
+
+
+
+Modifying boot archive service
+
+Activation of boot environment <s10patched> successful.
+
+
+
+# lustatus
+
+Boot Environment           Is       Active Active    Can    Copy      
+
+Name                       Complete Now    On Reboot Delete Status    
+
+-------------------------- -------- ------ --------- ------ ----------
+
+OS10_SPARC_1010            yes      yes    no        no     -         
+
+s10patched                 yes      no     yes       no     -         
+
+
+
+# zpool get bootfs rpool
+
+NAME   PROPERTY  VALUE                       SOURCE
+
+rpool  bootfs    rpool/ROOT/OS10_SPARC_1010  local
+
+
+
+# zpool set bootfs=rpool/ROOT/s10patched rpool 
+
+
+
+# zpool get bootfs rpool
+
+NAME   PROPERTY  VALUE                  SOURCE
+
+rpool  bootfs    rpool/ROOT/s10patched  local
+
+
+
+# lustatus
+
+Boot Environment           Is       Active Active    Can    Copy      
+
+Name                       Complete Now    On Reboot Delete Status    
+
+-------------------------- -------- ------ --------- ------ ----------
+
+OS10_SPARC_1010            yes      no     no        yes    -         
+
+s10patched                 yes      yes    yes       no     -         
+
+
+
+========================================================================================
+
+
+
+# shutdown -y -i6 -g0
+
+
+
+Shutdown started.    Thu Aug  8 17:07:10 GMT+10 2013
+
+
+
+Changing to init state 6 - please wait
+
+roadcast Message from root (console) on test01 Thu Aug  8 17:07:16...
+
+THE SYSTEM test01 IS BEING SHUT DOWN NOW ! ! !
+
+
+Log off now or risk your files being damaged
+
+
+
+
+
+svc.startd: The system is down.
+
+syncing file systems... done
+
+rebooting...
+
+
+
+
+
+
+SC Alert: CRITICAL ALARM is set
+
+
+
+Netra T2000, No Keyboard
+
+Copyright (c) 1998, 2011, Oracle and/or its affiliates. All rights reserved.
+
+OpenBoot 4.30.4.d, 65408 MB memory available, Serial #71064100.
+
+Ethernet address 0:14:4f:3c:5a:24, Host ID: 843c5a24.
+
+
+
+
+
+
+
+Boot device: rootdisk  File and args: 
+
+zfs-file-system 
+
+Loading: /platform/SUNW,Netra-T2000/boot_archive
+
+Loading: /platform/sun4v/boot_archive
+
+|
+/
+-
+ramdisk-root hsfs-file-system 
+
+Loading: /platform/SUNW,Netra-T2000/kernel/sparcv9/unix
+
+Loading: /platform/sun4v/kernel/sparcv9/unix
+
+
+SunOS Release 5.10 Version Generic_147440-12 64-bit
+
+Copyright (c) 1983, 2012, Oracle and/or its affiliates. All rights reserved.
+
+
+
+console login: root
+
+Password: 
+
+
+
+# lustatus
+
+Boot Environment           Is       Active Active    Can    Copy      
+
+Name                       Complete Now    On Reboot Delete Status    
+
+-------------------------- -------- ------ --------- ------ ----------
+
+OS10_SPARC_1010            yes      no     no        yes    -         
+
+s10patched                 yes      yes    yes       no     -         
+
+
+
+# zoneadm list -cv
+
+  ID NAME             STATUS     PATH                           BRAND    IP    
+
+   0 global           running    /                              native   shared
+
+   - test01-app3 installed  /zones/test01-app3        native   shared
+
+   - test01-app  installed  /zones/test01-app         native   shared
+
+   - test01-app2 installed  /zones/test01-app2        native   shared
+
+   - test01-app4 installed  /zones/test01-app4        native   shared
+
+
+
+====================> Dont boot any zones just view milestone-multi-user:default.log untill it will finished
+
+
+
+# tail -f  /var/svc/log/milestone-multi-user:default.log
+
+
+
+Zone path </zones/test01-app> already has right suffix. Changing zone path is skipped for zone <test01-app>.
+
+Zone path </zones/test01-app2> already has right suffix. Changing zone path is skipped for zone <test01-app2>.
+
+Zone path </zones/test01-app4> already has right suffix. Changing zone path is skipped for zone <test01-app4>.
+
+Live Upgrade: Synchronizing new boot environment.
+
+Live Upgrade: Creating synchronization snapshot of current boot environment.
+
+zoneadm: zone 'test01-app3': note_uninstalling operation is invalid for zones in state 'running'
+
+zoneadm: zone 'test01-app3': call to zoneadmd failed
+
+/sbin/sh: /a//etc/lu/sync.log: cannot create
+
+zoneadm: zone 'test01-app3': must be mounted before unmount.
+
+Live Upgrade: Creating synchronization snapshot of previously active boot environment.
+
+Live Upgrade: Previous boot environment was <OS10_SPARC_1010>.
+
+Live Upgrade: Current boot environment is now <s10patched>.
+
+Legacy init script "/etc/rc2.d/S10lu" exited with return code 0.
+
+Executing legacy init script "/etc/rc2.d/S20sysetup".
+
+Legacy init script "/etc/rc2.d/S20sysetup" exited with return code 0.
+
+Executing legacy init script "/etc/rc2.d/S40llc2".
+
+Legacy init script "/etc/rc2.d/S40llc2" exited with return code 0.
+
+Executing legacy init script "/etc/rc2.d/S42ncakmod".
+
+Legacy init script "/etc/rc2.d/S42ncakmod" exited with return code 0.
+
+Executing legacy init script "/etc/rc2.d/S47pppd".
+
+Legacy init script "/etc/rc2.d/S47pppd" exited with return code 0.
+
+Executing legacy init script "/etc/rc2.d/S68arm".
+
+
+
+# zoneadm list -cv
+
+  ID NAME             STATUS     PATH                           BRAND    IP    
+
+   0 global           running    /                              native   shared
+
+  16 test01-app  running    /zones/test01-app         native   shared
+
+  17 test01-app4 running    /zones/test01-app4        native   shared
+
+  18 test01-app2 running    /zones/test01-app2        native   shared
+
+  19 test01-app3 running    /zones/test01-app3        native   shared
+
+
+
+#zlogin -S test01-app
+
+
+
+#uname -n 
+
+skntwebf01-app
+
+# 
+</pre>

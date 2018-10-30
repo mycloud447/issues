@@ -1,0 +1,1142 @@
+---++ Doc Log 1183248750_01
+
+	$ Date: Sun Jul 01 00:12:30 2007
+	$ Summary: vxfenadm
+	$ On-Call: 
+
+---++++ Details:
+<pre>
+(root_test)@/opt/VRTSvcs/vxfen/bin # gabconfig -a
+GAB Port Memberships
+===============================================================
+Port a gen   f08604 membership 0123
+Port d gen   f08603 membership 0123
+Port f gen   f08618 membership 0123
+Port o gen   f0860a membership 0123
+Port q gen   f08616 membership 0123
+(root_test)@/opt/VRTSvcs/vxfen/bin # ./vxfenclearpre
+
+This script recovers from a preexisting split brain condition.
+This script removes the SCSI-3 registrations and reservations on
+the coordinator disks as well as the data disks contained in shared
+disk groups.
+
+         ******** WARNING!!!!!!!! ********
+
+THIS SCRIPT CAN ONLY BE USED IF THERE ARE NO OTHER ACTIVE NODES IN
+THE CLUSTER!  VERIFY ALL OTHER NODES ARE POWERED OFF OR INCAPABLE OF
+ACCESSING SHARED STORAGE.
+
+If this is not the case, data corruption will result.
+
+Do you still want to continue: [y/n] (default : n)
+y
+
+Cleaning up the coordinator disks...
+
+
+Cleaning up the data disks for all shared disk groups...
+
+Successfully removed SCSI-3 persistent registration and reservations
+from the coordinator disks as well as the shared data disks.
+
+Reboot the server to proceed with normal cluster startup...
+
+(root_test)@/opt/VRTSvcs/vxfen/bin # /etc/init.d/vxfen start
+Starting vxfen..
+Starting vxfen.. Done
+(root_test)@/opt/VRTSvcs/vxfen/bin # VCS FEN vxfenconfig NOTICE Driver will use SCSI-3 compliant disks.
+
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastart
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               OFFLINE|STARTING
+B  cvm             test418             Y          N               OFFLINE|STARTING
+B  cvm             test419             Y          N               OFFLINE|STARTING
+B  cvm             test             Y          N               STARTING|PARTIAL
+B  orabin_shared   test417             Y          N               OFFLINE
+B  orabin_shared   test418             Y          N               OFFLINE
+B  orabin_shared   test419             Y          N               OFFLINE
+B  orabin_shared   test             Y          N               OFFLINE
+
+-- RESOURCES ONLINING
+
+E  cvm             CVMCluster      cvm_clus             test417             W_ONLINE
+E  cvm             CVMCluster      cvm_clus             test418             W_ONLINE
+E  cvm             CVMCluster      cvm_clus             test419             W_ONLINE
+E  cvm             CVMVolDg        cvm_dg_crs_oradg     test             W_ONLINE
+E  cvm             CVMVolDg        orabin_sdg           test             W_ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # vxdisk -o alldgs list
+^C(root_test)@/opt/VRTSvcs/vxfen/bin # vxdg list
+NAME         STATE           ID
+rootdg       enabled              1148462547.8.test
+crdg         enabled,cds          1151405692.411.test
+crs_oradg    enabled,shared,cds   1152190590.409.test418
+d00dg        enabled,shared,cds   1152610699.437.test418
+d02dg        enabled,shared,cds   1167905960.346.test418
+d03dg        enabled,shared,cds   1164188455.191.test418
+d05dg        enabled,shared,cds   1162370976.113.test418
+d06dg        enabled,shared,cds   1152609615.430.test418
+d07dg        enabled,shared,cds   1158657657.154.test
+d08dg        enabled,shared,cds   1154439721.423.test
+d09dg        enabled,shared,cds   1163669944.144.test419
+orabindg     enabled,shared,cds   1151488619.415.test418
+oradumpdg    enabled,shared,cds   1152010534.418.test
+u00dg        enabled,shared,cds   1164189518.197.test418
+u02dg        enabled,shared,cds   1152015195.558.test
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               STARTING|PARTIAL
+B  cvm             test418             Y          N               OFFLINE|STARTING
+B  cvm             test419             Y          N               OFFLINE|STARTING
+B  cvm             test             Y          N               STARTING|PARTIAL
+B  orabin_shared   test417             Y          N               OFFLINE
+B  orabin_shared   test418             Y          N               OFFLINE
+B  orabin_shared   test419             Y          N               OFFLINE
+B  orabin_shared   test             Y          N               OFFLINE
+
+-- RESOURCES ONLINING
+
+E  cvm             CVMCluster      cvm_clus             test418             W_ONLINE
+E  cvm             CVMCluster      cvm_clus             test419             W_ONLINE
+E  cvm             CVMVolDg        cvm_dg_crs_oradg     test417             W_ONLINE
+E  cvm             CVMVolDg        cvm_dg_crs_oradg     test             W_ONLINE
+E  cvm             CVMVolDg        orabin_sdg           test417             W_ONLINE
+E  cvm             CVMVolDg        orabin_sdg           test             W_ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # df -k
+Filesystem            kbytes    used   avail capacity  Mounted on
+/dev/vx/dsk/bootdg/rootvol
+                     79213134 9373708 69047295    12%    /
+/devices                   0       0       0     0%    /devices
+ctfs                       0       0       0     0%    /system/contract
+proc                       0       0       0     0%    /proc
+mnttab                     0       0       0     0%    /etc/mnttab
+swap                 48637928    1128 48636800     1%    /etc/svc/volatile
+objfs                      0       0       0     0%    /system/object
+fd                         0       0       0     0%    /dev/fd
+/dev/vx/dsk/bootdg/var
+                     20655025 11756184 8692291    58%    /var
+swap                 48637128     328 48636800     1%    /tmp
+swap                 48636848      48 48636800     1%    /var/run
+swap                 48636800       0 48636800     0%    /dev/vx/dmp
+swap                 48636800       0 48636800     0%    /dev/vx/rdmp
+/dev/vx/dsk/crdg/cr_vol
+                     10485760 3947494 6129670    40%    /oracrs
+/dev/vx/dsk/bootdg/crash
+                     20655025   20511 20427964     1%    /var/crash
+/dev/odm                   0       0       0     0%    /dev/odm
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               STARTING|PARTIAL
+B  cvm             test418             Y          N               OFFLINE|STARTING
+B  cvm             test419             Y          N               OFFLINE|STARTING
+B  cvm             test             Y          N               STARTING|PARTIAL
+B  orabin_shared   test417             Y          N               OFFLINE
+B  orabin_shared   test418             Y          N               OFFLINE
+B  orabin_shared   test419             Y          N               OFFLINE
+B  orabin_shared   test             Y          N               OFFLINE
+
+-- RESOURCES ONLINING
+
+E  cvm             Application     cssd                 test417             W_ONLINE
+E  cvm             CVMCluster      cvm_clus             test418             W_ONLINE
+E  cvm             CVMCluster      cvm_clus             test419             W_ONLINE
+E  cvm             CVMVolDg        cvm_dg_crs_oradg     test             W_ONLINE
+E  cvm             CVMVolDg        orabin_sdg           test             W_ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               OFFLINE|STARTING
+B  cvm             test419             Y          N               OFFLINE|STARTING
+B  cvm             test             Y          N               STARTING|PARTIAL
+B  orabin_shared   test417             Y          N               OFFLINE|STARTING
+B  orabin_shared   test418             Y          N               OFFLINE
+B  orabin_shared   test419             Y          N               OFFLINE
+B  orabin_shared   test             Y          N               OFFLINE
+
+-- RESOURCES ONLINING
+
+E  cvm             CVMCluster      cvm_clus             test418             W_ONLINE
+E  cvm             CVMCluster      cvm_clus             test419             W_ONLINE
+E  cvm             CVMVolDg        cvm_dg_crs_oradg     test             W_ONLINE
+E  cvm             CVMVolDg        orabin_sdg           test             W_ONLINE
+E  orabin_shared   CVMVolDg        d00dg_sdg            test417             W_ONLINE
+E  orabin_shared   CVMVolDg        d02dg_sdg            test417             W_ONLINE
+E  orabin_shared   CVMVolDg        d03dg_sdg            test417             W_ONLINE
+E  orabin_shared   CVMVolDg        d05dg_sdg            test417             W_ONLINE
+E  orabin_shared   CVMVolDg        d06dg_sdg            test417             W_ONLINE
+E  orabin_shared   CVMVolDg        d07dg_sdg            test417             W_ONLINE
+E  orabin_shared   CVMVolDg        d08dg_sdg            test417             W_ONLINE
+E  orabin_shared   CVMVolDg        d09dg_sdg            test417             W_ONLINE
+E  orabin_shared   CVMVolDg        oradumpdg_sdg        test417             W_ONLINE
+E  orabin_shared   CVMVolDg        u00dg_sdg            test417             W_ONLINE
+E  orabin_shared   CVMVolDg        u02dg_sdg            test417             W_ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               STARTING|PARTIAL
+B  cvm             test419             Y          N               OFFLINE|STARTING
+B  cvm             test             Y          N               STARTING|PARTIAL
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               OFFLINE
+B  orabin_shared   test419             Y          N               OFFLINE
+B  orabin_shared   test             Y          N               OFFLINE
+
+-- RESOURCES FAILED
+
+C  cvm             CVMVolDg             cvm_dg_crs_oradg     test
+C  cvm             CVMVolDg             orabin_sdg           test
+
+-- RESOURCES ONLINING
+
+E  cvm             Application     cssd                 test418             W_ONLINE
+E  cvm             CVMCluster      cvm_clus             test419             W_ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # df-k
+ksh: df-k:  not found
+(root_test)@/opt/VRTSvcs/vxfen/bin # df -k
+Filesystem            kbytes    used   avail capacity  Mounted on
+/dev/vx/dsk/bootdg/rootvol
+                     79213134 9373708 69047295    12%    /
+/devices                   0       0       0     0%    /devices
+ctfs                       0       0       0     0%    /system/contract
+proc                       0       0       0     0%    /proc
+mnttab                     0       0       0     0%    /etc/mnttab
+swap                 48637680    1128 48636552     1%    /etc/svc/volatile
+objfs                      0       0       0     0%    /system/object
+fd                         0       0       0     0%    /dev/fd
+/dev/vx/dsk/bootdg/var
+                     20655025 11756222 8692253    58%    /var
+swap                 48636880     328 48636552     1%    /tmp
+swap                 48636600      48 48636552     1%    /var/run
+swap                 48636552       0 48636552     0%    /dev/vx/dmp
+swap                 48636552       0 48636552     0%    /dev/vx/rdmp
+/dev/vx/dsk/crdg/cr_vol
+                     10485760 3947495 6129669    40%    /oracrs
+/dev/vx/dsk/bootdg/crash
+                     20655025   20511 20427964     1%    /var/crash
+/dev/odm                   0       0       0     0%    /dev/odm
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               STARTING|PARTIAL
+B  cvm             test             Y          N               STARTING|PARTIAL
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               OFFLINE
+B  orabin_shared   test             Y          N               OFFLINE
+
+-- RESOURCES FAILED
+
+C  cvm             CVMVolDg             cvm_dg_crs_oradg     test
+C  cvm             CVMVolDg             orabin_sdg           test
+
+-- RESOURCES ONLINING
+
+E  cvm             Application     cssd                 test419             W_ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hares -display cvm_dg_crs_oradg
+cvm_dg_crs_oradg Group            global     cvm
+cvm_dg_crs_oradg Type             global     CVMVolDg
+cvm_dg_crs_oradg AutoStart        global     1
+cvm_dg_crs_oradg Critical         global     0
+cvm_dg_crs_oradg Enabled          global     1
+cvm_dg_crs_oradg LastOnline       global     test419
+cvm_dg_crs_oradg MonitorOnly      global     0
+cvm_dg_crs_oradg ResourceOwner    global     unknown
+cvm_dg_crs_oradg TriggerEvent     global     0
+cvm_dg_crs_oradg ArgListValues    test417   crs_oradg  1       crs_vol sw
+cvm_dg_crs_oradg ArgListValues    test418   crs_oradg  1       crs_vol sw
+cvm_dg_crs_oradg ArgListValues    test419   crs_oradg  1       crs_vol sw
+cvm_dg_crs_oradg ArgListValues    test   crs_oradg  1       crs_vol sw
+cvm_dg_crs_oradg ConfidenceLevel  test417   100
+cvm_dg_crs_oradg ConfidenceLevel  test418   100
+cvm_dg_crs_oradg ConfidenceLevel  test419   100
+cvm_dg_crs_oradg ConfidenceLevel  test   0
+cvm_dg_crs_oradg Flags            test417
+cvm_dg_crs_oradg Flags            test418
+cvm_dg_crs_oradg Flags            test419
+cvm_dg_crs_oradg Flags            test
+cvm_dg_crs_oradg IState           test417   not waiting
+cvm_dg_crs_oradg IState           test418   not waiting
+cvm_dg_crs_oradg IState           test419   not waiting
+cvm_dg_crs_oradg IState           test   not waiting
+cvm_dg_crs_oradg Probed           test417   1
+cvm_dg_crs_oradg Probed           test418   1
+cvm_dg_crs_oradg Probed           test419   1
+cvm_dg_crs_oradg Probed           test   1
+cvm_dg_crs_oradg Start            test417   1
+cvm_dg_crs_oradg Start            test418   1
+cvm_dg_crs_oradg Start            test419   1
+cvm_dg_crs_oradg Start            test   1
+cvm_dg_crs_oradg State            test417   ONLINE
+cvm_dg_crs_oradg State            test418   ONLINE
+cvm_dg_crs_oradg State            test419   ONLINE
+cvm_dg_crs_oradg State            test   FAULTED
+cvm_dg_crs_oradg CVMActivation    global     sw
+cvm_dg_crs_oradg CVMDiskGroup     global     crs_oradg
+cvm_dg_crs_oradg CVMVolume        global     crs_vol
+cvm_dg_crs_oradg ComputeStats     global     0
+cvm_dg_crs_oradg voldg_stat       global     0
+cvm_dg_crs_oradg MonitorTimeStats test417   Avg        0       TS
+cvm_dg_crs_oradg MonitorTimeStats test418   Avg        0       TS
+cvm_dg_crs_oradg MonitorTimeStats test419   Avg        0       TS
+cvm_dg_crs_oradg MonitorTimeStats test   Avg        0       TS
+cvm_dg_crs_oradg ResourceInfo     test417   State      Valid   Msg             TS
+cvm_dg_crs_oradg ResourceInfo     test418   State      Valid   Msg             TS
+cvm_dg_crs_oradg ResourceInfo     test419   State      Valid   Msg             TS
+cvm_dg_crs_oradg ResourceInfo     test   State      Stale   Msg             TS
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               STARTING|PARTIAL
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               OFFLINE|STARTING
+B  orabin_shared   test             Y          N               OFFLINE
+
+-- RESOURCES FAILED
+
+C  cvm             CVMVolDg             cvm_dg_crs_oradg     test
+C  cvm             CVMVolDg             orabin_sdg           test
+
+-- RESOURCES ONLINING
+
+E  orabin_shared   CVMVolDg        d00dg_sdg            test419             W_ONLINE
+E  orabin_shared   CVMVolDg        d02dg_sdg            test419             W_ONLINE
+E  orabin_shared   CVMVolDg        d03dg_sdg            test419             W_ONLINE
+E  orabin_shared   CVMVolDg        d05dg_sdg            test419             W_ONLINE
+E  orabin_shared   CVMVolDg        d06dg_sdg            test419             W_ONLINE
+E  orabin_shared   CVMVolDg        d07dg_sdg            test419             W_ONLINE
+E  orabin_shared   CVMVolDg        d08dg_sdg            test419             W_ONLINE
+E  orabin_shared   CVMVolDg        d09dg_sdg            test419             W_ONLINE
+E  orabin_shared   CVMVolDg        oradumpdg_sdg        test419             W_ONLINE
+E  orabin_shared   CVMVolDg        u00dg_sdg            test419             W_ONLINE
+E  orabin_shared   CVMVolDg        u02dg_sdg            test419             W_ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               STARTING|PARTIAL
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               STARTING|PARTIAL
+B  orabin_shared   test             Y          N               OFFLINE
+
+-- RESOURCES FAILED
+
+C  cvm             CVMVolDg             cvm_dg_crs_oradg     test
+C  cvm             CVMVolDg             orabin_sdg           test
+
+-- RESOURCES ONLINING
+
+E  orabin_shared   CFSMount        d00_u52oradata       test419             W_ONLINE
+E  orabin_shared   CFSMount        d03_u44oradata       test419             W_ONLINE
+E  orabin_shared   CFSMount        d05_u46oradata       test419             W_ONLINE
+E  orabin_shared   CFSMount        d06_u47oradata       test419             W_ONLINE
+E  orabin_shared   CFSMount        d07_u48oradata       test419             W_ONLINE
+E  orabin_shared   CFSMount        d08_u49oradata       test419             W_ONLINE
+E  orabin_shared   CFSMount        d09_u50oradata       test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UFND00       test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UFND02       test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UHNET00      test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UHNET02      test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UISD00       test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UISD02       test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UORE00       test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UORE02       test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UOTP00       test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UOTP02       test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_URECS00      test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_URECS02      test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UWHSE00      test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UWHSE02      test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UWRKF00      test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_UWRKF02      test419             W_ONLINE
+E  orabin_shared   CFSMount        oradump_backups      test419             W_ONLINE
+E  orabin_shared   CFSMount        u00_u40oradata       test419             W_ONLINE
+E  orabin_shared   CVMVolDg        d02dg_sdg            test419             W_ONLINE
+E  orabin_shared   CVMVolDg        u02dg_sdg            test419             W_ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               STARTING|PARTIAL
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               ONLINE
+B  orabin_shared   test             Y          N               OFFLINE
+
+-- RESOURCES FAILED
+
+C  cvm             CVMVolDg             cvm_dg_crs_oradg     test
+C  cvm             CVMVolDg             orabin_sdg           test
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               STARTING|PARTIAL
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               ONLINE
+B  orabin_shared   test             Y          N               OFFLINE
+
+-- RESOURCES FAILED
+
+C  cvm             CVMVolDg             cvm_dg_crs_oradg     test
+C  cvm             CVMVolDg             orabin_sdg           test
+(root_test)@/opt/VRTSvcs/vxfen/bin # vxdsk -o alldgs list
+ksh: vxdsk:  not found
+(root_test)@/opt/VRTSvcs/vxfen/bin # vxdisk -o alldgs list
+DEVICE       TYPE            DISK         GROUP        STATUS
+EMC_CLARiiON0_6 auto:cdsdisk    u02dgd02     u02dg        online shared
+EMC_CLARiiON0_14 auto:cdsdisk    u02dgd03     u02dg        online shared
+EMC_CLARiiON0_26 auto:cdsdisk    u02dgd04     u02dg        online shared
+EMC_CLARiiON0_28 auto:cdsdisk    EMC_CLARiiON0_71  orabindg     online shared
+EMC_CLARiiON0_30 auto:cdsdisk    u02dgd01     u02dg        online shared
+EMC_CLARiiON0_57 auto:none       -            -            online invalid
+EMC_CLARiiON0_77 auto:cdsdisk    u02dgd11     u02dg        online shared
+EMC_CLARiiON0_125 auto:cdsdisk    u02dgd05     u02dg        online shared
+EMC_CLARiiON0_126 auto:cdsdisk    -           (vxfencoorddg) online
+EMC_CLARiiON0_132 auto:cdsdisk    -           (vxfencoorddg) online
+EMC_CLARiiON0_136 auto:cdsdisk    -           (SPARE)       online
+EMC_CLARiiON0_138 auto:cdsdisk    u02dgd22     u02dg        online shared
+EMC_CLARiiON0_146 auto:cdsdisk    u02dgd16     u02dg        online shared
+EMC_CLARiiON0_147 auto:cdsdisk    u02dgd12     u02dg        online shared
+EMC_CLARiiON0_156 auto:cdsdisk    -           (vxfencoorddg) online
+EMC_CLARiiON0_161 auto:cdsdisk    dg08d01      d08dg        online shared
+EMC_CLARiiON0_165 auto:cdsdisk    u02dgd27     u02dg        online shared
+EMC_CLARiiON0_168 auto:cdsdisk    u02dgd26     u02dg        online shared
+EMC_CLARiiON0_171 auto:cdsdisk    -            -            online
+EMC_CLARiiON0_173 auto:cdsdisk    u02dgd06     u02dg        online shared
+EMC_CLARiiON0_174 auto:cdsdisk    u02dgd14     u02dg        online shared
+EMC_CLARiiON0_176 auto:cdsdisk    u02dgd13     u02dg        online shared
+EMC_CLARiiON0_179 auto:cdsdisk    u02dgd10     u02dg        online shared
+EMC_CLARiiON0_183 auto:cdsdisk    -           (SPARE)       online
+EMC_CLARiiON0_190 auto:cdsdisk    d00d01       d00dg        online shared
+EMC_CLARiiON0_199 auto:cdsdisk    u02dgd07     u02dg        online shared
+EMC_CLARiiON0_200 auto:cdsdisk    u02dgd09     u02dg        online shared
+EMC_CLARiiON0_201 auto:cdsdisk    u02dgd17     u02dg        online shared
+EMC_CLARiiON0_203 auto:cdsdisk    u02dgd15     u02dg        online shared
+EMC_CLARiiON0_205 auto:cdsdisk    u02dgd08     u02dg        online shared
+EMC_CLARiiON0_206 auto:cdsdisk    u02dgd25     u02dg        online shared
+EMC_CLARiiON0_207 auto:cdsdisk    u02dgd23     u02dg        online shared
+EMC_CLARiiON0_209 auto:cdsdisk    dg08d02      d08dg        online shared
+EMC_CLARiiON0_210 auto:cdsdisk    -           (SPARE)       online
+EMC_CLARiiON0_213 auto:cdsdisk    dg08d03      d08dg        online shared
+EMC_CLARiiON0_214 auto:cdsdisk    u02dgd30     u02dg        online shared
+EMC_CLARiiON0_216 auto:cdsdisk    u02dgd28     u02dg        online shared
+EMC_CLARiiON0_220 auto:cdsdisk    -           (SPARE)       online
+EMC_CLARiiON0_221 auto:cdsdisk    u02dgd18     u02dg        online shared
+EMC_CLARiiON0_222 auto:cdsdisk    u02dgd29     u02dg        online shared
+EMC_CLARiiON0_227 auto:cdsdisk    u02dgd19     u02dg        online shared
+EMC_CLARiiON0_230 auto:cdsdisk    dg08d04      d08dg        online shared
+EMC_CLARiiON0_231 auto:cdsdisk    u02dgd21     u02dg        online shared
+EMC_CLARiiON0_232 auto:cdsdisk    -           (vxfencoorddg) online
+EMC_CLARiiON0_242 auto:cdsdisk    u02dgd20     u02dg        online shared
+EMC_CLARiiON0_246 auto:cdsdisk    u02dgd24     u02dg        online shared
+EMC_CLARiiON0_247 auto:cdsdisk    EMC_CLARiiON0_253  crs_oradg    online shared
+EMC_CLARiiON0_249 auto:cdsdisk    -           (vxfencoorddg) online
+EMC_CLARiiON0_257 auto:cdsdisk    d07d01       d07dg        online shared
+EMC_CLARiiON0_258 auto:cdsdisk    d07d09       d07dg        online shared
+EMC_CLARiiON0_259 auto:cdsdisk    d07d07       d07dg        online shared
+EMC_CLARiiON0_260 auto:cdsdisk    d07d08       d07dg        online shared
+EMC_CLARiiON0_261 auto:cdsdisk    d04d10       d09dg        online shared
+EMC_CLARiiON0_262 auto:cdsdisk    d09d03       d09dg        online shared
+EMC_CLARiiON0_263 auto:cdsdisk    d09d11       d09dg        online shared
+EMC_CLARiiON0_264 auto:cdsdisk    d04d12       d09dg        online shared
+EMC_CLARiiON0_265 auto:cdsdisk    d09d02       d09dg        online shared
+EMC_CLARiiON0_266 auto:cdsdisk    d04d02       d09dg        online shared
+EMC_CLARiiON0_267 auto:cdsdisk    d09d01       d09dg        online shared
+EMC_CLARiiON0_268 auto:cdsdisk    d04d11       d09dg        online shared
+EMC_CLARiiON0_269 auto:cdsdisk    -            -            online
+EMC_CLARiiON0_270 auto:cdsdisk    -            -            online
+EMC_CLARiiON0_271 auto:cdsdisk    -            -            online
+EMC_CLARiiON0_272 auto:cdsdisk    u00d05       u00dg        online shared
+EMC_CLARiiON0_273 auto:cdsdisk    u02dgd31     u02dg        online shared
+EMC_CLARiiON0_274 auto:cdsdisk    u02dgd31     d02dg        online shared
+EMC_CLARiiON0_275 auto:cdsdisk    d03d012      d03dg        online shared
+EMC_CLARiiON0_276 auto:cdsdisk    d03d011      d03dg        online shared
+EMC_CLARiiON0_277 auto:cdsdisk    -            -            online
+EMC_CLARiiON0_278 auto:cdsdisk    -            -            online
+EMC_CLARiiON0_279 auto:cdsdisk    d03d013      d03dg        online shared
+EMC_CLARiiON0_280 auto:cdsdisk    u00d06       u00dg        online shared
+EMC_CLARiiON0_281 auto:cdsdisk    d02dgd25     d02dg        online shared
+EMC_CLARiiON0_282 auto:cdsdisk    d02dgd35     d02dg        online shared
+EMC_CLARiiON0_283 auto:cdsdisk    d02dgd12     d02dg        online shared
+EMC_CLARiiON0_284 auto:cdsdisk    d02dgd13     d02dg        online shared
+EMC_CLARiiON0_285 auto:cdsdisk    d02dgd15     d02dg        online shared
+EMC_CLARiiON0_286 auto:cdsdisk    d02dgd05     d02dg        online shared
+EMC_CLARiiON0_287 auto:cdsdisk    d02dgd20     d02dg        online shared
+EMC_CLARiiON0_288 auto:cdsdisk    d02dgd24     d02dg        online shared
+EMC_CLARiiON0_289 auto:cdsdisk    d02dgd17     d02dg        online shared
+EMC_CLARiiON0_290 auto:cdsdisk    d02dgd18     d02dg        online shared
+EMC_CLARiiON0_291 auto:cdsdisk    d02dgd07     d02dg        online shared
+EMC_CLARiiON0_292 auto:cdsdisk    d02dgd29     d02dg        online shared
+EMC_CLARiiON0_293 auto:cdsdisk    d02dgd19     d02dg        online shared
+EMC_CLARiiON0_294 auto:cdsdisk    d02dgd08     d02dg        online shared
+EMC_CLARiiON0_295 auto:cdsdisk    d02dgd02     d02dg        online shared
+EMC_CLARiiON0_296 auto:cdsdisk    d02dgd21     d02dg        online shared
+EMC_CLARiiON0_297 auto:cdsdisk    d02dgd36     d02dg        online shared
+EMC_CLARiiON0_298 auto:cdsdisk    d02dgd10     d02dg        online shared
+EMC_CLARiiON0_299 auto:cdsdisk    d02dgd30     d02dg        online shared
+EMC_CLARiiON0_300 auto:cdsdisk    d02dgd22     d02dg        online shared
+EMC_CLARiiON0_301 auto:cdsdisk    d02dgd27     d02dg        online shared
+EMC_CLARiiON0_302 auto:cdsdisk    d02dgd09     d02dg        online shared
+EMC_CLARiiON0_303 auto:cdsdisk    d02dgd03     d02dg        online shared
+EMC_CLARiiON0_304 auto:cdsdisk    d02dgd14     d02dg        online shared
+EMC_CLARiiON0_305 auto:cdsdisk    d02dgd26     d02dg        online shared
+EMC_CLARiiON0_306 auto:cdsdisk    d02dgd28     d02dg        online shared
+EMC_CLARiiON0_307 auto:cdsdisk    d02dgd11     d02dg        online shared
+EMC_CLARiiON0_308 auto:cdsdisk    d02dgd16     d02dg        online shared
+EMC_CLARiiON0_309 auto:cdsdisk    d02dgd23     d02dg        online shared
+EMC_CLARiiON0_310 auto:cdsdisk    d02dgd01     d02dg        online shared
+EMC_CLARiiON0_311 auto:cdsdisk    d02dgd31     d02dg        online shared
+EMC_CLARiiON0_312 auto:cdsdisk    d02dgd06     d02dg        online shared
+EMC_CLARiiON0_313 auto:cdsdisk    d02dgd32     d02dg        online shared
+EMC_CLARiiON0_314 auto:cdsdisk    d02dgd33     d02dg        online shared
+EMC_CLARiiON0_315 auto:cdsdisk    d02dgd34     d02dg        online shared
+EMC_CLARiiON0_316 auto:cdsdisk    d02dgd04     d02dg        online shared
+EMC_CLARiiON0_317 auto:sliced     -           (ldwrdg)      online
+EMC_CLARiiON0_318 auto:sliced     -           (ldwrdg)      online
+EMC_CLARiiON0_319 auto:sliced     -           (lwim)        online
+EMC_CLARiiON0_320 auto:sliced     -           (lwim)        online
+EMC_CLARiiON0_321 auto:sliced     -           (lwim)        online
+EMC_CLARiiON0_322 auto:sliced     -           (ldwrdg)      online
+EMC_CLARiiON0_323 auto:sliced     -           (lwim)        online
+EMC_CLARiiON0_324 auto:sliced     -           (lwim)        online
+EMC_CLARiiON0_325 auto:sliced     -           (lclpdg)      online
+EMC_CLARiiON0_326 auto:sliced     -           (lclpdg)      online
+EMC_CLARiiON0_327 auto:sliced     -           (lclpdg)      online
+EMC_CLARiiON0_328 auto:sliced     -           (lwim)        online
+EMC_CLARiiON2_1 auto:cdsdisk    u00d010      u00dg        online shared
+EMC_CLARiiON2_2 auto:cdsdisk    u00d011      u00dg        online shared
+EMC_CLARiiON2_3 auto:cdsdisk    dg08d05      d08dg        online shared
+EMC_CLARiiON2_4 auto:cdsdisk    d05d02       d05dg        online shared
+EMC_CLARiiON2_5 auto:cdsdisk    u00d09       u00dg        online shared
+EMC_CLARiiON2_6 auto:cdsdisk    -            -            online
+EMC_CLARiiON2_7 auto:cdsdisk    u00d02       u00dg        online shared
+EMC_CLARiiON2_8 auto:cdsdisk    d04d03       d09dg        online shared
+EMC_CLARiiON2_9 auto:cdsdisk    u00d012      u00dg        online shared
+EMC_CLARiiON2_11 auto:cdsdisk    d09d04       d09dg        online shared
+EMC_CLARiiON2_12 auto:cdsdisk    d04d07       d09dg        online shared
+EMC_CLARiiON2_13 auto:cdsdisk    d06d01       d06dg        online shared
+EMC_CLARiiON2_14 auto:cdsdisk    oradumpd01   oradumpdg    online shared
+EMC_CLARiiON2_15 auto:cdsdisk    u00d013      u00dg        online shared
+EMC_CLARiiON2_16 auto:cdsdisk    u00d03       u00dg        online shared
+EMC_CLARiiON2_17 auto:cdsdisk    d09d06       d09dg        online shared
+EMC_CLARiiON2_18 auto:cdsdisk    d06d02       d06dg        online shared
+EMC_CLARiiON2_19 auto:cdsdisk    dg08d06      d08dg        online shared
+EMC_CLARiiON2_21 auto:cdsdisk    u00d07       u00dg        online shared
+EMC_CLARiiON2_22 auto:cdsdisk    d06d05       d06dg        online shared
+EMC_CLARiiON2_23 auto:cdsdisk    u00d014      u00dg        online shared
+EMC_CLARiiON2_24 auto:cdsdisk    -            -            online
+EMC_CLARiiON2_25 auto:cdsdisk    u00d04       u00dg        online shared
+EMC_CLARiiON2_26 auto:cdsdisk    d04d06       d09dg        online shared
+EMC_CLARiiON2_27 auto:cdsdisk    d06d03       d06dg        online shared
+EMC_CLARiiON2_28 auto:cdsdisk    do9d07       d09dg        online shared
+EMC_CLARiiON2_29 auto:cdsdisk    d09d05       d09dg        online shared
+EMC_CLARiiON2_30 auto:cdsdisk    d04d01       d09dg        online shared
+EMC_CLARiiON2_31 auto:cdsdisk    d06d04       d06dg        online shared
+EMC_CLARiiON2_33 auto:cdsdisk    dg08d07      d08dg        online shared
+EMC_CLARiiON2_34 auto:cdsdisk    u00d01       u00dg        online shared
+EMC_CLARiiON2_35 auto:cdsdisk    dg08d08      d08dg        online shared
+EMC_CLARiiON2_36 auto:cdsdisk    d05d04       d05dg        online shared
+EMC_CLARiiON2_37 auto:cdsdisk    oradumpd02   oradumpdg    online shared
+EMC_CLARiiON2_38 auto:cdsdisk    d05d03       d05dg        online shared
+EMC_CLARiiON2_39 auto:cdsdisk    d05d05       d05dg        online shared
+EMC_CLARiiON2_40 auto:cdsdisk    u00d08       u00dg        online shared
+EMC_CLARiiON2_41 auto:cdsdisk    d09d10       d09dg        online shared
+EMC_CLARiiON2_43 auto:cdsdisk    dg08d09      d08dg        online shared
+EMC_CLARiiON2_44 auto:cdsdisk    d05d06       d05dg        online shared
+EMC_CLARiiON2_45 auto:cdsdisk    d05d01       d05dg        online shared
+EMC_CLARiiON2_47 auto:cdsdisk    d07d05       d07dg        online shared
+EMC_CLARiiON2_48 auto:cdsdisk    d07d02       d07dg        online shared
+EMC_CLARiiON2_49 auto:cdsdisk    d07d03       d07dg        online shared
+EMC_CLARiiON2_50 auto:cdsdisk    d07d04       d07dg        online shared
+EMC_CLARiiON2_51 auto:cdsdisk    d07d06       d07dg        online shared
+EMC_CLARiiON2_52 auto:cdsdisk    d03d014      d03dg        online shared
+EMC_CLARiiON2_53 auto:cdsdisk    d03d010      d03dg        online shared
+EMC_CLARiiON2_54 auto:cdsdisk    d03d06       d03dg        online shared
+EMC_CLARiiON2_55 auto:cdsdisk    d03d04       d03dg        online shared
+EMC_CLARiiON2_56 auto:cdsdisk    d03d07       d03dg        online shared
+EMC_CLARiiON2_57 auto:cdsdisk    d03d09       d03dg        online shared
+EMC_CLARiiON2_58 auto:cdsdisk    d03d01       d03dg        online shared
+EMC_CLARiiON2_59 auto:cdsdisk    d03d02       d03dg        online shared
+EMC_CLARiiON2_60 auto:cdsdisk    d03d05       d03dg        online shared
+EMC_CLARiiON2_61 auto:cdsdisk    d03d08       d03dg        online shared
+EMC_CLARiiON2_62 auto:cdsdisk    d03d03       d03dg        online shared
+EMC_CLARiiON2_63 auto:cdsdisk    dg08d10      d08dg        online shared
+EMC_CLARiiON2_64 auto:cdsdisk    d07d10       d07dg        online shared
+EMC_CLARiiON2_65 auto:cdsdisk    u00d015      u00dg        online shared
+EMC_CLARiiON2_66 auto:cdsdisk    d03dgd015    d03dg        online shared
+EMC_CLARiiON2_67 auto:none       -            -            online invalid
+EMC_CLARiiON2_68 auto:cdsdisk    d09dgd12     d09dg        online shared
+EMC_CLARiiON2_69 auto            -            -            error
+EMC_CLARiiON2_70 auto:cdsdisk    -            -            online
+EMC_CLARiiON2_71 auto            -            -            error
+EMC_CLARiiON2_72 auto            -            -            error
+EMC_CLARiiON2_73 auto:cdsdisk    -            -            online
+EMC_CLARiiON2_74 auto:none       -            -            online invalid
+EMC_CLARiiON2_75 auto            -            -            error
+EMC_CLARiiON2_76 auto:none       -            -            online invalid
+EMC_CLARiiON3_0 auto:cdsdisk    EMC_CLARiiON3_0  crdg         online
+EMC_CLARiiON3_4 auto:cdsdisk    -           (SPARE)       online
+EMC_CLARiiON3_5 auto:cdsdisk    -           (crdg)        online
+EMC_CLARiiON3_6 auto:cdsdisk    -           (crdg)        online
+EMC_CLARiiON3_7 auto:cdsdisk    -           (crdg)        online
+c0t8d0s2     auto:sliced     rootdisk     rootdg       online
+c0t9d0s2     auto:sliced     rootmirror   rootdg       online
+c0t10d0s2    auto:none       -            -            online invalid
+c0t11d0s2    auto:none       -            -            online invalid
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               STARTING|PARTIAL
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               ONLINE
+B  orabin_shared   test             Y          N               OFFLINE
+
+-- RESOURCES FAILED
+
+C  cvm             CVMVolDg             cvm_dg_crs_oradg     test
+C  cvm             CVMVolDg             orabin_sdg           test
+(root_test)@/opt/VRTSvcs/vxfen/bin # hares -display orabin_sdg
+orabin_sdg   Group            global     cvm
+orabin_sdg   Type             global     CVMVolDg
+orabin_sdg   AutoStart        global     1
+orabin_sdg   Critical         global     0
+orabin_sdg   Enabled          global     1
+orabin_sdg   LastOnline       global     test419
+orabin_sdg   MonitorOnly      global     0
+orabin_sdg   ResourceOwner    global     unknown
+orabin_sdg   TriggerEvent     global     0
+orabin_sdg   ArgListValues    test417   orabindg       1       ora_vol01       sw
+orabin_sdg   ArgListValues    test418   orabindg       1       ora_vol01       sw
+orabin_sdg   ArgListValues    test419   orabindg       1       ora_vol01       sw
+orabin_sdg   ArgListValues    test   orabindg       1       ora_vol01       sw
+orabin_sdg   ConfidenceLevel  test417   100
+orabin_sdg   ConfidenceLevel  test418   100
+orabin_sdg   ConfidenceLevel  test419   100
+orabin_sdg   ConfidenceLevel  test   0
+orabin_sdg   Flags            test417
+orabin_sdg   Flags            test418
+orabin_sdg   Flags            test419
+orabin_sdg   Flags            test
+orabin_sdg   IState           test417   not waiting
+orabin_sdg   IState           test418   not waiting
+orabin_sdg   IState           test419   not waiting
+orabin_sdg   IState           test   not waiting
+orabin_sdg   Probed           test417   1
+orabin_sdg   Probed           test418   1
+orabin_sdg   Probed           test419   1
+orabin_sdg   Probed           test   1
+orabin_sdg   Start            test417   1
+orabin_sdg   Start            test418   1
+orabin_sdg   Start            test419   1
+orabin_sdg   Start            test   1
+orabin_sdg   State            test417   ONLINE
+orabin_sdg   State            test418   ONLINE
+orabin_sdg   State            test419   ONLINE
+orabin_sdg   State            test   FAULTED
+orabin_sdg   CVMActivation    global     sw
+orabin_sdg   CVMDiskGroup     global     orabindg
+orabin_sdg   CVMVolume        global     ora_vol01
+orabin_sdg   ComputeStats     global     0
+orabin_sdg   voldg_stat       global     0
+orabin_sdg   MonitorTimeStats test417   Avg    0       TS
+orabin_sdg   MonitorTimeStats test418   Avg    0       TS
+orabin_sdg   MonitorTimeStats test419   Avg    0       TS
+orabin_sdg   MonitorTimeStats test   Avg    0       TS
+orabin_sdg   ResourceInfo     test417   State  Valid   Msg             TS
+orabin_sdg   ResourceInfo     test418   State  Valid   Msg             TS
+orabin_sdg   ResourceInfo     test419   State  Valid   Msg             TS
+orabin_sdg   ResourceInfo     test   State  Stale   Msg             TS
+(root_test)@/opt/VRTSvcs/vxfen/bin # vxdg list
+NAME         STATE           ID
+rootdg       enabled              1148462547.8.test
+crdg         enabled,cds          1151405692.411.test
+crs_oradg    enabled,shared,cds   1152190590.409.test418
+d00dg        enabled,shared,cds   1152610699.437.test418
+d02dg        enabled,shared,cds   1167905960.346.test418
+d03dg        enabled,shared,cds   1164188455.191.test418
+d05dg        enabled,shared,cds   1162370976.113.test418
+d06dg        enabled,shared,cds   1152609615.430.test418
+d07dg        enabled,shared,cds   1158657657.154.test
+d08dg        enabled,shared,cds   1154439721.423.test
+d09dg        enabled,shared,cds   1163669944.144.test419
+orabindg     enabled,shared,cds   1151488619.415.test418
+oradumpdg    enabled,shared,cds   1152010534.418.test
+u00dg        enabled,shared,cds   1164189518.197.test418
+u02dg        enabled,shared,cds   1152015195.558.test
+(root_test)@/opt/VRTSvcs/vxfen/bin # vxprint -htg orabindg
+DG NAME         NCONFIG      NLOG     MINORS   GROUP-ID
+ST NAME         STATE        DM_CNT   SPARE_CNT         APPVOL_CNT
+DM NAME         DEVICE       TYPE     PRIVLEN  PUBLEN   STATE
+RV NAME         RLINK_CNT    KSTATE   STATE    PRIMARY  DATAVOLS  SRL
+RL NAME         RVG          KSTATE   STATE    REM_HOST REM_DG    REM_RLNK
+CO NAME         CACHEVOL     KSTATE   STATE
+VT NAME         NVOLUME      KSTATE   STATE
+V  NAME         RVG/VSET/CO  KSTATE   STATE    LENGTH   READPOL   PREFPLEX UTYPE
+PL NAME         VOLUME       KSTATE   STATE    LENGTH   LAYOUT    NCOL/WID MODE
+SD NAME         PLEX         DISK     DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+SV NAME         PLEX         VOLNAME  NVOLLAYR LENGTH   [COL/]OFF AM/NM    MODE
+SC NAME         PLEX         CACHE    DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+DC NAME         PARENTVOL    LOGVOL
+SP NAME         SNAPVOL      DCO
+
+dg orabindg     default      default  44000    1151488619.415.test418
+
+dm EMC_CLARiiON0_71 EMC_CLARiiON0_28 auto 2048 209704704 -
+
+v  ora_vol01    -            ENABLED  ACTIVE   209704704 SELECT   -        fsgen
+pl ora_vol01-01 ora_vol01    ENABLED  ACTIVE   209704704 CONCAT   -        RW
+sd EMC_CLARiiON0_71-01 ora_vol01-01 EMC_CLARiiON0_71 0 209704704 0 EMC_CLARiiON0_28 ENA
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               STARTING|PARTIAL
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               ONLINE
+B  orabin_shared   test             Y          N               OFFLINE
+
+-- RESOURCES FAILED
+
+C  cvm             CVMVolDg             cvm_dg_crs_oradg     test
+C  cvm             CVMVolDg             orabin_sdg           test
+(root_test)@/opt/VRTSvcs/vxfen/bin # hagrp -clear cvm
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               PARTIAL
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               ONLINE
+B  orabin_shared   test             Y          N               OFFLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hares -probe orabin_sdg -sys test
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               PARTIAL
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               ONLINE
+B  orabin_shared   test             Y          N               OFFLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hares -state orabin_sdg
+orabin_sdg   State            test417   ONLINE
+orabin_sdg   State            test418   ONLINE
+orabin_sdg   State            test419   ONLINE
+orabin_sdg   State            test   OFFLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hares -online orabin_sdg -sys test
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               PARTIAL
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               ONLINE
+B  orabin_shared   test             Y          N               OFFLINE
+
+-- RESOURCES ONLINING
+
+E  cvm             CVMVolDg        orabin_sdg           test             W_ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hares -state orabin_sdg
+orabin_sdg   State            test417   ONLINE
+orabin_sdg   State            test418   ONLINE
+orabin_sdg   State            test419   ONLINE
+orabin_sdg   State            test   ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               PARTIAL
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               ONLINE
+B  orabin_shared   test             Y          N               OFFLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hares -online cvm_dg_crs_oradg -sys test
+(root_test)@/opt/VRTSvcs/vxfen/bin # hares -state cvm_dg_crs_oradg
+cvm_dg_crs_oradg State            test417   ONLINE
+cvm_dg_crs_oradg State            test418   ONLINE
+cvm_dg_crs_oradg State            test419   ONLINE
+cvm_dg_crs_oradg State            test   OFFLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hares -state cvm_dg_crs_oradg
+cvm_dg_crs_oradg State            test417   ONLINE
+cvm_dg_crs_oradg State            test418   ONLINE
+cvm_dg_crs_oradg State            test419   ONLINE
+cvm_dg_crs_oradg State            test   OFFLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hares -state cvm_dg_crs_oradg
+cvm_dg_crs_oradg State            test417   ONLINE
+cvm_dg_crs_oradg State            test418   ONLINE
+cvm_dg_crs_oradg State            test419   ONLINE
+cvm_dg_crs_oradg State            test   ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               PARTIAL
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               ONLINE
+B  orabin_shared   test             Y          N               OFFLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hagrp -display cvm
+cvm          Administrators        global
+cvm          Authority             global     0
+cvm          AutoFailOver          global     0
+cvm          AutoRestart           global     1
+cvm          AutoStart             global     1
+cvm          AutoStartIfPartial    global     1
+cvm          AutoStartList         global     test417  test418        test419        test
+cvm          AutoStartPolicy       global     Order
+cvm          ClusterFailOverPolicy global     Manual
+cvm          ClusterList           global
+cvm          Evacuate              global     1
+cvm          ExtMonApp             global
+cvm          ExtMonArgs            global
+cvm          FailOverPolicy        global     Priority
+cvm          FaultPropagation      global     1
+cvm          Frozen                global     0
+cvm          GroupOwner            global
+cvm          Load                  global     0
+cvm          ManageFaults          global     ALL
+cvm          ManualOps             global     1
+cvm          OnlineRetryInterval   global     0
+cvm          OnlineRetryLimit      global     0
+cvm          Operators             global
+cvm          Parallel              global     1
+cvm          PreOnline             global     0
+cvm          PreonlineTimeout      global     300
+cvm          Prerequisites         global
+cvm          PrintTree             global     1
+cvm          Priority              global     0
+cvm          SourceFile            global     ./main.cf
+cvm          TFrozen               global     0
+cvm          Tag                   global
+cvm          TriggerEvent          global     1
+cvm          TriggerResStateChange global     0
+cvm          TypeDependencies      global
+cvm          UserIntGlobal         global     0
+cvm          UserStrGlobal         global
+cvm          AutoDisabled          test417   0
+cvm          AutoDisabled          test418   0
+cvm          AutoDisabled          test419   0
+cvm          AutoDisabled          test   0
+cvm          Enabled               test417   1
+cvm          Enabled               test418   1
+cvm          Enabled               test419   1
+cvm          Enabled               test   1
+cvm          IntentOnline          test417   1
+cvm          IntentOnline          test418   1
+cvm          IntentOnline          test419   1
+cvm          IntentOnline          test   1
+cvm          NumRetries            test417   0
+cvm          NumRetries            test418   0
+cvm          NumRetries            test419   0
+cvm          NumRetries            test   0
+cvm          PreOnlining           test417   0
+cvm          PreOnlining           test418   0
+cvm          PreOnlining           test419   0
+cvm          PreOnlining           test   0
+cvm          Probed                test417   1
+cvm          Probed                test418   1
+cvm          Probed                test419   1
+cvm          Probed                test   1
+cvm          ProbesPending         test417   0
+cvm          ProbesPending         test418   0
+cvm          ProbesPending         test419   0
+cvm          ProbesPending         test   0
+cvm          Restart               test417   0
+cvm          Restart               test418   0
+cvm          Restart               test419   0
+cvm          Restart               test   0
+cvm          State                 test417   |ONLINE|
+cvm          State                 test418   |ONLINE|
+cvm          State                 test419   |ONLINE|
+cvm          State                 test   |PARTIAL|
+cvm          UserIntLocal          test417   0
+cvm          UserIntLocal          test418   0
+cvm          UserIntLocal          test419   0
+cvm          UserIntLocal          test   0
+cvm          UserStrLocal          test417
+cvm          UserStrLocal          test418
+cvm          UserStrLocal          test419
+cvm          UserStrLocal          test
+cvm          VCSi3Info             test417
+cvm          VCSi3Info             test418
+cvm          VCSi3Info             test419
+cvm          VCSi3Info             test
+(root_test)@/opt/VRTSvcs/vxfen/bin # hagrp -resources cvm
+cssd
+cfs_oracrs
+orabin_u01
+qlogckd
+vxfsckd
+cvm_clus
+cvm_dg_crs_oradg
+orabin_sdg
+cvm_vxconfigd
+ora_priv
+(root_test)@/opt/VRTSvcs/vxfen/bin # for i in `hagrp -resources cvm`
+root@test > do
+root@test > hares -state $i | grep test
+root@test > done
+cssd         State            test   OFFLINE
+cfs_oracrs   State            test   OFFLINE
+orabin_u01   State            test   OFFLINE
+qlogckd      State            test   ONLINE
+vxfsckd      State            test   ONLINE
+cvm_clus     State            test   ONLINE
+cvm_dg_crs_oradg State            test   ONLINE
+orabin_sdg   State            test   ONLINE
+cvm_vxconfigd State            test   ONLINE
+ora_priv     State            test   ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hagrp -online cvm -sys test
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               ONLINE
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               ONLINE
+B  orabin_shared   test             Y          N               OFFLINE|STARTING
+
+-- RESOURCES ONLINING
+
+E  orabin_shared   CVMVolDg        d00dg_sdg            test             W_ONLINE
+E  orabin_shared   CVMVolDg        d02dg_sdg            test             W_ONLINE
+E  orabin_shared   CVMVolDg        d03dg_sdg            test             W_ONLINE
+E  orabin_shared   CVMVolDg        d05dg_sdg            test             W_ONLINE
+E  orabin_shared   CVMVolDg        d06dg_sdg            test             W_ONLINE
+E  orabin_shared   CVMVolDg        d07dg_sdg            test             W_ONLINE
+E  orabin_shared   CVMVolDg        d08dg_sdg            test             W_ONLINE
+E  orabin_shared   CVMVolDg        d09dg_sdg            test             W_ONLINE
+E  orabin_shared   CVMVolDg        oradumpdg_sdg        test             W_ONLINE
+E  orabin_shared   CVMVolDg        u00dg_sdg            test             W_ONLINE
+E  orabin_shared   CVMVolDg        u02dg_sdg            test             W_ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               ONLINE
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               ONLINE
+B  orabin_shared   test             Y          N               ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # hastatus -sum
+
+-- SYSTEM STATE
+
+A  test417             RUNNING              0
+A  test418             RUNNING              0
+A  test419             RUNNING              0
+A  test             RUNNING              0
+
+-- GROUP STATE
+
+B  cvm             test417             Y          N               ONLINE
+B  cvm             test418             Y          N               ONLINE
+B  cvm             test419             Y          N               ONLINE
+B  cvm             test             Y          N               ONLINE
+B  orabin_shared   test417             Y          N               ONLINE
+B  orabin_shared   test418             Y          N               ONLINE
+B  orabin_shared   test419             Y          N               ONLINE
+B  orabin_shared   test             Y          N               ONLINE
+(root_test)@/opt/VRTSvcs/vxfen/bin # ls
+vxfenclearpre  vxfendebug     vxfentsthdw
+(root_test)@/opt/VRTSvcs/vxfen/bin #
+
+
+WAYNE ROONEY
+</pre>

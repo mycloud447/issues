@@ -1,0 +1,54 @@
+---++ Doc Log 1141087726_01
+
+	$ Date: Tue Feb 28 00:48:46 2006
+	$ Summary: tape drive having problems
+
+---++++ Details:
+<pre>
+errors in messages file;
+
+Feb 28 00:23:26 test154 scsi: [ID 107833 kern.warning] WARNING: /pci@1d,700000/lpfc@2/st@8,0 (st152):
+Feb 28 00:23:26 test154  SCSI transport failed: reason 'tran_err': giving up
+Feb 28 00:23:55 test154 lpfc: [ID 728700 kern.warning] WARNING: lpfc1:0203:DIe:Nodev timeout on NPort x40b26 Data: x11045 x4 xc
+Feb 28 00:24:02 test154 scsi: [ID 107833 kern.warning] WARNING: /pci@1d,700000/lpfc@2/st@8,0 (st152):
+Feb 28 00:24:02 test154  SCSI transport failed: reason 'tran_err': giving up
+Feb 28 00:24:18 test154 acsd[703]: [ID 730379 daemon.error] Unexpected response status (11) in DecodeDismount
+
+checked with vmoprcmd and all looks fine;
+(root_test154)@/usr/openv/volmgr # vmoprcmd
+
+                                PENDING REQUESTS
+
+                                     <NONE>
+
+                                  DRIVE STATUS
+
+Drv Type   Control  User      Label  RecMID  ExtMID  Ready   Wr.Enbl.  ReqId
+  0 hcart2   ACS    root       Yes   N00370  N00370   Yes     Yes        3
+  1 hcart2   ACS                -                     No       -        -
+  2 hcart2   ACS    root       Yes   N01695  N01695   Yes     Yes        0
+  3 hcart2   ACS                -                     No       -        -
+
+                             ADDITIONAL DRIVE STATUS
+
+Drv DriveName            Shared    Assigned        Comment
+  0 ps_00_ndmp_26         No       test154
+  1 ps_00_ndmp_10         No       -
+  2 ps_00_ndmp_42         No       test154
+  3 ps_00_ndmp_58         No       -
+
+tracked lpfc@2/st@8,0 to /dev/rmt/7 and thence to drv 1 in netbackup
+(volmgr)...and tpconfig says it's all okay too.  Drive is up and has
+unmounted the tape, so guess all is okay.  May be worth having psdstor
+check it out.
+
+(root_test154)@/usr/openv/volmgr # tpconfig -l
+Device Robot Drive       Robot                    Drive          Device                Second
+Type     Num Index  Type DrNum Status  Comment    Name           Path                  Device Path
+robot      0    -    ACS    -       -  -          -              psl390
+  drive    -    0 hcart2    -      UP  -          ps_00_ndmp_26  /ndmp//dev/rmt/3cbn   ACS=0, LSM=2, PANEL=1, DRIVE=9
+  drive    -    1 hcart2    -      UP  -          ps_00_ndmp_10  /ndmp//dev/rmt/7cbn   ACS=0, LSM=3, PANEL=1, DRIVE=9
+  drive    -    2 hcart2    -      UP  -          ps_00_ndmp_42  /ndmp//dev/rmt/15cbn  ACS=0, LSM=1, PANEL=1, DRIVE=9
+  drive    -    3 hcart2    -      UP  -          ps_00_ndmp_58  /ndmp//dev/rmt/53cbn  ACS=0, LSM=0, PANEL=1, DRIVE=9
+
+</pre>

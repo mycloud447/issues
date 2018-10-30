@@ -1,0 +1,217 @@
+Special Veritas to Disksuite Root Disk Conversion Guideline
+
+Potential Impact
+
+If a system has a MFCobol license installed, it will get corrupted with the relayout. The customer must have the license to re-install the license and re-create the license file.
+
+Prep work
+
+Create a new /etc/vfstab called /etc/vfstab.sliced to have straight mounts on the mirror. Leave all Veritas volumes out of the new file.
+
+for c0t1d0
+fd - /dev/fd fd - no -
+/proc - /proc proc - no -
+/dev/dsk/c0t1d0s1 - - swap - no -
+/dev/dsk/c0t1d0s0 /dev/rdsk/c0t1d0s0 / ufs 1 no -
+/dev/dsk/c0t1d0s3 /dev/rdsk/c0t1d0s3 /var ufs 1 no -
+/dev/dsk/c0t1d0s4 /dev/rdsk/c0t1d0s4 /opt ufs 2 yes -
+/dev/dsk/c0t1d0s5 /dev/rdsk/c0t1d0s5 /tech ufs 2 yes -
+swap - /tmp tmpfs - yes -
+
+for c1t1d0
+fd - /dev/fd fd - no -
+/proc - /proc proc - no -
+/dev/dsk/c1t1d0s1 - - swap - no -
+/dev/dsk/c1t1d0s0 /dev/rdsk/c1t1d0s0 / ufs 1 no -
+/dev/dsk/c1t1d0s3 /dev/rdsk/c1t1d0s3 /var ufs 1 no -
+/dev/dsk/c1t1d0s4 /dev/rdsk/c1t1d0s4 /opt ufs 2 yes -
+/dev/dsk/c1t1d0s5 /dev/rdsk/c1t1d0s5 /tech ufs 2 yes -
+swap - /tmp tmpfs - yes -
+
+Break the Mirror for Resize - Keep Original Root Disk for Fallback
+
+First change the dump device to be the root disk. This should be slice 1
+
+controller c0
+dumpadm -d /dev/dsk/c0t0d0s1
+
+controller c1
+dumpadm -d /dev/dsk/c1t0d0s1
+
+Break the mirror copy of the root disk. Validate these are correct for your system. This assumes a standard build. Remove any extra volumes on root. We will be copying the data as if resizing the disk.
+/usr/sbin/vxplex -g rootdg -o rm dis rootvol-02
+/usr/sbin/vxplex -g rootdg -o rm dis swapvol-02
+/usr/sbin/vxplex -g rootdg -o rm dis tech-02
+/usr/sbin/vxplex -g rootdg -o rm dis var-02
+/usr/sbin/vxplex -g rootdg -o rm dis opt-02
+/usr/sbin/vxplex -g rootdg -o rm dis product-02
+/usr/sbin/vxplex -g rootdg -o rm dis patrol-02
+/usr/sbin/vxplex -g rootdg -o rm dis logs-02
+vxdg -g rootdg rmdisk rootmirr
+/etc/vx/bin/vxdiskunsetup c1t1d0
+
+Relayout disk to standard
+format
+1 for either c0t1d0 or c1t1d0
+part
+mod
+1
+5 (free hog)
+
+0=8g
+1=16g
+3=8g
+4=6g
+6=0
+7=100m
+
+Umount all Non Rootdg Veritas Volumes
+
+The easiest thing to do is "umountall". Then remount any rootdg or bootdg volumes not mounted. Finally any non rootdg/bootdg volumes that are still mounted and will not umount, add to the /exclude file that you will be creating below. Make sure you add BEFORE you run the tar or else / will most likely fill up and you will need to do again.
+
+Create new filesystems. Newfs commands need to be run 1 at a time
+
+for c0t1d0
+newfs /dev/rdsk/c0t1d0s0
+newfs /dev/rdsk/c0t1d0s3
+newfs /dev/rdsk/c0t1d0s4
+newfs /dev/rdsk/c0t1d0s5
+
+for i in root opt tech
+do
+mkdir /mnt/$i
+done
+mount /dev/dsk/c0t1d0s0 /mnt/root
+mkdir /mnt/root/var
+mount /dev/dsk/c0t1d0s3 /mnt/root/var
+mount /dev/dsk/c0t1d0s4 /mnt/opt
+mount /dev/dsk/c0t1d0s5 /mnt/tech
+
+for c1t1d0
+newfs /dev/rdsk/c1t1d0s0
+newfs /dev/rdsk/c1t1d0s3
+newfs /dev/rdsk/c1t1d0s4
+newfs /dev/rdsk/c1t1d0s5
+
+for i in root opt tech
+do
+mkdir /mnt/$i
+done
+mount /dev/dsk/c1t1d0s0 /mnt/root
+mkdir /mnt/root/var
+mount /dev/dsk/c1t1d0s3 /mnt/root/var
+mount /dev/dsk/c1t1d0s4 /mnt/opt
+mount /dev/dsk/c1t1d0s5 /mnt/tech
+
+Copy Over Data
+
+Use tar to ensure no issues if filesystems are smaller. Do not worry about special files as they will get recreated.
+cd /opt
+tar -cEf - . | ( cd /mnt/opt ; tar -xf -)
+cd /tech
+tar -cEf - . | ( cd /mnt/tech ; tar -xf -)
+cd /
+umount /mnt/opt
+umount /mnt/tech
+echo ./mnt > /exclude
+echo ./nas >> /exclude
+echo ./proc >> /exclude
+echo ./opt >> /exclude
+echo ./tech >> /exclude
+echo ./ETSDentbkup >> /exclude
+echo ./unix_data >> /exclude
+
+tar -cEXf exclude - . | ( cd /mnt/root ; tar -xf - )
+cd /mnt/root
+for i in `cat /exclude` ; do mkdir $i ; done
+
+check for /mnt/root/proc and if not there rerun the for loop
+
+Install Boot block c0t1d0
+installboot /usr/platform/sun4u/lib/fs/ufs/bootblk /dev/rdsk/c0t1d0s0
+
+Install Boot block c1t1d0
+installboot /usr/platform/sun4u/lib/fs/ufs/bootblk /dev/rdsk/c1t1d0s0
+
+Change Vfstab To Point To Relayout Disk
+
+Copy sliced vfstab we set up earlier in place.
+cp /mnt/root/etc/vfstab /mnt/root/etc/vfstab.pre-convert
+cp /mnt/root/etc/vfstab.sliced /mnt/root/etc/vfstab
+
+Validate /etc/system Removed Line
+
+Validate that the lines in /mnt/etc/system are removed.
+cp /mnt/root/etc/system /mnt/root/etc/system.pre-relayout
+vi /mnt/root/etc/system
+
+rootdev:/pseudo/vxio@0:0
+set vxio:vol_rootdev_is_volume=1
+
+Unmount All Filesystems
+
+Unmount all filesystems manually and reboot off the new disk to validate
+cd
+umountall
+eeprom boot-device=disk1
+init 6
+
+Configure Root Mirror for Disksuite
+dumpadm -d swap
+cd /var/tmp
+rm -r disksuite-scripts
+unzip -q /net/isdistatus.thehartford.com/tech/install/disksuite/disksuite-scripts.zip
+cd disksuite-scripts
+cp /etc/vfstab /etc/vfstab.pre-disksuite
+
+for c0t1d0 drive
+./meta-setup-disk2.sh c0t1d0
+cp vfstab.disksuite.sol10 /etc/vfstab
+
+for c1t1d0 drive
+./meta-setup-disk2.sh c1t1d0
+cp vfstab.disksuite.sol10 /etc/vfstab
+
+vfstab Update if Not Upgrading Veritas
+
+Make sure any extra mounts in /etc/vfstab.pre-convert are added back to /etc/vfstab to allow Veritas and NAS access. Leave out any bootdg/rootdg mounts.
+
+If you are going to upgrade Veritas as part of this activity, leave the extra mounts out and just reboot. We will add back later.
+
+Reboot
+
+Reboot the server to allow access to additional storage and to boot off the Disksuite metadevices
+init 6
+
+dumpadm -d swap
+
+Perform Veritas Upgrade if Necessary
+
+Now is the time to perform the Veritas upgrade if you are ready. If not, continue on.
+
+Turn over to customer for testing
+Post Approval from Customer that Everything is OK
+
+Please do not forget to re-mirror the disks using disksuite once the system is validated and you do not need the immediate fallback.
+
+Configure 2nd disksuite disk
+
+for c0 drives
+vxdg deport rootdg
+/etc/vx/bin/vxdiskunsetup c0t0d0
+cd /var/tmp/disksuite-scripts
+./mirror-setup-disk1.sh c0t1d0 c0t0d0
+
+for c1 drives
+vxdg deport rootdg
+/etc/vx/bin/vxdiskunsetup c1t0d0
+cd /var/tmp/disksuite-scripts
+./mirror-setup-disk1.sh c1t1d0 c1t0d0
+
+Sync up disksuite mirrors
+cd /var/tmp/disksuite-scripts
+./sync-mirror-disk1.sh
+
+Make sure all disksuite mirrors are in sync. This should return no output
+metastat | grep Resync
+

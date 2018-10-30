@@ -1,0 +1,37 @@
+---++ Doc Log 1383611111_01
+        $ Date: Tue Nov 05:: 05:55:11
+        $ Summary: Create volumes and Make SNAP relationship
+
+---++++ Details:
+<pre>
+ Create New FS
+===============
+vxassist -g <diskgroup> make <vol> 12g alloc=disk1,disk2
+mkfs -F vxfs /dev/vx/rdsk/<diskgroup>/<vol>
+
+Creat New SNAP VOL
+==================
+vxassist -g <diskgroup> make PFI<vol>_?? 12g alloc=disk3,disk4
+
+Create SNAP relationship
+=========================
+# vxprint -qhtg <diskgroup>  <vol> |grep "^sd" |cut -d" " -f4 |sort |uniq
+# /usr/sbin/vxsnap -g <diskgroup>  prepare <vol> ndcomirs=1 alloc=( place the disk information here which is obtained from the above command)
+
+# vxprint -qhtg <diskgroup> PFI<vol>_?? |grep "^sd" |cut -d" " -f4 |sort |uniq
+# /usr/sbin/vxsnap -g <diskgroup> prepare PFI<vol>_?? ndcomirs=1 alloc=( place the disk information here which is obtained from the above command)
+
+Mount on Temp MOUNT POINT
+==========================
+ex :- mkdir /DM01/data
+mount -F vxfs /dev/vx/dsk/<diskgroup>/<vol> /DM01/data
+ 
+RSYNC
+=====
+vxsnap -g <diskgroup> make source=<vol>/snapvol=PFI<vol>_??/syncing=on
+ 
+RSYNC/VXSYNC/CPIO copy
+=====================
+cd /apps/bss/kenandm1/data
+find * -print | cpio -pvdmu /DM01/dat
+</pre>

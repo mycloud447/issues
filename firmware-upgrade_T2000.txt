@@ -1,0 +1,183 @@
+---++ Doc Log 1383635071_01
+        $ Date: Tue Nov 05:: 12:34:31
+        $ Summary: firmware-upgrade-T2000
+
+---++++ Details:
+<pre>
+$mkdir -p /tmp/images
+
+$cp -p 136927-03_T2000_FW-180708.zip /tmp/images/
+$unzip 136927-03_T2000_FW-180708.zip
+
+$ls -lrt
+total 9888
+
+drwxr-xr-x   2 root     root        1032 Jul 19 05:00 136927-03
+-rwxr-xr-x   1 d270255  admin    5047792 Aug  5 13:05 136927-03_T2000_FW-180708.zip
+
+$cd 136927-03
+$ls -lrt
+
+total 43456
+
+-r--r--r--   1 root     root       14684 Mar 23  2007 LEGAL_LICENSE.TXT
+
+-rwxr-xr-x   1 root     root       12896 Sep 18  2007 sysfw660_README_docs.css
+
+-rwxr-xr-x   1 root     root          59 Jan 24  2008 copyright
+
+
+-rwxr-xr-x   1 root     root        1613 Feb 28  2008 sysfw660_README_docs.html
+
+-rwxr-xr-x   1 root     root        6885 Jun 12 05:53 sysfwdownload.README
+
+-rwxr-xr-x   1 root     root       19804 Jun 12 05:53 sysfwdownload
+
+
+
+-rwxr-xr-x   1 root     root       12036 Jul 17 02:11 Install.info
+
+-rw-r--r--   1 root     root       14397 Jul 19 05:00 README.136927-03
+
+$pwd
+
+/tmp/images/136927-03
+
+$uname -a
+
+SunOS 5.10 Generic_127111-05 sun4v sparc SUNW,Sun-Fire-T200
+
+
+.......... (9%).......... (18%).......... (27%).......... (37%).......... (46%).......... (55%).......... (64%).......... (74%).......... (83%).......... (92%)........ (100%)
+
+
+
+Download completed successfully.
+
+$shutdown -i0 -g0 -y
+Program terminated
+
+{5\} ok 
+
+
+sc>showsc version -v
+
+Advanced Lights Out Manager CMT v1.4.2
+
+SC Firmware version: CMT 1.4.2
+
+SC Bootmon version: CMT 1.4.2
+
+
+VBSC 1.4.3
+VBSC firmware built Jun 24 2007, 17:18:36
+
+
+SC Bootmon Build Release: 01
+SC bootmon checksum: 5C67AFFC
+SC Bootmon built Jun 24 2007, 17:34:19
+
+SC Build Release: 01
+SC firmware checksum: F0272F89
+
+SC firmware built Jun 24 2007, 17:34:33
+SC firmware flashupdate THU OCT 25 05:38:52 2007
+
+SC NVRAM Version = 14
+
+SC hardware type: 4
+FPGA Version: 4.2.4.7
+
+
+sc>showhost
+
+
+
+
+Host flash versions:
+
+   Hypervisor 1.4.1 2007/04/02 16:37
+
+   OBP 4.26.1 2007/04/02 16:26
+
+   POST 4.26.0 2007/03/26 16:45 
+
+
+
+sc>poweroff
+
+Are you sure you want to power off the system [y/n]?  y
+
+sc> 
+
+SC Alert: SC Request to Power Off Host.
+
+
+
+sc>showkeyswitch
+
+Keyswitch is in the NORMAL position.
+
+sc> 
+
+SC Alert: Failed to send email alert for recent event.
+SC Alert: Failed to send email alert for recent event.
+SC Alert: Host system has shut down.
+SC Alert: Failed to send email alert for recent event.
+
+sc>flashupdate -s 127.0.0.1
+
+SC Alert: Failed to send email alert for recent event.
+
+......................................................................................................................................................................................
+
+Update complete. Reset device to use new software.
+
+SC Alert: SC firmware was reloaded
+SC Alert: Failed to send email alert for recent event.
+
+sc> 
+
+sc> resetsc
+
+Are you sure you want to reset the SC [y/n]?  y
+
+User Requested SC Shutdown
+
+Read from remote host 10.0.2.67: Connection reset by peer Connection to 10.0.2.67 closed. $ 
+
+$ ssh root@10.0.2.67
+
+Copyright 2008 Sun Microsystems, Inc.  All rights reserved.
+Use is subject to license terms.
+
+
+Sun(tm) Advanced Lights Out Manager CMT v1.6.4
+
+Please login: admin
+
+Please Enter password: ******
+
+
+sc> 
+SC Alert: Failed to send email alert for recent event.
+
+
+sc>showhost
+
+Host flash versions:
+   OBP 4.28.9 2008/06/30 21:26
+   Hypervisor 1.6.4 2008/06/06 04:57
+   POST 4.28.6 2008/05/23 12:30 
+
+sc>poweron -c
+Warning: User < > currently has write permission to this console and forcibly removing them will terminate any current write actions and all work will be lost.  Would you like to continue? [y/n]
+SC Alert: Failed to send email alert for recent event.
+
+SC Alert: Failed to send email alert for recent event.
+SC Alert: Failed to send email alert for recent event.
+y
+
+Enter #. to return to ALOM.
+
+</pre>

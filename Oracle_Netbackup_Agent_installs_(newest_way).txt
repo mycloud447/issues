@@ -1,0 +1,83 @@
+---++ Doc Log 1256819448_01
+
+	$ Date: Thu Oct 29 12:30:48 2009
+	$ Summary: Oracle Netbackup Agent installs (newest way)
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+
+On Oracle servers we have to install the Netbackup Oracle agent. This will also need to be patched. If you are running on Netbackup Client version 6.5.3 (now standard as part of all new builds), then you will need to perform the following steps to add the agent and the pack  NB_ORA_6.5.2 (usually the Client and the oracle pack needs to be the same version, but 6.5.3 pack for Oracle has not been released. Confirmed with Symantec that this is ok) :-
+
+You will need NBU_65_unix_options.tar.Z & NB_ORA_6.5.2.tar.Z. I have asked Andrew Brook to add them to all jet servers, but for now, the you can get it from /net/srumlms02/backup/GS_nbu_upgrade
+
+# ./install
+Symantec Installation Script
+Copyright 1993 - 2007 Symantec Corporation, All Rights Reserved.
+
+        Installation Options
+
+        1 NetBackup Add-On Product Software
+        2 NetBackup Database Agent Software
+
+        q To quit from this script
+Choose an option [default: q]: 2
+
+**********
+
+There are two ways to install database agent software.
+
+1.  Remote Installation:  Loads the software on a server with
+    the intent of pushing database software out to affected clients.
+
+2.  Local Installation:   Loads and installs the software only to this
+    local machine.
+
+**********
+
+Do you want to do a local installation? [y,n] (n) y
+
+**********
+
+        NetBackup Database Agent Installation
+
+Choose the Database Agents you wish to install
+one at a time or select Install All Database Agents.
+
+        1)  NetBackup for DB2
+        2)  NetBackup for Informix
+        3)  NetBackup for Lotus Notes
+        4)  NetBackup for Oracle
+        5)  NetBackup for SAP
+        6)  NetBackup for Sybase
+
+        7)  Install All Database Agents
+
+        q)  Done Selecting Agents
+        x)  Exit from this Script
+
+Choose an option: 4
+
+Choose an option: q
+
+
+You have chosen to install these Database Agents:
+
+        NetBackup for Oracle
+
+Is this list correct? [y,n] (y)
+
+**********
+
+Once that has been installed, you now need to run:-
+
+# ./NB_update.install
+
+There is 1 pack available in /var/tmp/NB_ORA_6.5.2:
+(* denotes installed pack)
+
+        NB_ORA_6.5.2
+
+Enter pack name (or q) [q]: NB_ORA_6.5.2
+
+</pre>

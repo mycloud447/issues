@@ -1,0 +1,25 @@
+---++ Doc Log 1390866891_01
+        $ Date: Jan 28 05:24:51 2014
+        $ Summary: INST_RELEASE issue fixed
+
+---++++ Details:
+<pre>
+$ ./installpatchset --s10patchset
+
+ERROR: Failed to read INST_RELEASE file from target boot environment. This file
+
+       must be present for patch set installation.
+
+
+Issue fixed as per Documents :
+
+Cause: 
+Reason 2: The /var/sadm/softinfo/INST_RELEASE file is missing.
+Solution: 
+Reason 2: Create a new INST_RELEASE file by using the following template:
+OS=Solaris
+VERSION=x 
+REV=0
+"x" Is the version of Solaris software on the system
+
+</pre>

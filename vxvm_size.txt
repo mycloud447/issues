@@ -1,0 +1,95 @@
+<pre>
+#!/bin/bash
+# scale=2 display value with 2 decimal. 
+foo ()
+{
+echo
+echo -en "\033[32mEnter a number \033[33m1=Subdisk 2=Plex 3=Volume 4=Disk q=Quit\033[0m :\033[0m"
+read num
+if [ "$num" = "q" ];then
+exit 0
+else
+if [ "$num" = "1" ]; then
+    echo -en "\033[32mEnter the Subdisk Name :\33[0m"
+read subdisk
+/usr/sbin/vxprint -sb |grep ENABLED |awk ' { print $2 } ' |grep -w "$subdisk" > /dev/null
+if [ `echo $?` -eq 0 ]
+then
+echo -e "\033[32mThe Subdisk $subdisk size is :\033[0m \033[45m$(for i in `/usr/sbin/vxprint -g $DGS -Qqs $subdisk |awk ' { print $5 }' `; do echo "scale=2;$i/2/1024/1024" |bc;done) GB\033[0m"
+else
+echo "---------------------------------------------------------------------------------"
+echo -e "\033[31mSub-disk $subdisk is not part of $DGS or incorrect sub-diskname\033[0m"
+echo "---------------------------------------------------------------------------------"
+fi
+else
+if [ "$num" = "2" ]; then
+        echo -en "\033[35mEnter the Plex Name :\033[0m"
+read plex
+/usr/sbin/vxprint -p |grep ACTIVE |awk ' { print $2 } ' |grep -w "$plex" > /dev/null
+if [ `echo $?` -eq 0 ]
+then
+echo -e "\033[32mThe plex $plex size is :\033[0m \033[45m$(for i in `/usr/sbin/vxprint -g $DGS -Qqp $plex |awk ' { print $5 }' `; do echo "scale=2;$i/2/1024/1024"  |bc;done) GB\033[0m"
+else
+echo "-----------------------------------------------------------------------"
+echo -e "\033[31mPlex $plex is not part of $DGS or incorrect Plex name\033[0m"
+echo "-----------------------------------------------------------------------"
+fi
+else
+if [ "$num" = "3" ]; then
+ echo -en "\033[35mEnter the Volume Name :\033[0m"
+read volume
+/usr/sbin/vxprint -v |grep ENABLED |awk ' { print $2 } ' |grep -w "$volume"  > /dev/null
+if [ `echo $?` -eq 0 ]
+then
+echo -e "\033[32mThe volume $volume size is :\033[0m \033[45m$(for i in `/usr/sbin/vxprint -g $DGS -Qqv $volume |awk ' { print $5 }' `; do echo "scale=2;$i/2/1024/1024" |bc;done) GB\033[0m"
+else
+echo "-----------------------------------------------------------------------------"
+echo -e "\033[31mVolume $volume is not part of $DGS or incorrect Volume name\033[0m"
+echo "-----------------------------------------------------------------------------"
+fi
+else
+if [ "$num" = "4" ]; then
+echo -en "\033[35mEnter the Veritas Disk Name :\033[0m"
+read DISK
+/usr/sbin/vxdisk list |grep $DGS|grep $DISK > /dev/null
+if [ `echo $?` -eq 0 ]
+then
+GADSK=`/usr/sbin/vxdisk list |grep "$DGS" |awk ' { print $1 } '|grep "$DISK" `
+GDSK=`/usr/sbin/vxdisk list $GADSK |grep public |awk ' { print $4 } '|cut -f2 -d'=' `
+echo -e "\033[32mThe size of the disk $DISK :\033[0m \033[45m"$(echo "scale=2;$GDSK/2/1024/1024"|bc)" GB\033[0m"
+else
+echo "-----------------------------------------------------------------------------"
+echo -e "\033[31mThe entered disk is not part of $DGS or incorrect disk name\033[0m"
+echo "-----------------------------------------------------------------------------"
+fi
+else
+echo "-------------------------------------------------"
+echo -e "\033[31mPlease enter the correct option\033[0m"
+echo "-------------------------------------------------"
+fi
+       fi
+     fi
+    fi
+ fi
+foo
+}
+
+#Script begins
+echo -en "\033[32mEnter the diskgroup name :\033[0m"
+read DGS
+/usr/sbin/vxdg list |grep -v ID |awk ' { print $1 } ' |grep -w $DGS > /dev/null
+if [ `echo $?` -eq 0 ]
+then
+DGSPACE=`/usr/sbin/vxprint -g $DGS -dF "%publen" | awk 'BEGIN {s = 0} {s += $1} END {print s}' `
+echo "Diskgroup $DGS size is = "$(echo "scale=2;$DGSPACE/2/1024/1024"|bc)" GB"
+DGFREE=`/usr/sbin/vxdg -g $DGS free | awk ' { print $5 }' |grep -v LENGTH |awk 'BEGIN {s = 0} {s += $1} END {print s}' `
+echo -e "\033[32mFree space/Unallocated space in diskgroup $DGS is :\033[0m \033[45m "$(echo "scale=2;$DGFREE/2/1024"|bc)" MB\033[0m"
+foo
+else
+echo "--------------------------------------------------------------"
+echo -e "\033[31mDiskgroup $DGS is not imported in `uname -n`\033[0m"
+echo "--------------------------------------------------------------"
+fi
+
+</pre>
+

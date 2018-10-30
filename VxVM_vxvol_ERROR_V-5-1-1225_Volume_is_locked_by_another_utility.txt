@@ -1,0 +1,38 @@
+---++ Doc Log 1397802378_01
+        $ Date: Apr 18 11:56:18 2014
+        $ Summary: VxVM vxvol ERROR V-5-1-1225 Volume  is locked by another utility
+
+---++++ Details:
+<pre>
+Issue :-
+--------
+While starting Snap volume it giving error saying Volume is locked by another utility
+
+testserver $ vxvol -g kenadmadmdatadg start PFIadmdata008vl_004ea3fa
+VxVM vxvol ERROR V-5-1-1225 Volume PFIadmdata008vl_004ea3fa is locked by another utility
+testserver $
+
+Plexs are in enabled state and Volume is still showing in Detached stat and not able to start
+
+v  PFIadmdata008vl_004ea3fa - DETACHED ACTIVE  1012924416 SELECT  -        fsgen
+pl PFIadmdata008vl_0021ed8f-01 PFIadmdata008vl_004ea3fa ENABLED ACTIVE 1012924416 CONCAT - RW
+sd pri0235_kenadmcat_dm-01 PFIadmdata008vl_0021ed8f-01 pri0235_kenadmcat_dm 0 420398848 0 emc22_1f27 ENA
+sd pri0236_kenadmcat_dm-01 PFIadmdata008vl_0021ed8f-01 pri0236_kenadmcat_dm 0 420398848 420398848 emc22_1f28 ENA
+sd pri0237_kenadmcat_dm-01 PFIadmdata008vl_0021ed8f-01 pri0237_kenadmcat_dm 0 172126720 840797696 emc22_1f29 ENA
+dc PFIadmdata008vl_00_dco PFIadmdata008vl_004ea3fa PFIadmdata008vl_00_dcl
+v  PFIadmdata008vl_00_dcl -  ENABLED  ACTIVE   69792    PREFER    PFIadmdata008vl_00_dcl-02 gen
+pl PFIadmdata008vl_00_dcl-02 PFIadmdata008vl_00_dcl ENABLED ACTIVE 69792 CONCAT - RW
+sd pri0238_kenadmcat_dm-07 PFIadmdata008vl_00_dcl-02 pri0238_kenadmcat_dm 799392 69792 0 emc22_0155 ENA
+
+
+Resolved :-
+---------
+Remove all the prevous logs on the volume ex :- tutil, putil ... etc 
+
+# vxmend -g oradg -r clear all <volume>
+# vxmend -g <disk group> clear tutil <volume>
+# vxsnap -g oradg dis snapvol1 
+# vxvol -g oradg start snapvol1
+# vxsnap -g oradg make source=vol1/snap=snapvol1/sync=no
+# vxsnap -g oradg refresh snapvol1 
+</pre>

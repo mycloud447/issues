@@ -1,0 +1,29 @@
+---++ Doc Log 1383809180_01
+        $ Date: Thu Nov 07:: 12:56:20
+        $ Summary: VXFSstat
+
+---++++ Details:
+<pre>
+# /opt/VRTSvxfs/sbin/vxfsstat -b -e 2 -c 2 -t 2 /export/data/oracle/product
+01:54:55.398 October 20, 2011 01:54:55 AM EDT -- absolute sample
+
+buffer cache statistics
+
+   189824 Kbyte current   24060416 maximum
+
+   508907 lookups            97.36% hit rate
+
+     3569 sec recycle age [not limited by maximum]
+
+01:54:57.401 October 20, 2011 01:54:57 AM EDT -- delta (2.003 sec sample)
+
+buffer cache statistics
+
+   189824 Kbyte current   24060416 maximum
+
+        8 lookups           100.00% hit rate
+
+     3569 sec recycle age [not limited by maximum]
+
+
+</pre>

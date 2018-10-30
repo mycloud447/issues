@@ -1,0 +1,53 @@
+<pre>
+# gabconfig -a
+GAB Port Memberships
+===============================================================
+Port a gen   791505 membership 01
+Port b gen   791507 membership 01
+Port h gen   791508 membership 0
+Port h gen   791508    visible ;1
+#
+
+
+GAB Port Function
+a    gab driver
+b    I/O fencing (designed to guarantee data integrity)
+h    VCS (VERITAS Cluster Server: high availability daemon)
+
+====================================================================
+
+emc2_39c6    auto:none       -            -            online invalid
+emc2_39c7    auto:none       -            -            online invalid
+emc2_39c8    auto:none       -            -            online invalid
+
+/etc/vx/bin/vxdisksetup -i emc2_39c6
+/etc/vx/bin/vxdisksetup -i emc2_39c7
+/etc/vx/bin/vxdisksetup -i emc2_39c8
+
+
+# vxdg init vmax_prod_siiam_app_fencdg fen001_siiam_dm=emc2_39c6 fen003_siiam_dm=emc2_39c7 fen003_siiam_dm=emc2_39c8
+# vxdg -g vmax_prod_siiam_app_fencdg set coordinator=on
+# vxdg deport vmax_prod_siiam_app_fencdg
+# vxdg -t import vmax_prod_siiam_app_fencdg
+# vxdg deport vmax_prod_siiam_app_fencdg
+
+# hastop -local
+# gabconf -a 
+
+# /etc/init.d/vxfen stop
+# /sbin/gabconfig -U
+# /sbin/lltconfig -U
+
+# cp -pr /etc/vxfendg /etc/vxfendg.`date +%d%m%Y`
+# echo "vmax_prod_siiam_app_fencdg" > /etc/vxfendg 
+
+# /sbin/lltconfig -c
+# /bin/gabconfig -c
+# /sbin/vxfenconfig -c
+# /etc/init.d/vxfen start
+
+On both servers
+----------------
+# gabconfig -a to check port b
+# cat /etc/vxfentab to ensure new devices are populated
+</pre>

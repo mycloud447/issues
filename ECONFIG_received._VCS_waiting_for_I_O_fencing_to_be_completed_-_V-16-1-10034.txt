@@ -1,0 +1,40 @@
+---++ Doc Log 1385002970_01
+        $ Date: Nov 21 08:32:50 2013
+        $ Summary: RECONFIG received. VCS waiting for I/O fencing to be completed - V-16-1-10034
+
+---++++ Details:
+<pre>
+Message: 	
+========
+RECONFIG received. VCS waiting for I/O fencing to be completed
+
+Description: 	
+===========
+
+This message is displayed when Global Atomic Broadcast (GAB) membership changes. Possible reasons for this message are a node going down or a split-brain condition.
+
+If a node going down causes this error, Veritas Cluster Server (VCS) waits for the fencing module (VxFEN) to complete the membership arbitration process. After VxFEN completes the cluster membership arbitration, VCS fails over service groups from the node which went down.
+
+When a split-brain condition causes this error, VxFEN arbitration ensures that only one partition survives, and nodes in the other partition(s) panic.
+
+Content: 	
+========
+
+Determine whether the GAB membership change is caused by a node going down or a split-brain condition.
+
+    When a node going down causes the GAB membership change, restart the node that goes down. Then the node should be able to join the cluster.
+    When a split-brain condition causes the GAB membership change, resolve the condition.
+
+Faulty interconnects are the most common reason for split-brain scenarios and can prompt VxFEN to evict nodes. VCS I/O Fencing chooses the safest option in favor of data protection, that is, to panic the affected nodes instantly.
+
+Based on the condition you encounter, do one of the following:
+
+    If the evicted node is physically connected to the remaining nodes in the cluster through interconnects, start the evicted node. It then joins the existing cluster.
+    If the private network connection between the evicted node and the rest of the nodes in the running cluster are not functional when the node restarts, do the following to resolve the situation:
+
+    1. Stop GAB and its clients.
+    2. Resolve the network connectivity issues.
+    3. Restart the node to start GAB and all the other modules in the stack.
+
+ 
+</pre>

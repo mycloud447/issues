@@ -1,0 +1,29 @@
+<pre>
+node2 $ vxclustadm nidmap
+Name                             CVM Nid    CM Nid     State
+node1                  2          0          Joined: Slave
+node2                  0          1          Joined: Master
+node3                  1          2          Joined: Slave
+node2 $ vxdctl -c mode
+mode: enabled: cluster active - MASTER
+master: node2
+node2 $ vxclustadm setmaster node1
+VxVM vxclustadm ERROR V-5-1-15632 master switching not supported for this protocol version
+node2 $ vxdctl protocolversion
+Cluster running at protocol 90
+node2 $ vxdctl protocolrange
+minprotoversion: 90, maxprotoversion: 100
+The CVM master role can only be dynamically switched to another node if all nodes are having protocol 100 
+node2 $ vxdctl upgrade
+node2 $ vxdctl protocolversion
+Cluster running at protocol 100
+node2 $ vxdctl protocolrange
+minprotoversion: 90, maxprotoversion: 100
+node2 $ vxclustadm setmaster node1
+node2 $ vxclustadm nidmap
+Name                             CVM Nid    CM Nid     State
+node1                  2          0          Joined: Master
+node2                  0          1          Joined: Slave
+node3                  1          2          Joined: Slave
+node2 $
+</pre>

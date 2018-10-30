@@ -1,0 +1,47 @@
+---++ Doc Log 1247069195_01
+
+	$ Date: Wed Jul 08 16:06:35 2009
+	$ Summary: Sun Fire X4450 Firmware update procedure
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+Before starting the procedure shutdon wth server: shutdown -y -g0 -i0
+
+For remote flash through the WebGUI:
+------------------------------------
+
+This method uses the Intergrated LOM SP to flash the BIOS and SP. See the 
+Intergrated Lights Out Manager Administration Guide for more information 
+on setting up and using the Intergrated LOM software.
+
+1. Start the Intergrated LOM SP web GUI by typing the IP address of the SP 
+into a browser.
+
+See the Intergrated Lights Out Manager Administration Guide for 
+instructions on using the Intergrated LOM web GUI
+
+2. Copy the file /remoteflash/<.pkg> file to the remote system that is 
+running the Intergrated LOM Web GUI.
+
+3. Log in to the SP.
+
+4. Click on the Maintenance Tab and choose Enter Upgrade Mode.
+
+5. Click Browse and navigate to the location of the flash file.
+
+6. Click Upload.
+
+7. Once the firmware is uploaded, you will be asked to confirm the upgrade, 
+as the current firmware and future firmware versions will be displayed.
+
+8. You will be presented with a screen that asks if you want to preserve 
+or Not to preserve the current Settings, and if you want to delay BIOS 
+upgrade until next server poweroff.
+
+9. click Start Upgrade
+
+The BIOS and SP firmware on the Sun Fire X4150/X4250/X4450 server will be updated. 
+
+From the iLOM restart the OS. 
+</pre>

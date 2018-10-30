@@ -1,0 +1,42 @@
+---++ Doc Log 1172654560_01
+
+	$ Date: Wed Feb 28 09:22:40 2007
+	$ Summary: Veritas Clustered Filesystem
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+Veritas Clustered Filesystem
+#Ensure the disks are zoned to all servers in VCS cluster
+vxdisksetup -i <disk>      # if disk is already setup you will need to perform the destroy and vxdiskunsetup above
+vxdg -s init <dg> <diskname>=c....
+vxassist -g <dg> make vol01 2g
+vxdg -g <dg> set activation=sw	# This may error, check vxdisk list
+mkfs -F vxfs /dev/vx/rdsk/<cfs dg>/<vol>
+#make the mount point on all servers in cluster 
+cfsmntadm add <dg> <vol> <mout point> all=rw	# this adds the cfs SG
+cfsmount <mount point>
+cfsumount <mount point> 
+
+vxdctl -c mode # determine which node is the master/salve
+cfsmount /opt/nfos 	# will mount /opt/nfos on all the servers configured
+fsclustadm .v showprimary /opt/nfos 
+fsclustadm .v setprimary /opt/nfos   # perform on the server you wish to take over 
+
+** make the master sever the same as the primary mount server  if you want to run vxresize, otherwise run vxassit on the master server then run fsadm on the primary mount server.
+
+vxvm:vxresize: ERROR: Problem running fsadm command for volume vol01, in diskgroup nfos_cfsdg01 	# will occur if the above is true i.e Master is not the primary mount point.
+
+** CFS does not support nested mount points **
+
+cfscluster status
+cfscluster start/stop
+
+
+
+
+Ensure VRTScavf/VRTSglm/VRTSgls are all installed
+
+Vxdisk list <disk>	# will show the tag clusterid, this will tell you what cluster it is linked to
+
+</pre>

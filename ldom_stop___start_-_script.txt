@@ -1,0 +1,56 @@
+---++ Doc Log 1383808085_01
+        $ Date: Thu Nov 07:: 12:38:05
+        $ Summary: ldom stop / start - script
+
+---++++ Details:
+<pre>
+#! /bin/sh
+
+#
+
+PATH=/bin:/usr/bin:/usr/etc:/usr/ucb; export PATH
+
+LDMHOME=/usr/local/ldm
+
+LDMBIN=$LDMHOME/bin
+
+DECODEBIN=$LDMHOME/decoders
+
+UTILBIN=$LDMHOME/util
+
+
+
+case "$1" in
+
+start)
+
+        if [ -x $LDMBIN/ldmadmin ] ; then
+
+                /bin/su - ldm -c 'ldmadmin delqueue'
+
+                /bin/su - ldm -c 'ldmadmin mkqueue'
+
+#               /bin/su - ldm -c 'ldmadmin delsurfqueue'
+
+#               /bin/su - ldm -c 'ldmadmin mksurfqueue'
+
+                /bin/su - ldm -c 'ldmadmin start'
+
+        fi
+
+        ;;
+
+stop)
+
+        if [ -x $LDMBIN/ldmadmin ]; then
+
+                echo "Shutting down the LDM server"
+
+                /bin/su - ldm -c '$LDMBIN/ldmadmin stop'
+
+        fi
+
+        ;;
+
+esac
+</pre>

@@ -1,0 +1,44 @@
+---++ Doc Log 1245945627_01
+
+	$ Date: Thu Jun 25 16:00:27 2009
+	$ Summary: issues with logical volume unable to fsck
+	$ On-Call: UNSPECIFIED
+
+---++++ Details:
+<pre>
+We had an issue trying to fsck /dev/vg00/lvol11
+
+/etc/VRTSvcs/conf/config # fsck /dev/vg00/lvol11
+fsck 1.38 (30-Jun-2005)
+e2fsck 1.38 (30-Jun-2005)
+Couldn't find ext2 superblock, trying backup blocks...
+fsck.ext2: Bad magic number in super-block while trying to open /dev/vg00/lvol11
+
+The superblock could not be read or does not describe a correct ext2
+filesystem.  If the device is valid and it really contains an ext2
+filesystem (and not swap or ufs or something else), then the superblock
+is corrupt, and you might try running e2fsck with an alternate superblock:
+    e2fsck -b 8193 <device>
+
+fsck.ext2 /dev/vg00/lvol11 failed (status 0x8). Run manually!
+
+
+on investigation it was discovered the blockdevice was different under 
+vgdisplay vg00
+
+  Block device           253:6
+
+brw-------   1 root root 253, 21 May 21 14:23 vg00-lvol11
+
+
+We performed a 
+
+vgchange -ay
+This re-enables a re-reads the logical volumes
+
+This then changed the block device 
+
+brw-------   1 root root 253,  6 Jun 25 15:46 vg00-lvol11
+
+We were then able to fsck the filesystem and mount the filesytem.
+</pre>

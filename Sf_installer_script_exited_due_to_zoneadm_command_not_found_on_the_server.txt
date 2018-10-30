@@ -1,0 +1,47 @@
+---++ Doc Log 1383886475_01
+        $ Date: Nov 08 10:24:35 2013
+        $ Summary: Sf installer script exited due to zoneadm command not found on the server
+
+---++++ Details:
+<pre>
+ISSUE:  SF upgrade Installer script throwing a error with “/usr/sbin/zoneadm: No such file or directory”
+ 
+ 
+Sample issue output: 
+==============================================================
+Checking system communication ................................................................................................... Done
+Checking release compatibility ....................................................................................................... Done
+Checking installed product ............................................................................................................. Done
+Checking prerequisite patches and packages ................................................................................... Done
+Checking platform version .............................................................................................................. Done
+Checking file system free space ...................................................................................................... Done
+Checking product licensing ............................................................................................................. Done
+Performing product prechecks ........................................................................................................ Done
+
+
+[1mThe following errors were discovered on the systems:[0m¤
+
+CPI ERROR V-9-30-2179 The following required OS commands are missing on testserver:
+/usr/sbin/zoneadm: No such file or directory
+
+[1mThe following warnings were discovered on the systems:[0m¤
+
+CPI WARNING V-9-40-3861 NetBackup 6.5.5 was installed on testserver. The VRTSpbx VRTSicsco VRTSat packages on testserver will not be uninstalled.
+
+CPI WARNING V-9-40-3865 The VRTSsfmh package on testserver will be upgraded to 5.0.196.0. Note that the system testserver is reporting to the following management
+
+installer log files and summary file are saved at:
+
+/opt/VRTS/install/logs/installer-201308021527Snq
+
+
+
+ROOT CAUSE OF THIS ISSUE: 
+=======================
+Identified that SUNWzoner and SUNWzoneu packages are not installed on the server. 
+
+RESOLUTION: 
+==========
+
+Mount the Solaris 10 image and install the missing packages.
+</pre>

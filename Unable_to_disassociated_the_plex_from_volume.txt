@@ -1,0 +1,61 @@
+---++ Doc Log 1383614061_01
+        $ Date: Tue Nov 05:: 06:44:21
+        $ Summary: Unable to disassociated the plex from volume
+
+---++++ Details:
+<pre>
+$ /usr/sbin/vxplex -g testserverdg dis bfwrd02vl-01
+
+VxVM vxplex ERROR V-5-1-10128  Unexpected kernel error in configuration update
+
+Note: please check any snapvolumes are disassociated and not remove
+--------------------------------------------------------------------
+
+$ vxprint -htv bfwrd02vl
+
+Disk group: testserverdg
+
+V  NAME         RVG/VSET/CO  KSTATE   STATE    LENGTH   READPOL   PREFPLEX UTYPE
+
+PL NAME         VOLUME       KSTATE   STATE    LENGTH   LAYOUT    NCOL/WID MODE
+
+SD NAME         PLEX         DISK     DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+
+SV NAME         PLEX         VOLNAME  NVOLLAYR LENGTH   [COL/]OFF AM/NM    MODE
+
+SC NAME         PLEX         CACHE    DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+
+DC NAME         PARENTVOL    LOGVOL
+
+SP NAME         SNAPVOL      DCO
+
+EX NAME         ASSOC        VC                       PERMS    MODE     STATE
+
+
+
+v  bfwrd02vl    -            ENABLED  ACTIVE   8388608  PREFER    bfwrd02vl-02 fsgen
+
+pl bfwrd02vl-01 bfwrd02vl    ENABLED  ACTIVE   8388608  STRIPE    4/256    RW
+
+sd 006testserverdn-02 bfwrd02vl-01 006testserverdn 2097152 2097152 0/0 emc10_00cf ENA
+
+sd 007testserverdn-02 bfwrd02vl-01 007testserverdn 2097152 2097152 1/0 emc10_00cb ENA
+
+sd 013testserverdn-02 bfwrd02vl-01 013testserverdn 2097152 2097152 2/0 emc11_00cb ENA
+
+sd 014testserverdn-02 bfwrd02vl-01 014testserverdn 2097152 2097152 3/0 emc11_00cf ENA
+
+pl bfwrd02vl-02 bfwrd02vl    ENABLED  ACTIVE   8388608  CONCAT    -        RW
+
+sd pri0032_testserver_dm-01 bfwrd02vl-02 pri0032_testserver_dm 0 8388608 0 emc15_12bb ENA
+
+dc bfwrd02vl_dco bfwrd02vl   bfwrd02vl_dcl
+
+v  bfwrd02vl_dcl -           ENABLED  ACTIVE   1120     SELECT    -        gen
+
+pl bfwrd02vl_dcl-01 bfwrd02vl_dcl ENABLED ACTIVE 1120   CONCAT    -        RW
+
+sd 007testserverdn-05 bfwrd02vl_dcl-01 007testserverdn 8388608 1120 0 emc10_00cb ENA
+
+$
+</pre>

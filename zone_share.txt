@@ -1,0 +1,33 @@
+---++ Doc Log 1383885498_01
+        $ Date: Nov 08 10:08:18 2013
+        $ Summary: zone share
+
+---++++ Details:
+<pre>
+# zonecfg -z local-zone
+zonecfg:local-zone> set rctl zone.cpu-shares=(priv=privileged,limit=800,action=none)
+zonecfg:local-zone> info  ====> check for rctl limit value
+
+rctl:
+
+        name: zone.cpu-shares
+        value: (priv=privileged,limit=800,action=none)
+
+
+zonecfg:local-zone> commit
+zonecfg:local-zone>verify
+zonecfg:local-zone>end
+
+# hares -display ZONE_local-zone |grep -i Shares
+ZONE_local-zone Shares           global        400
+
+# hares -display ZONE_local-zone |grep -i Critical  ========> critical set as "0" no need to freeze the service group.
+ZONE_local-zone Critical         global        0
+
+# cp -p /etc/VRTSvcs/conf/config/main.cf /etc/VRTSvcs/conf/config/main.cf.`date +%d%m%Y`
+#haconf -makerw
+#hares -modify ZONE_local-zone Shares 800
+#haconf -dump -makero
+#hagrp -offline local-zone -sys test24
+#hagrp -online local-zone -sys test24
+</pre>

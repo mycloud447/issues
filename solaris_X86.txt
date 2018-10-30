@@ -1,0 +1,82 @@
+---++ Doc Log 1268741905_01
+
+	$ Date: Tue Mar 16 12:18:25 2010
+	$ Summary: getconfig
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+/opt/StorMan/arcconf GETCONFIG 1
+Excerpt of Output:
+
+Controllers found: 1
+----------------------------------------------------------------------
+Controller information
+----------------------------------------------------------------------
+   Controller Status                        : Optimal
+   Channel description                      : SAS/SATA
+   Controller Model                         : Sun STK RAID INT
+   Controller Serial Number                 : 00914AA0689
+   Physical Slot                            : 52
+   Temperature                              : 54 C/ 129 F (Normal)
+   Installed memory                         : 256 MB
+   Copyback                                 : Disabled
+   Background consistency check             : Disabled
+   Automatic Failover                       : Enabled
+   Defunct disk drive count                 : 0
+   Logical devices/Failed/Degraded          : 2/0/0
+   --------------------------------------------------------
+   Controller Version Information
+   --------------------------------------------------------
+   BIOS                                     : 5.2-0 (15825)
+   Firmware                                 : 5.2-0 (15825)
+   Driver                                   : 2.2-1 (1)
+   Boot Flash                               : 5.2-0 (15825)
+   --------------------------------------------------------
+   Controller Battery Information
+   --------------------------------------------------------
+   Status                                   : Optimal
+   Over temperature                         : No
+   Capacity remaining                       : 99 percent
+   Time remaining (at current draw)         : 3 days, 0 hours, 52 minutes
+
+----------------------------------------------------------------------
+Logical device information
+----------------------------------------------------------------------
+Logical device number 0
+   Logical device name                      : root
+   RAID level                               : 1
+   Status of logical device                 : Optimal
+   Size                                     : 139890 MB
+   Read-cache mode                          : Enabled
+   Write-cache mode                         : Enabled (write-back)
+   Write-cache setting                      : Enabled (write-back) when protected by battery
+   Partitioned                              : Yes
+   Protected by Hot-Spare                   : No
+   Bootable                                 : Yes
+   Failed stripes                           : No
+   --------------------------------------------------------
+   Logical device segment information
+   --------------------------------------------------------
+   Segment 0                                : Present (0,0) 000922F44TPE        PCV44TPE
+   Segment 1                                : Present (0,1) 000922F2ETSE        PCV2ETSE
+
+Logical device number 1
+   Logical device name                      : data
+   RAID level                               : 1
+   Status of logical device                 : Optimal
+   Size                                     : 139890 MB
+   Read-cache mode                          : Enabled
+   Write-cache mode                         : Enabled (write-back)
+   Write-cache setting                      : Enabled (write-back) when protected by battery
+   Partitioned                              : Yes
+   Protected by Hot-Spare                   : No
+   Bootable                                 : No
+   Failed stripes                           : No
+   --------------------------------------------------------
+   Logical device segment information
+   --------------------------------------------------------
+   Segment 0                                : Present (0,2) 000922F43SPE        PCV43SPE
+   Segment 1                                : Present (0,3) 000922F4H66E        PCV4H66E
+
+</pre>

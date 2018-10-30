@@ -1,0 +1,98 @@
+---++ Doc Log 1383808919_01
+        $ Date: Thu Nov 07:: 12:51:59
+        $ Summary: how to check swap on HP servers
+
+---++++ Details:
+<pre>
+In HP-UX you can use check physical memory allocated to server from command line as well as from SAM.I am going to describe here how to check memory on HP-UX from command line: 
+
+1.) Checking phyiscal memory in HP-UX using dmesg : 
+
+You can check memory in HP-UX using dmesg output. In HP-UX dmesg print HP-UX server messages and hardware information available to system during the boot time.Here is the command to check physical memory in HP-UX using dmesg output :
+
+hp-uxdev# dmesg |grep Physical
+
+Physical: 8388608 Kbytes, lockable: 5614168 Kbytes, available: 6461644 Kbytes 
+
+In dmesg output memory is listed as 8388608 Kbytes or 8 GB.Note: in grep use P(upper) case in word physical to get memory information or “grep –i physical”
+
+2.) Checking HP-UX memory using print_manifest :
+
+HP-UX provides very useful command called print_manifest,i am going to use print_manifest to check how much memory is available :
+
+hp-uxdev# print_manifest |grep –i memory
+
+Main Memory: 8192 MB
+
+Print_manifest is very handy command I don’t even have to 
+
+3.) Checking HP-UX memory using cstm:
+
+Check on your HP-UX server if you have cstm installed by running which cstm .If you have CSTM install on your HP-UX server , you can check Physical memory by running following command :
+
+hp-uxdev# which cstm
+
+hp-uxdev# /usr/sbin/cstm
+
+hp-uxdev# print_manifest |grep -i memory
+
+Basic Memory Description
+
+Module Type: MEMORY
+
+Total Configured Memory : 8192 MB
+
+Page Size: 4096 Bytes
+
+Memory interleaving is supported on this machine and is ON.
+
+Memory Board Inventory
+
+Extender
+
+Slot Num Configured and Slot label for each DIMM (MB)
+
+-------- --------------------------------------------
+
+0a 2a 1a 3a 3b 1b 2b 0b
+
+---- ---- ---- ---- ---- ---- ---- ----
+
+EXT 0 1024 1024 1024 1024 1024 1024 1024 1024
+
+------------------------------------------------------
+
+
+Memory Error Log Summary
+
+The memory error log is empty.
+
+Page Deallocation Table (PDT)
+
+PDT Entries Used: 0
+
+PDT Entries Free: 256
+
+PDT Total Size: 256
+
+
+
+# swapinfo -m
+
+Mb Mb Mb PCT START/ Mb
+
+TYPE AVAIL USED FREE USED LIMIT RESERVE PRI NAME
+
+dev 4096 0 4096 0% 0 - 1 /dev/vg00/lvol2
+
+dev 4096 1490 2606 36% 0 - 0 /dev/eg01/evol3
+
+reserve - 2181 -2181
+
+memory 3024 2517 507 83%
+
+#
+
+dmesg | grep -E -i 'memory|physical'
+
+</pre>

@@ -1,0 +1,129 @@
+---++ Doc Log 1258826406_01
+
+	$ Date: Sat Nov 21 18:00:06 2009
+	$ Summary: how to fix secondary rlink issues.
+	$ On-Call: N
+
+---++++ Details:
+<pre>
+(root_xyz192) @ /var/tmp # vradmin -l repstatus dg08_rvg
+Replicated Data Set: dg08_rvg
+Primary:
+  Host name:          csrep192
+  RVG name:           dg08_rvg
+  DG name:            dg08
+  RVG state:          enabled for I/O
+  Data volumes:       30
+  SRL name:           srl_log
+  SRL size:           67.00 G
+  Total secondaries:  1
+
+Secondary:
+  Host name:          syrep192
+  RVG name:           dg08_rvg
+  DG name:            dg08
+  Rlink from Primary: to_syrep192
+  Rlink to Primary:   to_csrep192
+  Configured mode:    asynchronous
+  Latency protection: off
+  SRL protection:     autodcm
+  Data status:        inconsistent
+  Replication status: resync in progress (autosync)
+  Current mode:       asynchronous
+  Logging to:         DCM (contains 474899584 Kbytes) (autosync)
+
+(root_xyz192) @ /var/tmp # vxrlink -g dg08 -i 2 status to_syrep192
+Sat Nov 21 17:54:47 GMT 2009
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 474280672 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 474208320 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 474126784 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 474064512 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473981632 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473898080 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473818784 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473756736 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473686400 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473612256 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473540800 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473467776 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473388256 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473323520 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473250048 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473177248 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473094816 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 473022016 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 472935328 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 472860064 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 472788832 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 472721408 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 472649056 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 472559456 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 472464032 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 472366368 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 472273856 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 472178656 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 472101600 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 472008864 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 471919040 Kbytes remaining.
+vxvm:vxrlink: INFO: Rlink to_syrep192 is in AUTOSYNC. 471823392 Kbytes remaining.
+(root_xyz192) @ /var/tmp # vxrlink -g syb_ -i 2 status to_syrep192
+(root_xyz192) @ /var/tmp #
+(root_xyz192) @ /var/tmp # /
+(root_xyz192) @ /var/tmp #
+(root_xyz192) @ /var/tmp # vradmin -l repstatus dg09_rvg
+Replicated Data Set: dg09_rvg
+Primary:
+  Host name:          csrep192
+  RVG name:           dg09_rvg
+  DG name:            dg09
+  RVG state:          enabled for I/O
+  Data volumes:       13
+  SRL name:           srl_log
+  SRL size:           33.71 G
+  Total secondaries:  1
+
+Secondary:
+  Host name:          syrep192
+  RVG name:           dg09_rvg
+  DG name:            dg09
+  Rlink from Primary: to_syrep192
+  Rlink to Primary:   to_csrep192
+  Configured mode:    asynchronous
+  Latency protection: off
+  SRL protection:     autodcm
+  Data status:        inconsistent
+  Replication status: stopped (primary detached)
+  Current mode:       N/A
+  Logging to:         SRL
+
+(root_xyz192) @ /var/tmp # clear
+(root_xyz192) @ /var/tmp # /
+(root_xyz192) @ /var/tmp # vradmin -l repstatus dg08_rvg
+Replicated Data Set: dg08_rvg
+Primary:
+  Host name:          csrep192
+  RVG name:           dg08_rvg
+  DG name:            dg08
+  RVG state:          enabled for I/O
+  Data volumes:       30
+  SRL name:           srl_log
+  SRL size:           67.00 G
+  Total secondaries:  1
+
+Secondary:
+  Host name:          syrep192
+  RVG name:           dg08_rvg
+  DG name:            dg08
+  Rlink from Primary: to_syrep192
+  Rlink to Primary:   to_csrep192
+  Configured mode:    asynchronous
+  Latency protection: off
+  SRL protection:     autodcm
+  Data status:        inconsistent
+  Replication status: resync in progress (autosync)
+  Current mode:       asynchronous
+  Logging to:         DCM (contains 467291648 Kbytes) (autosync)
+
+(root_xyz192) @ /var/tmp #
+
+</pre>

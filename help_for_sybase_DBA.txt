@@ -1,0 +1,60 @@
+---++ Doc Log 1147683885_01
+
+	$ Date: Mon May 15 09:04:45 2006
+	$ Summary: help for sybase DBA
+
+---++++ Details:
+<pre>
+ # lsof -nl | egrep " TCP|UDP" |grep 10040
+lsof: can't make index for clone: 
+dataserve 12143      101    8u  inet  0x922ba980        0t0      TCP 128.29.112.141:10040 (LISTEN)
+dataserve 12143      101   14u  inet  0xbca00b40        0t0      TCP 128.29.112.141:10040->128.29.177.6:3645 (ESTABLISHED)
+dataserve 12143      101   42u  inet  0x9685f7c0        0t0      TCP 128.29.112.141:10040->128.29.182.222:42488 (ESTABLISHED)
+dataserve 12143      101   48u  inet  0xaeed9080        0t0      TCP 128.29.112.141:10040->128.29.177.6:3637 (ESTABLISHED)
+dataserve 12143      101   54u  inet  0xa5eccc80        0t0      TCP 128.29.112.141:10040->128.29.182.222:34142 (ESTABLISHED)
+dataserve 12143      101   64u  inet  0xa5ecc680        0t0      TCP 128.29.112.141:10040->128.29.182.222:37379 (ESTABLISHED)
+dataserve 12143      101   95u  inet  0x560c0240        0t0      TCP 128.29.112.141:10040->128.29.182.222:42503 (ESTABLISHED)
+dataserve 12143      101  111u  inet  0x925a3040        0t0      TCP 128.29.112.141:10040->128.29.182.222:40074 (ESTABLISHED)
+dataserve 12143      101  118u  inet  0xa5d774c0        0t0      TCP 128.29.112.141:10040->136.50.104.229:1393 (ESTABLISHED)
+dataserve 12143      101  162u  inet  0xa7f047c0        0t0      TCP 128.29.112.141:10040->136.50.105.5:4924 (ESTABLISHED)
+dataserve 12143      101  170u  inet  0x9216de00        0t0      TCP 128.29.112.141:10040->128.30.53.110:1992 (ESTABLISHED)
+dataserve 12143      101  181u  inet  0x9685f640        0t0      TCP 128.29.112.141:10040->128.30.165.37:1535 (ESTABLISHED)
+dataserve 12144      101    5u  inet  0x54adee00        0t0      TCP 128.29.112.141:10040->128.29.184.222:52615 (ESTABLISHED)
+dataserve 12144      101    8u  inet  0x922ba980        0t0      TCP 128.29.112.141:10040 (LISTEN)
+dataserve 12144      101  122u  inet  0xa5ec6580        0t0      TCP 128.29.112.141:10040->128.29.182.222:42593 (ESTABLISHED)
+dataserve 12144      101  123u  inet  0x9216d800        0t0      TCP 128.29.112.141:10040->128.29.182.222:40075 (ESTABLISHED)
+dataserve 12144      101  141u  inet  0x560cc240        0t0      TCP 128.29.112.141:10040->128.30.53.110:2047 (ESTABLISHED)
+dataserve 12144      101  159u  inet  0x551d6cc0        0t0      TCP 128.29.112.141:10040->128.29.177.6:4874 (ESTABLISHED)
+dataserve 12144      101  169u  inet  0xa025bdc0        0t0      TCP 128.29.112.141:10040->128.29.182.222:42667 (ESTABLISHED)
+dataserve 12144      101  175u  inet  0xa5ec6b80        0t0      TCP 128.29.112.141:10040->128.29.182.222:42668 (ESTABLISHED)
+dataserve 12144      101  201u  inet  0x92308cc0        0t0      TCP 128.29.112.141:10040->128.30.164.129:2827 (ESTABLISHED)
+dataserve 12145      101    8u  inet  0x922ba980        0t0      TCP 128.29.112.141:10040 (LISTEN)
+dataserve 12145      101   47u  inet  0x875bba00        0t0      TCP 128.29.112.141:10040->128.29.182.222:34115 (ESTABLISHED)
+dataserve 12145      101   55u  inet  0xbca000c0        0t0      TCP 128.29.112.141:10040->128.29.182.222:42755 (ESTABLISHED)
+dataserve 12145      101   59u  inet  0x96a007c0        0t0      TCP 128.29.112.141:10040->128.29.182.222:42104 (ESTABLISHED)
+dataserve 12145      101   89u  inet  0xaeed9c80        0t0      TCP 128.29.112.141:10040->128.29.182.222:42504 (ESTABLISHED)
+dataserve 12145      101   93u  inet  0x924cb240        0t0      TCP 128.29.112.141:10040->128.29.182.222:37403 (ESTABLISHED)
+dataserve 12145      101   96u  inet  0x46dcfe40        0t0      TCP 128.29.112.141:10040->136.50.104.229:1401 (ESTABLISHED)
+dataserve 12145      101  114u  inet  0xa5e21c40        0t0      TCP 128.29.112.141:10040->128.29.182.222:34129 (ESTABLISHED)
+dataserve 12145      101  133u  inet  0x9227ac80        0t0      TCP 128.29.112.141:10040->128.29.182.222:42507 (ESTABLISHED)
+dataserve 12145      101  136u  inet  0x71f01dc0        0t0      TCP 128.29.112.141:10040->128.29.182.222:42491 (ESTABLISHED)
+dataserve 12145      101  148u  inet  0x92527b80        0t0      TCP 128.29.112.141:10040->128.30.165.37:1532 (ESTABLISHED)
+dataserve 12145      101  177u  inet  0x46dec1c0        0t0      TCP 128.29.112.141:10040->128.30.165.37:1533 (ESTABLISHED)
+#
+
+looking for those processes (2nd column)...
+
+# ps -afde | grep 1214
+  sybase 19552 21214  0 08:47:25 ?         0:00 isql -Uoperator -w1024
+  sybase 12144 12143 255  May  8  ?        2425:10 ./dataserver -ONLINE:2,0,0x65ec01f2, c0000001bc000000, 0x5cd530
+  sybase 13618  9433  5  Apr  1  ?        1214:30 ./dataserver -sACC80_ASE -d/dev/sybase/ACC80_ASE/rmaster -e/dba
+  sybase 21214 21201  0 00:30:12 ?         0:01 /bin/ksh /home/sybase/ACC28_ASE/bin/sysmon.ksh ACC28_ASE
+  sybase 12145 12143  1  May  8  ?        2489:20 ./dataserver -ONLINE:3,0,0x65ec01f2, c0000001bc000000, 0x5cd530
+  sybase 12143     1  0  May  8  ?        2277:18 ./dataserver -ONLINE:1,0,0x65ec01f2, c0000001bc000000, 0x5cd530
+  sybase 19553 21214  0 08:47:25 ?         0:00 egrep -v Password:|return status
+    root 19594 17963  1 08:47:58 pts/15    0:00 grep 1214
+# 
+
+they are now capable of knowing which dataservers to kill and fixing the 
+problem themselves.
+</pre>

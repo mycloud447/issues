@@ -1,0 +1,27 @@
+---++ Doc Log 1256126455_01
+
+	$ Date: Wed Oct 21 12:00:55 2009
+	$ Summary: disk groups not deporting as they say they are open
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+Diskgroup - oramqdatadg cannot deport due to Veritas thinking it is busy with a mount even though the volumes are all disabled.
+
+Doing the following command tells you that the volume is till busy -
+
+# vxprint -g oramqdatadg -m LCIBMQ01_u01app_vol01 | grep devopen
+        devopen=on
+
+The reason for this is that the kernel still thinks there is a mount associated with this volume
+
+# grep oramqdatadg /proc/mounts
+/dev/vx/dsk/oramqdatadg/LCIBMQ01_u01app_vol01 /u01/app/oracle/LCIBMQ01 vxfs rw,delaylog,largefiles,ioerror=mwdisable 0 0
+
+The only way to clear this is to reboot the server.
+See the following link -
+
+http://seer.entsupport.symantec.com/docs/241660.htm
+
+When the application team give you the go ahead could you reboot the server and make sure the diskgroup oramqdatadg is deported.
+</pre>

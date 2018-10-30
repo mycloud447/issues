@@ -1,0 +1,536 @@
+---++ Doc Log 1427172073_01
+        $ Date: Mar 24 10:11:13 2015
+        $ Summary: pre_post_change_check
+
+---++++ Details:
+<pre>
+#! /bin/bash
+###############################################################################################
+#
+# Platform: Solaris
+# General Host information
+# Vxvm disk details
+# Cluster status for VCS and Sun Cluster
+# iscsi details
+# ldom information
+# Zone info.
+# zpool details
+# info about solaris 11
+# Live Upgrade BE List and  FS list
+# This script can be run pre and post change to collect host details so that it will help us to
+# know the host status before and after the change.
+###############################################################################################
+#
+# initial  path before defaults file is read
+	export PATH=$PATH:/usr/bin:/usr/sbin:/opt/VRTSvcs/bin:/usr/local/bin:/usr/local/soe/bin
+# Open up umask
+ 	umask 022
+# variable assignments in environment
+	OS_VER=`uname -r`
+	DTG=`date +%Y%m%d`
+	ID=`id -a | awk '{print $1}'`
+
+if [ ${ID} != "uid=0(root)" ]
+then
+	clear
+        echo "Only root (super user) can run this script."
+        echo "Aborting all actions..."
+	echo
+        exit
+fi
+print_center ()
+{
+        LENGTH=`echo $1 | wc -m | awk '{ print $1 }'`
+        STR_LEN=`echo ${LENGTH} | awk '{ print $1/2 }' | cut -f1 -d.`
+        WIDTH=`tput cols`
+        CENTER=`echo ${WIDTH} | awk '{ print $1/2 }' | cut -f1 -d.`
+        START_PT=`echo ${CENTER} ${STR_LEN} | awk '{ print $1-$2 }'`
+        tput setaf 1
+        nn=0
+        while [ ${nn} -le ${START_PT} ]
+        do
+                echo -n " "
+                nn=`expr ${nn} + 1`
+        done
+        echo "${1}"
+        tput setaf 7
+}
+start ()
+{
+	FLAG="N"
+	while [ "${FLAG}" == "N" ]
+	do
+        clear
+        echo "-------------------------"
+        echo "Plesae select one option."
+        echo "-------------------------"
+        echo ""
+        echo "1. Pre-Change data collection."
+        echo "2. Post-Change data collection and validation."
+        echo "3. List data directories"
+        echo "4. Quit."
+	echo ""
+        echo -n "Option : "
+        read CHOICE
+        if [ "${CHOICE}" == "1" ] || [ "${CHOICE}" == "2" ] || [ "${CHOICE}" == "3" ] || [ "${CHOICE}" == "4" ]
+        then
+                FLAG="Y"
+        else
+                echo "Please select a valid option from the list."
+                FLAG="N"
+        fi
+done
+}
+start
+#
+change_validation ()
+{
+        SYS_NAME="`uname -n`"
+        CH_NUM=""
+        PRE_POS="$1"
+        while [ "${CH_NUM}" == "" ]
+        do
+                echo -n "Change number : "
+                read C_NUM
+                NUM_CHARS=`echo ${C_NUM} | wc -m | awk '{ print $1-1 }'`
+		CH_NUM=`echo ${C_NUM}|tr '[a-z]' '[A-Z]'`
+                if [ ${NUM_CHARS} -gt 2 ]
+                then
+                        FIRST_CH=`echo ${CH_NUM} | cut -c1-3`
+                        NUMERIC_CHS=`echo ${CH_NUM} | cut -c 1-${NUM_CHARS}`
+                        CHARS=`echo "${NUMERIC_CHS}" | egrep '[a-z]|[A-Z]' | awk '{ print $1 }'`
+                        if [ "${FIRST_CH}" == "CRQ" ] || [ "${FIRST_CH}" == "crq" ]
+                        then
+                                export CH_NUM
+                        else
+                                echo "Change number starts with \"CRQ\""
+                                CH_NUM=""
+                        fi
+                        if [ "${CHARS}" == "" ]
+                        then
+                                echo "Invalid change number."
+                                CH_NUM=""
+                        fi
+                else
+                        CH_NUM=""
+                fi
+        done
+        DIR_NAME="/var/tmp/${CH_NUM}_${SYS_NAME}_${DTG}"
+        if [ "${PRE_POS}" == "post-change" ]
+        then
+		if [ -d ${DIR_NAME}/post-change ]
+		then
+			echo "\033[31mPost-change data was already collected on this system with $CH_NUM\033[m"
+			echo "Aborting all actions..."
+			exit
+		else
+                if [ ! -d ${DIR_NAME}/pre-change ]
+                then
+                        print_center "------------------------------------------"
+                        print_center "Pre-change system information was not collected."
+                        print_center "Unable to compare the status of this system at this condition."
+                        print_center "Please make sure pre-change validation directory << ${DIR_NAME}/pre-change >> exists."
+                        print_center "Aborting all actions..."
+                        print_center "------------------------------------------"
+                        exit
+                  fi
+		fi
+        elif [ "${PRE_POS}" == "pre-change" ]
+        then
+                if [ -d ${DIR_NAME}/pre-change ]
+                then
+                        echo "\033[31mPre-change data was already collected on this system with $CH_NUM\033[m"
+                        echo "Aborting all actions..."
+                        exit
+                fi
+        fi
+        DIR_NAME="/var/tmp/${CH_NUM}_${SYS_NAME}_${DTG}"
+        export DIR_NAME
+}
+#
+run_commands ()
+{
+	 DIRECTORY=$1
+	 mkdir -p ${DIRECTORY}
+	 cd ${DIRECTORY}
+	 echo ""
+	 print -n "Collecting Solaris General Information ........\t"
+ 
+ # Collecting Genric  system Information
+	 echo "$VER" > script_version.txt
+	 cp -p /etc/vfstab .
+	 cp -p /var/adm/messages .
+	 cp -p /etc/passwd .
+	 cp -p /etc/system .
+ if [ ${OS_VER} = "5.8" ];then
+        cp -p /kernel/drv/sd.conf .
+        cp -p /kernel/drv/lpfc.conf .
+        df -k > df-k.txt
+        /usr/platform/`uname -i`/sbin/prtdiag -v > prtdiag-v.txt
+ else
+        df -h > df-h.txt
+        prtdiag -v > prtdiag.txt
+        if [ -f /usr/sbin/lustatus ]
+        then
+                lustatus > lustatus.txt 2>> error.log
+                for BE in `cat lustatus.txt |grep yes|awk '{print $1}'`
+                do
+                        lufslist $BE > lufs_list_${BE}.txt 2>> error.log
+                done
+        fi
+ fi
+	 cp -p /usr/openv/netbackup/bp.conf . 2>> error.log
+	 cp -p /etc/nsswitch.conf .
+	 cp -p /etc/hosts .
+ if [ ${ID} = "uid=0(root)" ]
+ then
+        cp -p /etc/shadow .
+        cp -p /etc/hostname* . 2>> error.log
+ fi
+
+         dumpadm > dumpadm.txt
+         swap -l > swap-l.txt
+         swap -s > swap-s.txt
+         mount -v > mount.txt
+         showrev -p > showrev.txt 2>> error.log
+         eeprom > eeprom.txt
+         who -rb > who-rb.txt
+         uptime > uptime.txt
+         iostat -En > iostat-En.txt
+         iostat -enc > iostat-enc.txt
+         ifconfig -a >ifconfig-a.txt
+         netstat -rn > netstat-rn.txt
+         netstat -rnv > netstat-rnv.txt
+         kstat -p > kstat-p.txt
+         ps -ef > ps-f.txt
+         ptree -a > ptree-a.txt
+         cfgadm -alv > cfgadm.txt 2>> error.log
+         cfgadm -al  -o show_FCP_dev > cfgadm-FCP.txt 2>> error.log
+         top -d 5 > top_d_5.txt
+         prstat 5 2 > prstat-5-2.txt
+         vmstat 2 5 > vmstat.txt
+         echo|format > format.txt
+#
+        if [ -f /etc/powermt ]
+        then
+                /etc/powermt display > powermt-display.txt
+                /etc/powermt display dev=all > powermt_display-dev-all.txt
+        fi
+#
+	 if [ -f /opt/emcgrab/tools/bin/inq.solar26 ]
+	 then
+      		/opt/emcgrab/tools/bin/inq.solar26  -sid -showvol -no_dots > inq.solar26.txt
+ 	fi
+	 if [ -f /opt/emcgrab/tools/bin/inq.sol64 ]
+	 then
+                 /opt/emcgrab/tools/bin/inq.sol64  -sid -showvol -no_dots > inq.sol64.txt
+ 	fi
+
+Solaris_10 () {
+#
+	 if [ -f /usr/bin/svcs ]
+	 then
+	    svcs -xv > svcs-xv.txt
+	    svcs -a > svcs-a.txt
+	 fi
+#
+	 if [ -f /usr/sbin/zoneadm ]
+	 then
+        	zoneadm list -iv > zoneadm_list_iv.txt
+	        zoneadm list -cv > zoneadm_list_cv.txt
+ 	fi
+if [ -f /usr/sbin/zonecfg ]
+then
+for zone in `zoneadm list|grep -v global`;do echo "###Configuration details of $zone###"; zonecfg -z $zone info; done>>zone_configuration.txt
+#
+ fi
+	 if [ -f  /usr/sbin/ldm ]
+	 then
+	   ldm list > ldm_list.txt
+	   ldm list -l > ldm_list-l.txt
+	   ldm -V > ldm-V.txt
+	   ldm list -e > ldm-list-e.txt
+	   ldm list -p > ldm-list-p.txt
+	   ldm list-bindings > ldm-list-bindings.txt
+	   ldm list-config > ldm-list-config.txt
+	   ldm list-devices -a > ldm-list-devices-a.txt
+	   ldm list-services > ldm-list-services.txt
+	 fi
+#
+ 	if [ -f /usr/sbin/zfs ]
+	 then
+       		 zfs list > zfs_list.txt
+       		 zfs get all > zfs_get_all.txt
+	 fi
+#
+	 if [ -f /usr/sbin/zpool ]
+	 then
+       		 zpool status -v > zpool_status_v.txt
+       		 zpool list > zpool_list.txt
+ 	fi
+#
+	 if [ -f /usr/sbin/iscsiadm ]
+	 then
+#      		 echo "Collecting iSCSI info......"
+       		 iscsiadm list initiator-node > iscsi-initiator-node.txt
+       		 iscsiadm list target > iscsi-target.txt
+       		 iscsiadm list static-config > iscsi-static-config.txt
+       		 iscsiadm list discovery > iscsi-discovery.txt
+ 	fi
+ }
+
+################ Meta Device #################
+#
+ Meta_device () {
+	 metadb -i > metadb.txt 2>> error.log
+	 metastat > metastat.txt 2>> error.log
+	 metastat -p > metastat-p.txt 2>> error.log
+ }
+
+#################### VxVM ####################
+ VxVM () {
+ if  ps -ef|grep vxconfigd|grep -v grep
+ then
+        vxdisk -o alldgs list > vxdisk.txt 2>> error.log
+        vxprint -thr > vxprint.txt 2>> error.log
+        vxdg list > vxdg.txt 2>> error.log
+ fi
+ }
+##################### Collect cluster info ########## 
+ cluster () {
+# SUN Cluster
+ if [ -f /usr/bin/scstat ]
+ then
+     scstat -v > scstat.txt
+ fi
+#
+# VCS Cluster
+ if  ps -ef|grep /opt/VRTSvcs/bin/had|grep -v grep
+ then
+        hastatus -summ > hastatus.txt
+        hares -display > hares_display.txt
+        cp -p /etc/VRTSvcs/conf/config/*.cf .
+        cp -pr /etc/vxfen* .
+        cp -p /etc/llt* .
+ fi
+ }
+
+####################### Solaris 11 ###################
+Solaris_11 () {
+
+        if [ ${OS_VER} == "5.11" ]
+        then
+                ipf -V > ipf_V
+                dlstat -Z  > dlstat_Z.txt
+                dlstat -A  > dlstat_A.txt
+                ipmpstat -an > ipmpstat_an.txt
+                ipmpstat -g > ipmpstat_g.txt
+                ipmpstat -i > ipmpstat_i.txt
+                ipmpstat -tn > ipmpstat_tn.txt
+                flowadm show-flow > flowadm_show-flow.txt
+                flowadm show-flow -P > flowadm_show-low_-P.txt
+                flowadm show-flowprop > flowadm_show-flowprop.txt
+                flowadm show-flowprop -P > flowadm_show-flowprop_-P.txt
+                flowstat -A > flowstat_-A.txt
+                ipadm show-addr > ipadm_show-addr.txt
+                ipadm show-addrprop > ipadm_show-addrprop.txt
+                ipadm show-if -o all > ipadm_show-f_-o_all.txt
+                ipadm show-ifprop > ipadm_show-ifprop.txt
+                ipmpstat -a > ipmpstat_-a.txt
+                ipmpstat -g > ipmstat_g.txt
+                ipmpstat -i > ipmpstat_i.txt
+                netadm list -x >netadm_list_-x.txt
+                dladm show-bridge > dladm_show-bridge.txt
+                dladm show-ether -Z > dladm_show-ether_-Z.txt
+                dladm show-ib > dladm_show-ib.txt
+                dladm show-part > dladm_show-part.txt
+                dladm show-phys -L > dladm_show-phys_-L.txt
+                dladm show-phys -Z > dladm_show-phys_-Z.txt
+                dladm show-secobj > dladm_show-secobj.txt
+                dladm show-vlan -Z > dladm_show-vlan_-Z.txt
+                dladm show-vnic -Z > dladm_show-vnic_-Z.txt
+                ipcs -AZ > ipcs_AZ.txt
+                ipcs -a > ipcs_a.txt
+                ipcs -aZ > ipcs_aZ.txt
+                ipsecconf -ln > ipsecconf_ln.txt
+                isainfo -kv > isainfo_kv.txt
+                pooladm > pooladm.txt 2>> error.log 
+                poolstat > poolstat.txt 2>> error.log
+                beadm list > beadm_list.txt
+                pkg publisher > pkg_publisher.txt
+                prctl -n zone.cpu-shares -i zone global > prctl_-n_zone.cpu-share_-i_zone_global.txt
+        fi
+
+	}
+}
+
+#
+user_ans ()
+{
+        FL=1
+        while [ "${FL}" == "1" ]
+        do
+        echo -n "Are you sure to continue? [Y|N] "
+        read YN
+        if [ "${YN}" == "Y" ] || [ "${YN}" == "y" ]
+        then
+                :
+                FL=0
+        elif [ "${YN}" == "N" ] || [ "${YN}" == "n" ]
+        then
+                echo ""
+                echo "Aborting all actions.."
+                exit
+        fi
+        done
+}
+#
+pre_change ()
+{
+        change_validation pre-change
+        user_ans
+        DIR_NAME="${DIR_NAME}/pre-change"
+        run_commands ${DIR_NAME}
+	Solaris_10 ${DIR_NAME}
+	Solaris_11 ${DIR_NAME}
+	Meta_device ${DIR_NAME}
+	cluster ${DIR_NAME}
+	VxVM ${DIR_NAME}
+}
+#
+post_change ()
+{
+        change_validation post-change
+        user_ans
+        DIR_NAME="${DIR_NAME}/post-change"
+        run_commands ${DIR_NAME}
+	Solaris_10 ${DIR_NAME}
+	Solaris_11 ${DIR_NAME}
+	Meta_device ${DIR_NAME}
+	cluster ${DIR_NAME}
+	VxVM ${DIR_NAME}
+}
+#
+post_validation ()
+{
+	if [ -d /var/tmp/${CH_NUM}_${SYS_NAME}_${DTG}/pre-change ] && [ -d /var/tmp/${CH_NUM}_${SYS_NAME}_${DTG}/post-change ]
+        then
+                if [ `ls /var/tmp/${CH_NUM}_${SYS_NAME}_${DTG}/pre-change|wc -l` -gt 0 ] && [ `ls /var/tmp/${CH_NUM}_${SYS_NAME}_${DTG}/post-change|wc -l` -gt 0 ]
+		then
+			 HOSTNAME=`uname -n`
+			 LOC=/var/tmp/COMPARE_RESULT_${HOSTNAME}_${DTG}
+			 LOC1=/var/tmp/NO_DIFF_${HOSTNAME}_${DTG}
+			 LOC2=/var/tmp/DIFF_${HOSTNAME}_${DTG}
+			 LOC3=/var/tmp/DIFF_LIST_${HOSTNAME}_${DTG}	
+               		 ID=`id -a | awk '{print $1}'`	
+#BEGIN
+PRECHANGE_DIR=/var/tmp/${CH_NUM}_${SYS_NAME}_${DTG}/pre-change
+POSTCHANGE_DIR=/var/tmp/${CH_NUM}_${SYS_NAME}_${DTG}/post-change
+
+echo "#########################################################################################################">>${LOC}
+echo "\n Comparing the  Configuration and system logs " >>${LOC}
+echo " in ${PRECHANGE_DIR} and ${POSTCHANGE_DIR} \n" >>${LOC}
+echo "\n#########################################################################################################">>${LOC}
+
+for output_file in `ls -l ${PRECHANGE_DIR}|egrep -v "ps|ptree|prstat|top|vmst|who|messages|kstat"|awk '{print $9}'`
+do
+if [[ -e ${PRECHANGE_DIR}/${output_file} && -e ${POSTCHANGE_DIR}/${output_file} ]]
+then
+
+        if [[ -z $(sdiff -s ${PRECHANGE_DIR}/${output_file} ${POSTCHANGE_DIR}/${output_file}) ]]
+        then
+#                echo "Checking : $output_file : No Change Observed"
+                echo "$output_file" >>${LOC1}
+        else
+#               echo "----------------------------------------------------------------------------------\033[m"
+                echo "Checking : \033[41m$output_file\033[m :Change in the outputs"
+#               echo "\033[1;31mManual Check Required : ${PRECHANGE_DIR}/${output_file} ${POSTCHANGE_DIR}/${output_file}\033[m"
+                echo "$output_file" >>${LOC3}
+#               echo "\n---------------------------------------------------------------------------------\033[m"
+                echo "\n\n=================================================================================\033[m">>${LOC2}
+                echo "changes between ${PRECHANGE_DIR}/${output_file} AND ${POSTCHANGE_DIR}/${output_file}">>${LOC2}
+                echo "\n=================================================================================-\033[m">>${LOC2}
+                sdiff -s ${PRECHANGE_DIR}/${output_file} ${POSTCHANGE_DIR}/${output_file}|grep "|" >>${LOC2}
+        fi
+else
+        echo "####No  ${POSTCHANGE_DIR}/${output_file} not found "
+
+fi
+done
+echo "******************************************************************************************************">>${LOC}
+echo "                         Files Not Changed During this Change" >>${LOC}
+echo "******************************************************************************************************">>${LOC}
+cat ${LOC1}>>${LOC}
+echo "\n\n\n******************************************************************************************************">>${LOC}
+echo "                         Files  Changed or Modified During this Change" >>${LOC}
+echo "******************************************************************************************************">>${LOC}
+cat ${LOC3}>>${LOC}
+echo "\n\n\n******************************************************************************************************">>${LOC}
+echo "                         Details of Changed Files  - Check them Manually for More details" >>${LOC}
+echo "******************************************************************************************************">>${LOC}
+cat ${LOC2}>>${LOC}
+#
+#OUTPUT on SCREEN
+
+#echo "******************************************************************************************************"
+#echo "                         Files Not Changed During this Change"
+#echo "******************************************************************************************************"
+#cat ${LOC1}
+echo "******************************************************************************************************"
+echo "                         Files  Changed or Modified During this Change"
+echo "******************************************************************************************************"
+cat ${LOC3}
+#Cleaning the temp files
+rm ${LOC1} ${LOC2} ${LOC3}
+#
+echo "\n"
+echo "Result of this compare script is stored at ${LOC}\n "
+        echo -n "Want to see detail information  [Y|N] "
+        read YN
+        if [ "${YN}" == "Y" ] || [ "${YN}" == "y" ]
+        then
+		clear
+		more ${LOC}
+	else
+		exit
+	fi
+
+
+    else
+                       	echo "\033[31mNo Pre-CRQ/Post-CRQ files found for compare... Please double check.\033[m"
+			exit
+                        fi
+     fi
+}
+case $CHOICE in
+
+1)
+        pre_change && echo "\033[32mPre Change data has been collected succesfully.\033[m" || echo "\033[31mPre Change data collection failed.\033[m"
+        ;;
+2)
+        post_change && echo "\033[32mPost validations completed succesfully.\033[m" || echo "\033[31mPost validations failed.\033[m"
+        echo ""
+        echo ""
+        echo "Post change system status has been collected."
+        echo "Please hit Enter key to see report."
+        read xx
+        clear
+        echo "Comparison is in progress...."
+        post_validation
+        ;;
+3)
+        echo "--------------------------------------------"
+	cd /var/tmp
+        ls -d crq* CRQ* 2> /dev/null
+        LINES=`ls -d crq* CRQ* 2> /dev/null | wc -l | awk '{ print $1 }'`
+        if [ ${LINES} -lt 1 ]
+        then
+                echo "Nothing found.."
+        fi
+        echo "--------------------------------------------"
+        ;;
+4)
+        exit
+        ;;
+esac
+</pre>

@@ -1,0 +1,52 @@
+---++ Doc Log 1265631570_01
+
+	$ Date: Mon Feb 08 12:19:30 2010
+	$ Summary: LLT V-14-1-10205 V-14-1-10024 low-pri link
+	$ On-Call: UNSPECIFIED
+
+---++++ Details:
+<pre>
+Starting with 5.0MP3, Symantec has added the feature of one-way link detection in LLT (Etrack Incident# 1031514)
+
+Prior to this, (i.e. until 5.0MP1), LLT used broadcast heartbeats by default. Beginning with 5.0MP3, instead of using broadcast heartbeats, LLT uses unicast heartbeats.
+
+LLT considers a link to be in trouble for a peer node when it finds that the link has not been up for that node for 2 seconds (peertrouble 200). On lo-pri links, LLT sends heartbeats just once every second; on hi-pri links, it is twice every second. With the above described change in LLT, it is possible that for lo-pri links, the troubled condition is hit more often. And hence the corresponding LLT messages will be printed more often in the system log. While this message is only informational, frequent appearance in the system logs may alarm the customer.
+
+Therefore, it is recommended that the LLT peertrouble tunable should be increased to 400, so that link inactivity for up to 4 seconds is ignored by LLT before printing out the message in the system log.
+            
+As noted before, the trouble message is only informational and changing the trouble time to 4 seconds from 2 seconds is harmless.
+
+If the following messages are seen frequently for an LLT lo-pri link, then change the LLT tunable named peertrouble to 400. Its default value is 200.
+
+LLT INFO V-14-1-10205 link 2 (eri0) node 1 in trouble LLT INFO V-14-1-10024 link 2 (eri0) node 1 active
+
+The peertrouble tunable can be changed with the following command on all the nodes in the cluster:
+
+      lltconfig -T peertrouble:400
+
+It is recommended that the following line be added to /etc/llttab on all the nodes in the cluster in order to ensure that this value is used across server reboots. On each node, the change will take effect only after restarting LLT.
+
+      set-timer      peertrouble:400
+
+Example:
+
+# lltconfig -T query
+
+Current LLT timer values (.01 sec units):
+ . . .
+ peertrouble = 200    <--------- before
+ peerinact   = 1600
+ . . .
+
+# lltconfig -T peertrouble:400 <--- cmd
+
+Use the following command to ensure that the values are indeed changed:
+
+# lltconfig -T query
+
+Current LLT timer values (.01 sec units):
+ . . .
+ peertrouble = 400    <--------- after
+ peerinact   = 1600
+ . . .
+</pre>

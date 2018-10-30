@@ -1,0 +1,58 @@
+---++ Doc Log 1157413963_01
+
+	$ Date: Mon Sep 04 23:52:43 2006
+	$ Summary: Heartbeat unacknowledged from node for 8,9 &10 seconds.
+	$ On-Call: 
+
+---++++ Details:
+<pre>
+There was a temparory problem
+
+# grep "Heartbeat unacknowledged" syslog.log
+Sep  4 19:10:11 192 vmunix: WARNING: vxvm:vxio: Heartbeat unacknowledged from node 128.9.69.79 for 8 seconds
+Sep  4 19:10:12 192 vmunix: WARNING: vxvm:vxio: Heartbeat unacknowledged from node 128.9.69.79 for 9 seconds
+Sep  4 19:10:13 192 vmunix: WARNING: vxvm:vxio: Heartbeat unacknowledged from node 128.9.69.79 for 10 seconds
+
+The Rlink to_xyz192 connected to remote
+
+/var/adm/syslog # vxprint -ht |egrep '^rl|^rv'
+rv dg08_rvg     1            ENABLED  ACTIVE   primary  30        srl_log
+rl to_xyz192  dg08_rvg     CONNECT  ACTIVE   xyz192 dg08      to_abc192
+rv dg09_rvg     1            ENABLED  ACTIVE   primary  13        srl_log
+rl to_xyz192  dg09_rvg     DETACHED STALE    xyz192 dg09      to_abc192
+rv sybdg01_192_rvg 1         ENABLED  ACTIVE   primary  16        srl_log
+rl to_xyz192  sybdg01_192_rvg CONNECT ACTIVE xyz192 sybdg01_192 abc192
+
+# vradmin printrvg
+Replicated Data Set: dg08_rvg
+Primary:
+        HostName: abc192      <localhost>
+        RvgName: dg08_rvg
+        DgName: dg08
+Secondary:
+        HostName: xyz192
+        RvgName: dg08_rvg
+        DgName: dg08
+
+
+Replicated Data Set: sybdg01_192_rvg
+Primary:
+        HostName: abc192      <localhost>
+        RvgName: sybdg01_192_rvg
+        DgName: sybdg01_192
+Secondary:
+        HostName: xyz192
+        RvgName: sybdg01_192_rvg
+        DgName: sybdg01_192
+
+
+Replicated Data Set: dg09_rvg
+Primary:
+        HostName: abc192      <localhost>
+        RvgName: dg09_rvg
+        DgName: dg09
+Secondary:
+        HostName: xyz192
+        RvgName: dg09_rvg
+        DgName: dg09
+</pre>

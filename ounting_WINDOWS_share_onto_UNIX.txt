@@ -1,0 +1,94 @@
+---++ Doc Log 1221552350_01
+
+	$ Date: Tue Sep 16 08:05:50 2008
+	$ Summary: Live --Mounting WINDOWS share onto UNIX csl196
+	$ On-Call: UNSPECIFIED
+
+---++++ Details:
+<pre>
+Getting below error while mounting cifs filesystem.
+
+# mount -F cifs -o user='hbeu\ftpalgo' -o password= test.uk.com:/share /mnt1
+ipcclient: error connecting to daemon: [2] No such file or directory
+ipcclient: CIFS Client is down.
+
+#  cifsmount //test.uk.com/share /mnt1 -U ftpalgo -P <passwd>
+ipcclient: error connecting to daemon: [2] No such file or directory
+ipcclient: CIFS Client is down.
+
+Check CIFS client status
+# cifsclient status
+Path:	  /opt/cifsclient/sbin/cifsclientd
+Version:  FILESET HP CIFS CLIENT: Version: A.01.06
+			 Compiled on HP-UX B.11.00, s800/R390, 01/03/28 13:41:32
+			 cifsclientd: ver_id=832218266
+cksum:	 1323969665
+Status:	CIFS Client daemon is down.
+
+Started CIFS client
+# cifsclient start
+Starting CIFS Client daemon 'cifsclientd'... done;  process id = 9997
+
+# cifsclient status
+Path:	  /opt/cifsclient/sbin/cifsclientd
+Version:  FILESET HP CIFS CLIENT: Version: A.01.06
+			 Compiled on HP-UX B.11.00, s800/R390, 01/03/28 13:41:32
+			 cifsclientd: ver_id=832218266
+cksum:	 1323969665
+Status:	CIFS Client daemon is up; process id 9997, started 13:29:55.
+
+Mounted CIFS filesystem
+# cifsmount //test.uk.com/share /mnt1 -U ftpalgo -P W19WeKm
+
+# bdf /mnt1
+Filesystem			 kbytes	 used	avail %used Mounted on
+localhost:\\test.uk.com\SHARE
+						 379624240 369553344 10070896	97% /mnt1
+
+csl196:/usr/bin /usr/bin/cifslist -A
+=========================================================================
+server test.uk.com:
+=========================================================================
+Remote Username: ftpalgo				  Local Username: root					 
+
+Share: \\test.uk.com\SHARE
+
+But now user(dsadm) is not able to change directory to /mnt1
+# su - dsadm
+csl196:/home/dsadm--cd /mnt1/Algo/
+NFS lookup failed for server test.uk.com: RPC: Remote system error
+
+How to fix this??
+# cifsclient stop
+# cifsclient start
+
+In dsadm login run the below command - 
+csl196:/home/dsadm--/usr/bin/cifslogin test.uk.com ftpalgo
+Remote user ukhibmdata02's password:  W19WeKm
+csl196:/home/dsadm--
+
+# /usr/bin/cifslist -u
+Server				Local User		  Remote User		 Domain				State 
+-------------------------------------------------------------------------------
+ukhibmdata02.uk.h root				  ftpalgo									  L	  
+ukhibmdata02		purwarn			  ftpalgo									  L	  
+
+Now check changing directory to /mnt1/Algo... it should work. 
+
+Getting Below Alerts - /var/adm/syslog/syslog.log
+Sep 25 07:11:00 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
+Sep 25 07:13:04 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
+Sep 25 07:29:16 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
+Sep 25 07:31:16 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
+Sep 25 07:41:16 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
+Sep 25 07:43:16 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
+Sep 25 07:45:17 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
+
+Copied latest configuration file from psd034(HPUX) system to csl196:/etc/opt/cifsclient/cifsclient.cfg
+Commented below entry on configuration file to stop alerts
+#smbConnect
+
+All looking ok now ... 
+!!!!Enjoy !!!!
+</pre>
+

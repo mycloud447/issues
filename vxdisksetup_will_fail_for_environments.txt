@@ -1,0 +1,50 @@
+---++ Doc Log 1396856988_01
+        $ Date: Apr 07 13:19:48 2014
+        $ Summary: vxdisksetup will fail for environments
+
+---++++ Details:
+<pre>
+Issue
+======
+VxVM (VERITAS Volume Manager) command vxdisksetup will fail for environments with Solaris patch 147440-20  and later.
+
+Error
+-----
+Example error:
+#  /etc/vx/bin/vxdisksetup -i c4t500601613CE02533d10
+
+VxVM vxdisksetup ERROR V-5-2-43 c4t500601613CE02533d10: Invalid disk device for vxdisksetup
+
+Note: An attempt to initialize a disk(s)  with command `vxdisk init` with format type sliced or simple will fail.
+
+# vxdisk init c0t0d0 format=sliced
+
+VxVM vxdisk ERROR V-5-1-5433 Device c0t0d0: init failed:
+
+        Disk VTOC does not list private partition
+
+Environment
+
+Solaris 10 with kernel patch 147440-20 or later
+Storage Foundation 5.1
+
+or
+
+Storage Foundation 6.0
+
+Cause
+
+Solution
+
+Workaround
+
+    Downgrade to a lower revision of patch, for example Solaris Patch 147440-19.
+    For the Volume Manager default 'cdsdisk' format only, one can use the command `vxdisk init <da_name>` to initialize the disk.
+
+Solution: 
+
+    For Storage Foundation version 5.1 the fix is available in General Availability 5.1SP1RP3 release for SPARC architecture and 5.1SP1RP3 for Intel x86_64 architecture.
+    The Storage Foundation 6.0.1 release has the General Availability fix in patch vm-sol10_sparc-6.0.1.200 for SPARC architecture and vm-sol10_x64-6.0.1.200 for Intel x86_64 architecture.
+
+
+</pre>

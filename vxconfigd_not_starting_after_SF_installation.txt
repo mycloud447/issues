@@ -1,0 +1,48 @@
+---++ Doc Log 1397198739_01
+        $ Date: Apr 11 12:15:39 2014
+        $ Summary: vxconfigd not starting after SF installation
+
+---++++ Details:
+<pre>
+Issue:
+upon host reboot, vxconfigd not starting after storage foundation installation 5.0MP3/5.1SP1 
+
+Error:
+WARNING: forceload of misc/md_hotspares failed
+
+VxVM sysboot INFO V-5-2-3409 starting in boot mode...
+
+Apr  3 01:22:11 vxvm:vxconfigd: V-5-1-7840 cannot open /dev/vx/config: No such device or address
+
+VxVM sysboot WARNING V-5-0-4817 Error starting vxconfigd
+
+configuring IPv4 interfaces: ce0 ce4 ce6 ce8.
+
+
+Solution:
+
+1.) Create a backup copy of the name_to_major file.
+
+#cp /etc/name_to_major /etc/name_to_major_Original
+
+
+2.) Remove the following lines from your existing name_to_major.
+
+vxportal 282
+fdd 283
+vxdmp 284
+vxio 285
+vxspec 286
+
+3.) Update name_to_major and load the module.
+
+add_drv -m '* 0640 root sys' vxdmp
+add_drv -m '* 0640 root sys' vxio
+add_drv -m '* 0600 root sys' vxspec
+add_drv -m '* 0640 root sys' vxportal
+add_drv fdd
+
+4.) Check to see if the modules successfully loaded.
+
+#modinfo |egrep 'fdd|vx' 
+</pre>

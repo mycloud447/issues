@@ -1,0 +1,42 @@
+\---++ Doc Log 1178805397_01
+
+	$ Date: Thu May 10 13:56:37 2007
+	$ Summary: Lost disk after switching groups on cluster.
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+I switched groups and a disk went failed and I was unable to bring it back online.
+
+-            -         sdbe         dg03         failed was:sdqx
+
+
+I figured that the disk it need to be associted with with the following.
+
+
+# /opt/emc/SYMCLI/V6.2.1/bin/syminq | grep sdbe
+/dev/sdbe                 DGC       RAID 5       0219 510000E3      8838720
+
+# /opt/emc/SYMCLI/V6.2.1/bin/syminq | grep 510000E3
+/dev/sdbe                 DGC       RAID 5       0219 510000E3      8838720
+/dev/sdhm                 DGC       RAID 5       0219 510000E3      8838720
+/dev/sdxp                 DGC       RAID 5       0219 510000E3      8838720
+/dev/sdadx                DGC       RAID 5       0219 510000E3      8838720
+/dev/vx/rdmp/sdjb         DGC       RAID 5       0219 510000E3      8838720
+
+
+sdjb         auto            -            -            error
+
+as the disk was an error when I tried to perform a vxdiskunsetup is did not work and I fugured that it was not in the config so i started from this ponit.
+
+
+vxdisksetup -i sdjb privoffset=256 privlen=2048 puboffset=2304 format=cdsdisk
+vxdisk list sdjb
+vxdg -k -g dg03 adddisk sdjb=sdbe
+vxrecover -g dg03 vol05
+vxmend -g dg03 -o force off vol05-01
+vxmend -g dg03 on vol05-01
+vxmend -g dg03 fix clean vol05-01
+vxvol -g dg03 start vol05
+
+</pre>

@@ -1,0 +1,202 @@
+---++ Doc Log 1383638494_01
+        $ Date: Tue Nov 05:: 13:31:34
+        $ Summary: Not able to  to label/initialize  newly Provisioned EMC Disks
+
+---++++ Details:
+<pre>
+Issue : Not able to  to label/initialize  newly Provisioned EMC Disks. 
+======================================================================
+emc9_131a    auto            -            -            nolabel
+emc9_131b    auto            -            -            nolabel
+emc9_131c    auto            -            -            nolabel
+emc9_131d    auto            -            -            nolabel
+emc9_131e    auto            -            -            nolabel
+emc9_131f    auto            -            -            nolabel
+emc9_132b    auto            -            -            nolabel
+emc9_132f    auto            -            -            nolabel
+emc9_133a    auto            -            -            nolabel
+emc9_133d    auto            -            -            nolabel
+emc9_134a    auto            -            -            nolabel
+emc9_1319    auto            -            -            nolabel
+emc9_1323    auto            -            -            nolabel
+emc9_1327    auto            -            -            nolabel
+emc9_1331    auto            -            -            nolabel
+emc9_1332    auto            -            -            nolabel
+emc9_1333    auto            -            -            nolabel
+emc9_1334    auto            -            -            nolabel
+emc9_1335    auto            -            -            nolabel
+emc9_1336    auto            -            -            nolabel
+emc9_1337    auto            -            -            nolabel
+emc9_1338    auto            -            -            nolabel
+emc9_1339    auto            -            -            nolabel
+emc9_1340    auto            -            -            nolabel
+emc9_1344    auto            -            -            nolabel
+emc9_1345    auto            -            -            nolabel
+emc9_1346    auto            -            -            nolabel
+
+test $ 
+test $ vxdisk list emc9_12e9
+
+Device:    emc9_12e9
+devicetag: emc9_12e9
+type:      auto
+info:      format=none
+flags:     online ready private autoconfig invalid
+pubpaths:  block=/dev/vx/dmp/emc9_12e9s2 char=/dev/vx/rdmp/emc9_12e9s2
+guid:      -
+udid:      EMC%5FSYMMETRIX%5F000192604502%5F02012E9008
+site:      -
+Multipathing information:
+numpaths:   8
+c7t5000097208465954d14s2        state=enabled
+c7t5000097208465974d14s2        state=enabled
+c13t5000097208465948d14s2       state=enabled
+c13t5000097208465968d14s2       state=enabled
+c11t500009720846596Cd14s2       state=enabled
+c11t500009720846594Cd14s2       state=enabled
+c9t5000097208465970d14s2        state=enabled
+c9t5000097208465950d14s2        state=enabled
+
+test $ 
+test $ format -e /dev/rdsk/c7t5000097208465954d14s2
+
+/dev/rdsk/c7t5000097208465954d14s2: configured with capacity of 800.49GB
+
+selecting /dev/rdsk/c7t5000097208465954d14s2
+[disk formatted]
+
+FORMAT MENU:
+        disk       - select a disk
+        type       - select (define) a disk type
+        partition  - select (define) a partition table
+        current    - describe the current disk
+        format     - format and analyze the disk
+        repair     - repair a defective sector
+        label      - write label to the disk
+        analyze    - surface analysis
+        defect     - defect list management
+        backup     - search for backup labels
+        verify     - read and display labels
+        save       - save new disk/partition definitions
+        inquiry    - show vendor, product and revision
+        scsi       - independent SCSI mode selects
+        cache      - enable, disable or query SCSI disk cache
+        volname    - set 8-character volume name
+        !<cmd>     - execute <cmd>, then return
+        quit
+
+format> la
+
+[0] SMI Label
+[1] EFI Label
+
+Specify Label type[0]: 0
+
+Ready to label disk, continue? y
+
+
+Warning: error writing VTOC.
+Warning: no backup labels
+Label failed.
+format> q
+
+
+Reason : 
+=======
+SCSI - 3 Persist reservation  keys from Previous Servers still existed on these disks so we are not able to use these disks in servers for which disks are newly Provisioned.
+
+Resolution 
+==========
+vxdiskpr clear /dev/vx/dmp/disk  will clear keys refers to ols SCSI -3 Reservation keys.
+Once cleared , we  can label and initialize disks.
+
+
+Here is Putty.
+=============
+
+$  for x in `cat disk` ; do vxdiskpr clear /dev/vx/dmp/$x ; echo $x ; done
+
+VxVM vxdiskpr ERROR V-5-1-5423 Could not clear.
+emc9_131a
+
+Disk [/dev/vx/dmp/emc9_131b] cleared successfully
+emc9_131b
+
+VxVM vxdiskpr ERROR V-5-1-5423 Could not clear.
+emc9_131c
+
+VxVM vxdiskpr ERROR V-5-1-5423 Could not clear.
+emc9_131d
+
+Disk [/dev/vx/dmp/emc9_131e] cleared successfully
+emc9_131e
+
+VxVM vxdiskpr ERROR V-5-1-5423 Could not clear.
+emc9_131f
+
+VxVM vxdiskpr ERROR V-5-1-5423 Could not clear.
+emc9_132b
+
+Disk [/dev/vx/dmp/emc9_132f] cleared successfully
+emc9_132f
+
+Disk [/dev/vx/dmp/emc9_133a] cleared successfully
+emc9_133a
+
+Disk [/dev/vx/dmp/emc9_133d] cleared successfully
+emc9_133d
+
+Disk [/dev/vx/dmp/emc9_134a] cleared successfully
+emc9_134a
+
+Disk [/dev/vx/dmp/emc9_1319] cleared successfully
+emc9_1319
+
+Disk [/dev/vx/dmp/emc9_1323] cleared successfully
+emc9_1323
+
+Disk [/dev/vx/dmp/emc9_1327] cleared successfully
+emc9_1327
+
+Disk [/dev/vx/dmp/emc9_1331] cleared successfully
+emc9_1331
+
+Disk [/dev/vx/dmp/emc9_1332] cleared successfully
+emc9_1332
+
+Disk [/dev/vx/dmp/emc9_1333] cleared successfully
+emc9_1333
+
+Disk [/dev/vx/dmp/emc9_1334] cleared successfully
+emc9_1334
+
+Disk [/dev/vx/dmp/emc9_1335] cleared successfully
+emc9_1335
+
+Disk [/dev/vx/dmp/emc9_1336] cleared successfully
+emc9_1336
+
+Disk [/dev/vx/dmp/emc9_1337] cleared successfully
+emc9_1337
+
+Disk [/dev/vx/dmp/emc9_1338] cleared successfully
+emc9_1338
+
+Disk [/dev/vx/dmp/emc9_1339] cleared successfully
+emc9_1339
+
+Disk [/dev/vx/dmp/emc9_1340] cleared successfully
+emc9_1340
+
+Disk [/dev/vx/dmp/emc9_1344] cleared successfully
+emc9_1344
+
+Disk [/dev/vx/dmp/emc9_1345] cleared successfully
+emc9_1345
+$
+
+/usr/sbin/format -f /tmp/format_commands.29288 c7t5000097208465954d2 > /dev/null
+c7t5000097208465954d2 labelled SUCCESSFULLY
+
+$ 
+</pre>

@@ -1,0 +1,460 @@
+<pre>
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     h) Usage;;
+        c) flarcksum=$OPTARG;; # Flar Checksum
+        f) flarname=$OPTARG;; # Path to flar
+        n) newname=$OPTARG;; # New server name
+        i) newipaddress=$OPTARG;; # New IP address
+        d) DEBUG=1;;
+
+
+ ./groom_sol9.sh -c 1876521208 -f solaris9-image.flar -n test-new -i 192.168.10.11
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+#!/usr/bin/ksh
+###############################################################################
+# DESCRIPTION: Program to groom sol9 flars for use in P2P and P2V
+#
+###############################################################################
+#
+# Version Control Repository:
+# file: groom_sol9.sh
+#
+###############################################################################
+#
+# Parameters
+#
+# Max spaces in a tab: 4
+# Indent Width: 4
+#
+###############################################################################
+
+# Modules
+# . ./shelllibrarytemplate.sh
+
+# Global Variables
+DEBUG=0;
+
+# $VERSION is the package version number
+# Initial VERSION numbers should be below 1 after release
+# VERSION numbers should be above 1
+VERSION="0.00";
+
+rc2_dscripts="S01MOUNTFSYS
+S05RMTMPFILES
+S10lu
+S20sysetup
+S30sysid.net
+S42ncakmod
+S69inet
+S71rpc
+S71sysid.sys
+S72inetsvc
+73nfs.client
+S74syslog
+S74xntpd
+S75cron
+S75flashprom
+S75savecore
+S76nscd
+S88utmpd
+S95svm.sync
+S98efcode
+S99rcapd"
+
+rc3_dscripts="S15nfs.server
+S73pctl
+S89sshd"
+
+BASEDIR="/nfspool2"
+GROOMEDDIR="${BASEDIR}/groomedflars"
+
+
+#set -x
+# Functions
+
+Usage()
+{
+   echo "$0 -h\n";
+   echo "    -h - Prints this message\n";
+
+   exit 1;
+}
+
+# get_output()
+# {
+#     # function get_output()
+#     #
+#     # function to read and save the log from the machine we've been
+#     # talking to
+#     #
+#     #   paramaters:   none
+#     #
+#     #   returns:      none
+#     #
+#     #   requires:   variables:   $socket
+#     #                                              $LOGDIR
+#     #                                              $progname
+#     #       functions:   writelog()
+#     #                                              debuglog()
+#     #       modules:  IO::Socket
+#     #
+#     #
+#     #   side effects:   creates file $LOGDIR/$progname.$TODAY.$host
+#
+# }
+
+
+# Main program
+
+while getopts "hdc:f:n:i:" opt; do
+    case "$opt" in
+        h) Usage;;
+        c) flarcksum=$OPTARG;; # Flar Checksum
+        f) flarname=$OPTARG;; # Path to flar
+        n) newname=$OPTARG;; # New server name
+        i) newipaddress=$OPTARG;; # New IP address
+        d) DEBUG=1;;
+    esac
+done
+
+if [ "$DEBUG" = "1" ]; then
+    set -x
+fi
+
+error=0
+if [ -z "$flarcksum" ]; then
+    echo "ERROR: No cksum for flar specified"
+    error=1
+fi
+
+if [ -z "$flarname" -o ! -f "$flarname" ]; then
+    echo "ERROR: No flar specified"
+    error=1
+fi
+
+if [ -z "$newname" ]; then
+    echo "ERROR: No new server name specified"
+    error=1
+fi
+
+if [ -z "$newipaddress" ]; then
+    echo "ERROR: No new ip address specified"
+    error=1
+fi
+
+if [ "$error" = 1 ]; then
+    Usage
+fi
+
+if [ -z "$flar_cmd" ]; then
+    flar_cmd=`which flar`
+fi
+
+if [ -z "$flar_cmd" -o ! -x "$flar_cmd" ]; then
+    echo "ERROR: can't find 'flar' command"
+    exit 10
+fi
+
+if [ -z "$mv_cmd" ]; then
+    mv_cmd=`which mv`
+fi
+
+if [ -z "$mv_cmd" -o ! -x "$mv_cmd" ]; then
+    echo "ERROR: can't find 'mv' command"
+    exit 10
+fi
+
+if [ -z "$mkdir_cmd" ]; then
+    mkdir_cmd=`which mkdir`
+fi
+
+if [ -z "$mkdir_cmd" -o ! -x "$mkdir_cmd" ]; then
+    echo "ERROR: can't find 'mkdir' command"
+    exit 10
+fi
+
+if [ -z "$cpio_cmd" ]; then
+    cpio_cmd=`which cpio`
+fi
+
+if [ -z "$cpio_cmd" -o ! -x "$cpio_cmd" ]; then
+    echo "ERROR: can't find 'cpio' command"
+    exit 10
+fi
+
+if [ -z "$uncompress_cmd" ]; then
+    uncompress_cmd=`which uncompress`
+fi
+
+if [ -z "$uncompress_cmd" -o ! -x "$uncompress_cmd" ]; then
+    echo "ERROR: can't find 'uncompress' command"
+    exit 10
+fi
+
+if [ -z "$cat_cmd" ]; then
+    cat_cmd=`which cat`
+fi
+
+if [ -z "$cat_cmd" -o ! -x "$cat_cmd" ]; then
+    echo "ERROR: can't find 'cat' command"
+    exit 10
+fi
+
+if [ -z "$cksum_cmd" ]; then
+    cksum_cmd=`which cksum`
+fi
+
+if [ -z "$cksum_cmd" -o ! -x "$cksum_cmd" ]; then
+    echo "ERROR: can't find 'cksum' command"
+    exit 10
+fi
+
+if [ -z "$find_cmd" ]; then
+    find_cmd=`which find`
+fi
+
+if [ -z "$find_cmd" -o ! -x "$find_cmd" ]; then
+    echo "ERROR: can't find 'find' command"
+    exit 10
+fi
+
+if [ -z "$date_cmd" ]; then
+    date_cmd=`which date`
+fi
+
+if [ -z "$date_cmd" -o ! -x "$date_cmd" ]; then
+    echo "ERROR: can't find 'date' command"
+    exit 10
+fi
+
+echo "Checking cksum of flar"
+flarrealcksum=`cksum "$flarname"|awk '{print $1}'`
+if [ $? -ne 0 ]; then
+    echo "ERROR: problems running 'cksum'"
+    exit 11
+fi
+
+if [ "$flarrealcksum" != "$flarcksum" ]; then
+    echo "ERROR: Problem with flar checksum"
+    echo "Expected: $flarcksum   Found: $flarrealcksum"
+    exit 11
+fi
+
+flarinfo="`flar -i \"$flarname\"`"
+if [ $? -ne 0 ]; then
+    echo "ERROR: problems running 'flar -i $flarname'"
+    exit 12
+fi
+
+echo "$flarinfo" | grep '^creation_release=5.9$' 2>&1 > /dev/null
+if [ $? -ne 0 ]; then
+    echo "ERROR: Flar is not Solaris 9"
+    exit 12
+fi
+
+currenthostname=`echo "$flarinfo" | grep '^creation_node=' |sed 's/^creation_node=//'`
+date=`date '+%Y%m%d%H%M%S'`
+
+echo "Creating '${BASEDIR}/${newname}_${date}'"
+mkdir -p "${BASEDIR}/${newname}_${date}"
+cd "${BASEDIR}/${newname}_${date}"
+if [ $? -ne 0 ]; then
+    echo "ERROR: problems changing to '${BASEDIR}/${newname}_${date}'"
+    exit 13
+fi
+
+echo "Splitting flar"
+flar split $flarname > /dev/null
+if [ $? -ne 0 ]; then
+    echo "ERROR: problem extracting flar $flarname"
+    exit 13
+fi
+
+mv archive archive.Z
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem moving archive to archive.Z"
+    exit 13
+fi
+
+echo "Creating '${BASEDIR}/${newname}_${date}/extract'"
+mkdir -p "${BASEDIR}/${newname}_${date}/extract"
+cd "${BASEDIR}/${newname}_${date}/extract"
+if [ $? -ne 0 ]; then
+    echo "ERROR: problems changing to '${BASEDIR}/${newname}_${date}/extract'"
+    exit 14
+fi
+
+echo "Extracting the archive"
+uncompress -c "${BASEDIR}/${newname}_${date}/archive.Z" | cpio -icdmu
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem extracting archive"
+    exit 14
+fi
+
+echo "Disabling unwanted rc2 and rc3 scripts"
+cd etc/rc2.d
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem changing to 'etc/rc2.d' directory"
+    exit 15
+fi
+
+error=0
+for file in S* K*;do
+    if [ "$file" = 'S*' ]; then
+        continue
+    fi
+
+    if [ "$file" = 'K*' ]; then
+        continue
+    fi
+
+    echo "$rc2_dscripts" | grep "^${file}$" > /dev/null
+    if [ $? -eq 0 ]; then
+        continue
+    fi
+
+    mv "$file" "disabled_${file}_${date}"
+    if [ $? -ne 0 ]; then
+       error=1
+       echo "ERROR: Could not move '$file' to disabled"
+    fi
+done
+
+
+cd ../rc3.d
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem changing to 'etc/rc3.d' directory"
+    exit 15
+fi
+
+for file in S* K*;do
+    if [ "$file" = 'S*' ]; then
+        continue
+    fi
+
+    if [ "$file" = 'K*' ]; then
+        continue
+    fi
+
+    echo "$rc3_dscripts" | grep "^${file}$" > /dev/null
+    if [ $? -eq 0 ]; then
+        continue
+    fi
+
+    mv "$file" "disabled_${file}_${date}"
+    if [ $? -ne 0 ]; then
+       error=1
+       echo "ERROR: Could not move '$file' to disabled"
+    fi
+done
+
+
+cd ../..
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem changing to 'root' directory"
+    exit 15
+fi
+
+if [ "$error" = "1" ]; then
+    exit 15
+fi
+
+echo 'Cleaning up hostname entries'
+mkdir -p "etc/oldhostinfo.${date}"
+if [ ! -d "etc/oldhostinfo.${date}" ]; then
+    echo "ERROR: Problem creating etc/oldhostinfo.${date}"
+    exit 16
+fi
+
+mv etc/hostname.* "etc/oldhostinfo.${date}"
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem moving etc/hostname files to 'etc/oldhostinfo.${date}'"
+    exit 16
+fi
+
+cp -p "etc/nodename"  "etc/oldhostinfo.${date}"
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem copying etc/nodename to 'etc/oldhostinfo.${date}'"
+    exit 16
+fi
+
+cp -p "etc/hosts" "etc/oldhostinfo.${date}/etc_hosts"
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem copying etc/hosts to 'etc/oldhostinfo.${date}'"
+    exit 16
+fi
+
+cp -p "etc/inet/hosts" "etc/oldhostinfo.${date}/etc_inet_hosts"
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem copying etc/inet/hosts to 'etc/oldhostinfo.${date}'"
+    exit 16
+fi
+
+echo "Updating nodename"
+echo $newname > "etc/nodename"
+
+echo "Fixing hosts file"
+sed 's/^\(.*'${currenthostname}'.*\)$/# \1/' "etc/oldhostinfo.${date}/etc_hosts" > etc/hosts
+echo "${newipaddress} ${newname}.mycloud.com ${newname}" >> etc/hosts
+
+echo "Recreating archive"
+find . -depth -print | cpio -oc ../archive
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem creating archive file"
+    exit 17
+fi
+
+cd ..
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem going back one directory"
+    exit 17
+fi
+
+if [ -f "archive.Z" ]; then
+    rm archive.Z
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Problem removing archive.Z"
+        exit 17
+    fi
+fi
+
+compress archive
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem compressing archive"
+    exit 18
+fi
+
+mv archive.Z archive
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem moving compressed archive"
+    exit 18
+fi
+
+echo "Cleaning up extracted files"
+rm -rf extract
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem moving compressed archive"
+    exit 19
+fi
+
+if [ ! -d "$GROOMEDDIR" ]; then
+    mkdir $GROOMEDDIR
+
+    if [ $? -ne 0 ]; then
+        echo "ERROR: could not create '$GROOMEDDIR'"
+        exit 21
+    fi
+fi
+
+echo "Recreating flar"
+flar combine -d "${BASEDIR}/${newname}_${date}" "${GROOMEDDIR}/`basename \"$flarname\"`_${date}"
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem recreating flar"
+    exit 20
+fi
+
+exit 0
+</pre>

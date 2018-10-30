@@ -1,0 +1,40 @@
+---++ Doc Log 1383812998_01
+        $ Date: Thu Nov 07:: 13:59:58
+        $ Summary: Steps to grow snapshot and parent volume
+
+---++++ Details:
+<pre>
+1. Oraganize outage/partial outage for DB11/12
+
+2. Failover SG containing DB11/12 to a standby node
+
+3. Reboot node where DB11/12 was running because it is up since more than 1665 days
+
+4. Try to grow snapshot then parent volume
+
+5. If this fails, disassociate and unprepare snapshot and parent volume
+
+6. Grow the volumes to required size [1090GB]
+
+7. Prepare the volumes
+
+8. Re-create the snapshot
+
+
+Important:	If VxVM times out with error "Operation requires transaction" then increase timeout	value and restart vxconfigd and try again.
+If unprepare of volumes fails try to remove dcl with vxedit command
+
+
+./vxresize -b -F vxfs -g testdb11dg PFIbatchprogvl_01 1090g alloc=528testdb11dn,529testdb11dn,530testdb11dn,531testdb11dn,532testdb11dn,539testdb11dn,545testdb11dn,546testdb11dn,521testdb11dn,522testdb11dn,523testdb11dn
+
+
+
+$ vxsnap -g testdb11dg -vx list batchprogvl
+
+NAME          DG         OBJTYPE SNAPTYPE PARENT     PARENTDG   SNAPDATE         CHANGED_DATA SYNCED_DATA
+
+batchprogvl   testdb11dg vol  -        -          -          - -              - -          775G (100%)
+
+PFIbatchprogvl_05 testdb11dg vol fullinst batchprogvl testdb11dg 2012/12/19 23:03 33G (4.3%) 775G (100%)
+
+</pre>

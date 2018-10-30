@@ -1,0 +1,462 @@
+---++ Doc Log 1383807953_01
+        $ Date: Thu Nov 07:: 12:35:53
+        $ Summary: decom wipe disk -script
+
+---++++ Details:
+<pre>
+#!/bin/ksh
+
+# Description:  Purging/wiping disks
+
+#
+
+clear
+
+umask 0022
+
+PATH=/usr/bin:/usr/sbin:/usr/local/bin:/sbin:/usr/ucb:/usr/local/soe/bin:/bin:/usr/openwin/bin:/usr/ccs/bin:/etc/opt/SUNWmd/sbin:/opt/SUNWldm/bin:/opt/VRTS/bin:/usr/opt/SUNWmd/sbin:./;export PATH
+
+FGRED=`echo "\033[31m"`
+
+BGRED=`echo "\033[41m"`
+
+NORMAL=`echo "\033[m"`
+
+GREEN="\033[01;32m"
+
+ps -ef |grep -i format |grep -v grep >/dev/null 2>&1
+
+	if [ $? == 1 ];then
+
+#		echo ""${GREEN}Fine no process running with disk wipe/purge....!!${NORMAL}""
+
+#		echo ""
+
+	if [ `whoami` == root ]
+
+         then
+
+#                echo ""${GREEN}Okay, you are root user and can run this script ${NORMAL}""
+
+#                echo ""
+
+                ps -ef |grep sendmail > /dev/null 2>&1
+
+                if [ $? == 0 ]; then
+
+#                echo ""${GREEN}Fine send mail services are running ${NORMAL}""
+
+                 sleep 0
+
+        else
+
+                echo "send mail services are not running......!!!! "${FGRED}YOU WILL NOT GET MAIL WITH DISK PURGE LOGS ${NORMAL}""
+
+                echo ""
+
+                fi
+
+                echo "This script should run only on decom'd servers : " ${BGRED} DO YOU WANT TO COMMIT? [YES/NO] : ${NORMAL}"" ; read mesg
+
+		if [ $mesg == YES ] || [ $mesg == yes ] || [ $mesg == Yes ];then
+
+                echo ""
+
+                echo "Please enter email details to whom the logs will send at end of the disk Purge  [ ex:- user@user.com ]:"; read mail
+
+                echo "4i\n`echo "mail=$mail"`  \n.\nwq" | ex -s waitforpid.ksh
+
+                if [ -r /var/tmp/wipe ];then
+
+                        mv /var/tmp/wipe /var/tmp/wipe_`date +%d%m%Y_%H%M%S`
+
+                        mkdir -p /var/tmp/wipe
+
+#                       echo "defect\nprimary\nquit\nanalyze\npurge\nquit\ndefect\nboth\nquit\nanalyze\npurge\nquit\nbackup\nquit" > /var/tmp/wipe/wipe.file
+
+                        echo "defect\nprimary\nquit\nanalyze\npurge\nquit\nquit" > /var/tmp/wipe/wipe.file
+
+
+
+                        else
+
+                        mkdir -p /var/tmp/wipe
+
+                      fi
+
+                if [ -r /var/tmp/wipe ];then
+
+                        echo "defect\nprimary\nquit\nanalyze\npurge\nquit\nquit" > /var/tmp/wipe/wipe.file
+
+###############################
+
+# Collecting Disk information #
+
+###############################
+
+                        echo ""
+
+                        echo "Please wait collecting disk information........."
+
+                        > /var/tmp/wipe/disk_orig
+
+                        inq > /dev/null 2>&1
+
+                if [ $? == 0 ]; then
+
+                inq -no_dots |egrep -i ":HITACHI|:FUJITSU|:SEAGATE|:TEAC" |egrep -v "EMC|rdmp" |tr -s "/" " " |awk '{print $3}'|sed 's/\(.*\)../\1/' > /var/tmp/wipe/disk_orig
+
+                     else
+
+                        echo ""
+
+#                        echo ""${FGRED}inq not found... collecting disk information from format.....${NORMAL}""
+
+                        echo |format -m |egrep -v "Searching|AVAILABLE|Specify|configured|^$|@"|awk '{print $2}' > /var/tmp/wipe/disk_orig
+
+                fi
+
+
+
+########################
+
+# Identifying OS disks #
+
+########################
+
+                        FS=`df -k /|grep -v Filesystem|tr -s '/' ' ' |awk '{print $4}'`
+
+
+
+	df -k /|grep -v Filesystem|tr -s '/' ' ' |awk '{print $3}'|sed 's/\(.*\)../\1/' > /var/tmp/wipe/root_mirror_disks
+
+
+
+if [ $FS == d0 ];then
+
+                metastat -p $FS |grep -i "c" |awk '{print $4}'| sed 's/\(.*\)../\1/' > /var/tmp/wipe/root_mirror_disks
+
+        elif [ $FS == d1 ];then
+
+                metastat -p $FS |grep -i "c" |awk '{print $4}'| sed 's/\(.*\)../\1/' > /var/tmp/wipe/root_mirror_disks
+
+        elif [ $FS == d2 ];then
+
+                metastat -p $FS |grep -i "c" |awk '{print $4}'| sed 's/\(.*\)../\1/' > /var/tmp/wipe/root_mirror_disks
+
+        elif [ $FS == d3 ];then
+
+                metastat -p $FS |grep -i "c" |awk '{print $4}'| sed 's/\(.*\)../\1/' > /var/tmp/wipe/root_mirror_disks
+
+        elif [ $FS == d4 ];then
+
+                metastat -p $FS |grep -i "c" |awk '{print $4}'| sed 's/\(.*\)../\1/' > /var/tmp/wipe/root_mirror_disks
+
+        elif [ $FS == d5 ];then
+
+                metastat -p $FS |grep -i "c" |awk '{print $4}'| sed 's/\(.*\)../\1/' > /var/tmp/wipe/root_mirror_disks
+
+        elif [ $FS == d6 ];then
+
+                metastat -p $FS |grep -i "c" |awk '{print $4}'| sed 's/\(.*\)../\1/' > /var/tmp/wipe/root_mirror_disks
+
+        elif [ $FS == d7 ];then
+
+                metastat -p $FS |grep -i "c" |awk '{print $4}'| sed 's/\(.*\)../\1/' > /var/tmp/wipe/root_mirror_disks
+
+        elif [ $FS == d8 ];then
+
+                metastat -p $FS |grep -i "c" |awk '{print $4}'| sed 's/\(.*\)../\1/' > /var/tmp/wipe/root_mirror_disks
+
+        elif [ $FS == d9 ];then
+
+                metastat -p $FS |grep -i "c" |awk '{print $4}'| sed 's/\(.*\)../\1/' > /var/tmp/wipe/root_mirror_disks
+
+        elif [ $FS == d10 ];then
+
+                metastat -p $FS |grep -i "c" |awk '{print $4}'| sed 's/\(.*\)../\1/' > /var/tmp/wipe/root_mirror_disks
+
+        else
+
+ 			zpool status |grep -i "c" >/dev/null 2>&1
+
+        		if  [ $? == 0 ]
+
+                	then
+
+                	zpool status |grep -i "c" |egrep -v "scan|config|NAME"|awk '{print $1}' > /var/tmp/wipe/root_mirror_disks
+
+                	else
+
+                	df -k /|grep -v Filesystem|tr -s '/' ' ' |awk '{print $3}'|sed 's/\(.*\)../\1/' > /var/tmp/wipe/root_mirror_disks
+
+        fi
+
+fi
+
+             
+
+# Excluding  disk information
+
+
+
+#                        echo ""
+
+#                        echo ""${GREEN}Collecting disk information completed ${NORMAL}""
+
+                        echo ""
+
+                        echo "Please wait excluding rootdisk and rootmirror disks ............."
+
+                        fgrep -v -f /var/tmp/wipe/root_mirror_disks /var/tmp/wipe/disk_orig > /var/tmp/wipe/wipe.disk
+
+                        echo ""
+
+                        echo ""${GREEN}Excluded `cat /var/tmp/wipe/root_mirror_disks` disks ${NORMAL}""
+
+                        echo ""
+
+# disk wiping started
+
+
+
+                echo ""${BGRED}Start wiping data on `cat /var/tmp/wipe/wipe.disk` disks, DO YOU WANT TO MODIFY THE DISKS? [YES/NO] [Q/q for quit] :${NORMAL}""
+
+                read modify
+
+                                if [ $modify == YES ] || [ $modify == yes ]; then
+
+                                                echo ""
+
+                                                echo "Please enter disks which you want to purge the data" ;read modify_disk
+
+                                                echo "$modify_disk" > /var/tmp/wipe/wipe.disk
+
+                                                echo ""${FGRED}start purge disks .......${NORMAL}""
+
+                                                echo ""
+
+                                                echo "Once purging complete logs will mail to $mail .........!!"
+
+                                                echo "=======================================================================" >> /var/tmp/wipe/start_time
+
+                                                echo "purging starts at `date`" >> /var/tmp/wipe/start_time
+
+                                                echo "=======================================================================" >> /var/tmp/wipe/start_time
+
+                                        for wipe_disk in `cat /var/tmp/wipe/wipe.disk`
+
+                                                do
+
+                                                nohup format -f /var/tmp/wipe/wipe.file -l /var/tmp/wipe/log_$wipe_disk $wipe_disk > /dev/null &
+
+                                        done
+
+                                                nohup waitforpid.ksh &
+
+                        elif [ $modify == NO ] || [ $modify == no ]; then
+
+                                                echo ""${FGRED}Disk purge started.... If send mail is working, you will get mail with logs once it's done.......${NORMAL}""
+
+#                                                echo ""
+
+#                                                echo "Once purging complete logs will mail to $mail id .........!!"
+
+                                                echo "=======================================================================" >> /var/tmp/wipe/start_time
+
+                                                echo "purging starts at `date`" >> /var/tmp/wipe/start_time
+
+                                                echo "=======================================================================" >> /var/tmp/wipe/start_time
+
+                                	for wipe_disk in `cat /var/tmp/wipe/wipe.disk`
+
+                                        		do
+
+                                                nohup format -f /var/tmp/wipe/wipe.file -l /var/tmp/wipe/log_$wipe_disk $wipe_disk > /dev/null &
+
+                                        		done
+
+								nohup waitforpid.ksh &
+
+        else
+
+                        echo ""
+
+                        echo "User aborted ......."
+
+                        echo ""
+
+                        exit 0
+
+                        fi
+
+        else
+
+                mkdir -p /var/tmp/wipe
+
+                fi
+
+        else
+
+                echo ""
+
+                echo "User aborted ......."
+
+                echo ""
+
+                exit 0
+
+                fi
+
+        else
+
+                user=`id | cut -d= -f2 | cut -d\( -f2 |cut -d\) -f1`
+
+                echo  ""${BGRED} Sorry, you are NOT root user. you are $user user and cannot run this script ${NORMAL}""
+
+                echo ""
+
+        fi
+
+	else
+
+		echo ""${BGRED}Sorry DISK WIPE/PURGE is alredy running on this server ${NORMAL}""
+
+	fi
+
+exit 0 
+
+
+=================== waitfor pid script ==================
+#!/bin/ksh
+
+# Description:  Purging/wiping disks
+
+
+        for disk in `/usr/bin/cat /var/tmp/wipe/wipe.disk`
+
+        do
+
+        pid=`/usr/bin/ps -ef |/usr/bin/grep $disk |grep -v grep|/usr/bin/awk '{print $2}'`
+
+# Redirect stdout and stderr of the ps command to /dev/null
+
+       /usr/bin/ps -p$pid  > /dev/null 2>&1
+
+#Grab the status of the ps command
+
+       status=$?
+
+#A value of 0 means that it was found running
+
+   if [ "$status" == "0" ]
+
+       then
+
+       while [ "$status" == "0" ]
+
+       do
+
+       /usr/bin/sleep 10
+
+       /usr/bin/ps -p$pid > /dev/null 2>&1
+
+       status=$?
+
+       done
+
+#A value of non-0 means that it was NOT found running
+
+       else
+
+       echo Process with pid $pid is not running
+
+fi
+
+      done
+
+        cd /var/tmp/wipe
+
+#        ls -l log*|awk '{print $6" "$7" " $8" "$9}' > /var/tmp/wipe/time_end
+
+	   ls -l log*|awk '{print $6" "$7" " $8" "$9}' |tr -s "/" " " |sed -e s/log_/for" "disk" "/g > /var/tmp/wipe/time_end
+
+
+
+      for h in `ls log*`;do
+
+	  J=`echo $h|tr -s "log_" "    "`
+
+        echo "1i\n`/usr/bin/cat /var/tmp/wipe/start_time`  \n.\nwq" | /usr/bin/ex -s /var/tmp/wipe/$h
+
+        echo "=======================================================================" >> /var/tmp/wipe/$h
+
+        echo "Disk purging ends at `grep $J /var/tmp/wipe/time_end`" >> /var/tmp/wipe/$h
+
+        echo "=======================================================================" >> /var/tmp/wipe/$h
+
+        done
+
+# sending mail with purge logs
+
+        > /var/tmp/wipe/final_wipe
+
+        for log in `/usr/bin/ls /var/tmp/wipe |/usr/bin/grep log`;do
+
+        echo " -------------------------- $log --------------------------- " >> /var/tmp/wipe/final_wipe
+
+        echo "" >> /var/tmp/wipe/final_wipe
+
+        echo " `/usr/bin/cat /var/tmp/wipe/$log` " >> /var/tmp/wipe/final_wipe
+
+        echo "" >> /var/tmp/wipe/final_wipe
+
+        done
+
+	echo "===============================================" > /var/tmp/wipe/host_details
+
+
+	echo "Hardware :-" >> /var/tmp/wipe/host_details
+
+	uname -i >> /var/tmp/wipe/host_details
+
+	echo "" >> /var/tmp/wipe/host_details
+
+	echo "Memory :-" >> /var/tmp/wipe/host_details
+
+	prtconf |grep Memory >> /var/tmp/wipe/host_details
+
+	echo "" >> /var/tmp/wipe/host_details
+
+	echo "Disk info :-" >> /var/tmp/wipe/host_details
+
+	echo |format |grep SUN >> /var/tmp/wipe/host_details
+
+	echo "================================================" >> /var/tmp/wipe/host_details
+
+          tar -cf /var/tmp/wipe/final_wipe.tar /var/tmp/wipe/final_wipe;gzip /var/tmp/wipe/final_wipe.tar
+
+( cat/var/tmp/wipe/host_details;/var/tmp/wipe/final_wipe.tar.gz final_wipe.tar.gz )|/usr/bin/mailx -s "Disk wipe logs on `/usr/bin/uname -n` " $mail
+
+
+
+# Removing Log files #
+
+/usr/bin/rm /var/tmp/wipe/wipe.file
+
+/usr/bin/rm /var/tmp/wipe/disk_orig
+
+/usr/bin/rm /var/tmp/wipe/root_mirror_disks
+
+/usr/bin/rm /var/tmp/wipe/start_time
+
+/usr/bin/rm /var/tmp/wipe/wipe.disk
+
+/usr/bin/rm /var/tmp/wipe/pid
+
+/usr/bin/rm /var/tmp/wipe/final_wipe
+
+/usr/bin/rm /var/tmp/wipe/time_end
+
+/usr/bin/rm /var/tmp/wipe/host_details
+</pre>

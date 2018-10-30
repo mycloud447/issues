@@ -1,0 +1,40 @@
+---++ Doc Log 1139927485_01
+
+	$ Date: Tue Feb 14 14:31:25 2006
+	$ Summary: fault light on - alerted by HP engineer
+
+---++++ Details:
+<pre>
+alerted by HP after a walkthrough that a fault light was on 
+one of the netras -
+
+Checked via the LOM (connect to console and then use #. to 
+escape to the LOM) and there had been a short loss of power 
+but that was all recovered;
+lom>show eventlog
+Eventlog:
+   +392d+21h53m4s host reset
+   +399d+21h49m9s host reset
+   +406d+21h45m9s host reset
+   +413d+21h41m13s host reset
+   +420d+21h37m15s host reset
+   +427d+21h33m18s host reset
+   +434d+21h29m20s host reset
+   +437d+7h41m11s supply rail 6 FAULT: failed
+   +437d+7h41m11s Fault LED ON
+   +437d+7h44m21s supply rail 6 recovered
+lom>
+
+examining the output of the "environment" command showed 
+the fault light still on as well as one of the alarms, 
+cleared both of those and reset the checking and went back 
+to the console;
+lom>faultoff
+LOM event: +437d+13h55m48s Fault LED OFF
+lom>alarmoff 3
+LOM event: +437d+13h56m8s Alarm 3 OFF
+lom>check
+lom>console
+
+
+</pre>

@@ -1,0 +1,143 @@
+---++ Doc Log 1385894653_01
+        $ Date: Dec 01 16:14:13 2013
+        $ Summary: VxVM vxdctl ERROR V-5-1-16007  Data Corruption Protection Activated - User Corre
+
+---++++ Details:
+<pre>
+# vxdctl enable
+VxVM vxdctl ERROR V-5-1-16007  Data Corruption Protection Activated - User Corre
+To recover, first ensure that the OS device tree is up to date (requires OS spec
+Then, execute 'vxdisk rm' on the following devices before reinitiating device di
+        c10t500A09828DA1D406d1, c10t500A09828DA1D406d2, c10t500A09828DA1D406d0,
+        c10t500A09828D91D6B1d18, c10t500A09828D91D6B1d69, c10t500A09828D91D6B1d2
+        c10t500A09828D91D6B1d21, c10t500A09828D91D6B1d73, c10t500A09828D91D6B1d7  
+
+# vxdisk -oalldgs list |grep -i c10t500A09828DA1D406d1
+c10t500A09828DA1D406d1s2 auto:cdsdisk    -            (mndb_redodg) online thinrclm
+c10t500A09828DA1D406d10s2 auto:cdsdisk    -            (mndb_datadg) online thinrclm
+c10t500A09828DA1D406d11s2 auto:cdsdisk    -            (mndb_datadg) online thinrclm
+c10t500A09828DA1D406d12s2 auto:cdsdisk    -            (mndb_datadg) online thinrclm
+c10t500A09828DA1D406d13s2 auto:cdsdisk    -            (mndb_datadg) online thinrclm
+c10t500A09828DA1D406d14s2 auto:cdsdisk    -            (mndb_datadg) online thinrclm
+c10t500A09828DA1D406d15s2 auto:cdsdisk    -            (mndb_datadg) online thinrclm
+c10t500A09828DA1D406d16s2 auto:cdsdisk    -            (mndb_datadg) online thinrclm
+c10t500A09828DA1D406d17s2 auto:cdsdisk    -            (mndb_datadg) online thinrclm
+c10t500A09828DA1D406d18s2 auto:cdsdisk    -            (mndb_datadg) online thinrclm
+c10t500A09828DA1D406d19s2 auto:cdsdisk    -            (mndb_datadg) online thinrclm
+#
+
+A vxdctl command error will occur for data protection, after adding new Luns to the system.
+ 
+5.0MP3 features a way to detect "data corruption possibility" during device discovery.
+ 
+When inconsistency is found, DMP aborts reconfiguration and logs the message.
+ 
+1. If the systems are in clustered environment, then please freeze the system prior to refresh the VxVM config:
+Before the maintenance:
+#haconf -makerw
+#hasys -freeze -persistent -sys <sysname>
+#haconf dump
+
+After the maintenance:
+#haconf -makerw
+#hasys -unfreeze -persistent -sys <sysname>
+#haconf dump
+  
+2. Thereafter, Please use below procedure to recreate VxVM DMP devices:
+a)Update the OS device tree using OS tools
+#devfsadm -Cv   
+
+b) Update VxVM config
+#mv /etc/vx/array.info /etc/vx/array.info.old
+#mv /etc/vx/disk.info /etc/vx/disk.info.old
+
+Remove all the entries from the /dev/vx/dmp, and /dev/vx/rdmp directories except entires for bootdisk or bootmirror from the following directories.
+#rm -rf /dev/vx/dmp/*
+#rm -rf /dev/vx/rdmp/*
+ 
+3) Rebuild the DMP device tree.
+# vxconfigd -k
+
+Dynamic new LUN addition to a new target ID
+============================================
+In this case, a new group of LUNS is mapped to the host by multiple HBA ports. An OS device scan is issued for the LUNs to be recognized and added to DMP control.
+
+The high-level procedure and the VxVM commands are generic. However, the OS commands may vary for Solaris versions. This procedure uses Solaris 10 with Leadville stack as an example.
+
+To perform online LUN addition
+
+    Identify the LUNs to be added.
+
+    Use Storage Array Management to identify the IDs for the above LUNs.
+
+    Map/Mask the concerned LUNs to the new target IDs on multiple host ports.
+
+    Perform a Solaris device scan. For example:
+
+    #cfgadm -c configure c2
+    #cfgadm -c configure c3
+    #devfsadm -Cv
+
+    Repeat step 1 to step 2 until the required # of LUNs are visible.
+
+    If required, write an OS Label on the LUNs using the fmthard command.
+
+    Perform a device scan with Volume Manager:
+
+    # vxdctl enable
+
+    Verify that the devices are correctly added by answering the following questions:
+
+        Do the correct number of LUNs appear in vxdisk list?
+
+        Are there multiple paths for each LUN?
+
+    If the answer to any of these questions is no, you need to clean up the device tree.
+
+    You also need to clean up the device tree if the following message displays:
+
+    V-5-1-13788 Data Corruption Protection Activated - User Corrective Action Needed
+    vxvm:vxconfigd: [ID 702911 daemon.notice] V-5-1-13789 LUN serial number 6005076306FFC528000000000000112D of old node c3t50050 76306184528d11 does not match with LUN serial number 6005076306FFC528000000000000112F of new node c3t5005076306184528d11 even though both have same device number 118/376
+
+    The above message indicates that a new LUN is attempting to reuse the target ID of an older LUN. The device entries have not been cleaned, so the new LUN cannot use the target ID. DMP prevents this operation until the OS device tree is cleaned up.
+
+
+
+=======================================================================================
+You must clean up the device tree after removing LUNs. The OS commands may vary for Solaris versions. This procedure uses Solaris 10 with Leadville stack as an example.
+
+Contact Sun Support if any of the steps in this section fail to produce the wanted results.
+
+To clean up the device tree after you remove LUNs
+
+    The removed devices show up as drive not available in the output of the format command:
+
+    413. c3t5006048ACAFE4A7Cd252 <drive not available>
+            /pci@1d,700000/SUNW,qlc@1,1/fp@0,0/ssd@w5006048acafe4a7c,fc
+
+    After the LUNs are unmapped using Array management or the command line, Solaris also displays the devices as either unusable or failing.
+
+    bash-3.00# cfgadm -al -o show_SCSI_LUN | grep -i unusable
+      c2::5006048acafe4a73,256   disk  connected  configured unusable
+      c3::5006048acafe4a7c,255   disk  connected  configured unusable
+
+    bash-3.00# cfgadm -al -o show_SCSI_LUN | grep -i failing
+      c2::5006048acafe4a73,71    disk  connected configured  failing
+      c3::5006048acafe4a7c,252   disk  connected configured  failing
+
+    If the removed LUNs show up as failing, you need to force a LIP on the HBA. This operation probes the targets again, so that the device shows up as unusable. Unless the device shows up as unusable, it cannot be removed from the device tree.
+
+    luxadm -e forcelip /devices/pci@1d,700000/SUNW,qlc@1,1/fp@0,0:devctl
+
+    To remove the device from the cfgadm database, run the following commands on the HBA:
+
+    cfgadm -c unconfigure -o unusable_SCSI_LUN c2::5006048acafe4a73
+    cfgadm -c unconfigure -o unusable_SCSI_LUN c3::5006048acafe4a7c 
+
+    Repeat step 2 to verify that the LUNs have been removed.
+
+    Clean up the device tree. The following command removes the /dev/rdsk... links to /devices.
+
+    $devfsadm -Cv 
+
+</pre>

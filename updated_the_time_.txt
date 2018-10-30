@@ -1,0 +1,16 @@
+---++ Doc Log 1130868645_01
+<pre>
+	$ Date: Tue Nov 1 18:10:45 2005
+	$ Summary: updated the time 
+
+</pre>
+---++++ Details:
+<pre>
+
+ntp wasn't running, had died with error;
+
+/var/adm/messages.0:Oct 31 07:00:43  xntpd[479]: [ID 261039 daemon.error] time error -176405.465044 is way too large (set clock manually)
+
+with approval from app team stopped mqm (/etc/init.d/mq), 
+restarted ntp  (/etc/init.d/xntpd) and restarted mqm.
+</pre>

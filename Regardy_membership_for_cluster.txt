@@ -1,0 +1,84 @@
+---++ Doc Log 1134499591_01
+
+	$ Date: Tue Dec 13 18:46:31 2005
+	$ Summary: Regardy membership for cluster
+
+---++++ Details:
+<pre>
+RAC cluster is showing up in the VCS logs that it is in 
+Regardy membership.  Have traced this to seemingly close to 
+Jeopardy...checking the heartbeats;
+
+# lltstat -nvv
+LLT node information:
+	 Node					  State	 Link  Status  Address
+	* 0 test135	 OPEN	 
+									 ce2				UP		00:03:BA:5E:02:06
+									 ce5				UP		00:03:BA:5E:03:4D
+	  1 test125	 OPEN	 
+									 ce2				UP		00:03:BA:5E:00:93
+									 ce5				DOWN	 
+
+and similar shows up on test125 - it can see it's own ce5 as working
+but can't see test135 working.
+
+Have got to look at the cables...and they are marked as a direct
+connection, so assigning the ticket to Network to get this fixed...
+
+
+Problem is connection between following;
+
+test125 - IO6 - C3V1 (gigabit device)
+test135 - IO1 - C3V1 (gigabit device)
+
+these should be directly connected to each other (using a cross-over cable) - but they are not seeing each other.  
+
+---++++ Further Details taken from ticket
+
+*30 Dec 2005* call logged with Sun for analysis - 
+	* Sun say that panic was in the lmx module - VCS module.  Recommended contacting Veritas for fix.  Stack trace they found was thus; <pre>unix:panicsys+0x44 (0x104643f0, 0x2a1057f74b8, 0x10059410, 0x78002000, 0x30004f5a128, 0x0)
+unix:vpanic+0xcc (0x10059410, 0x2a1057f74b8, 0x1037e2e30, 0x3c00, 0x373f, 0x3400)
+unix:panic+0x1c (0x10059410, 0x104266b8, 0x3002d6fbef8, 0x300327963e0, 0x30078e26b80, 0x103829128)
+unix:mutex_panic+0x5c (0x104266b8, 0x3002d6fbef8, 0x0, 0x2, 0x0, 0x300228bc4c0)
+unix:mutex_enter - frame recycled
+lmx:lmxpollfunc+0x700 (0x0, 0x86, 0x0, 0x1, 0x1ed, 0x784357f0)
+lmx:lmxioctl+0x2b8 (0x1, 0x1, 0x1037e2e30, 0x0, 0x30004f5a128, 0x2a1057f782c)
+lmx:lmxsunioctl+0xac (0x11c000001ed, 0x373f, 0x1037e2e30, 0x78434c00, 0x30004f5a128, 0x2a1057f7aec)
+genunix:cdev_ioctl+0x40 (0x11c000001ed, 0x373f, 0x1037e2e30, 0x202003, 0x30004f5a128, 0x2a1057f7aec)
+specfs:spec_ioctl+0xb0 (0x3003dcb6c58, 0x373f, 0x1037e2e30, 0x202003, 0x30004f5a128, 0x2a1057f7aec)
+genunix:ioctl+0x1e4 (0x30063b05040, 0x5, 0x1037e2e30, 0x3c00, 0x373f, 0x3400)
+unix:syscall_trap+0x88 (0x5, 0x373f, 0x1037e2e30, 0x3c00, 0x5, 0x3400)
+
+The lmxpollfunc leads to a bad mutex which has caused the panic.</pre>
+
+*4 Jan 2006* call logged with Veritas - 
+
+*5 Jan 2006* Veritas are escalating to backline.  Accept it is a Veritas issue, believe fix in patch (cluster currently at MP3).
+
+*6 Jan 2006* Sun advised that the storage adapters may need upgrading and will be providing a Sun Checkup report
+	* Checkup report summary gives ORI of 147 -- 7 Critical, 3 High, 19 Medium, 5 Low faults (for full details see the IM)
+
+*9 Jan 2006* Closed for root cause to install patches (believe that Veritas recommended MP4)
+ 
+*Related IM 707008*
+	* ORA-29702 error with vcsmm
+	* only 3 of the 13 packages for veritas are not at MP3 and live cluster is mostly at MP2
+	* cluster needs to go down to get remaining packages fully at MP3 and put in tuning for vcsmm
+	* work done
+
+*Related RC 013044*
+	* altho' most of the RC was scoped around getting up to MP4, but as the patches were applied to get VRTScavf up to MP1 and VRTSdbac up to MP3 and the issues seem fixed, then we're all happy.
+
+Cluster messages haven't shown Regardy Membership message since 23 Dec 2005 (!) at 18:35 -- and cluster restarted on 26th at 21:00 (after panic).  So is all better now;
+<pre>
+ (root_test125)@/var/VRTSvcs/log # lltstat -nvv |more
+LLT node information:
+	 Node					  State	 Link  Status  Address
+	  0 test135	 OPEN	 
+									 ce2				UP		00:03:BA:5E:02:06
+									 ce5				UP		00:03:BA:31:C7:C0
+	* 1 test125	 OPEN	 
+									 ce2				UP		00:03:BA:5E:00:93
+									 ce5				UP		00:03:BA:5E:01:A5
+</pre>
+

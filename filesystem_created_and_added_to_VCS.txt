@@ -1,0 +1,51 @@
+---++ Doc Log 1134033300_01
+<pre>
+	$ Date: Thu Dec 08 09:15:00 2005
+	$ Summary: filesystem created and added to VCS
+</pre>
+---++++ Details:
+<pre>
+Created volume using available space in testdg (on node that 
+mastered the diskgroup), created filesystem, created directory for mount 
+on both nodes, tested mount and changed
+permissions to match others;
+
+vxdg -g testdg free
+vxassist -g testdg make v_u14_ugrt 8g oradump21
+mkfs -F vxfs -o largefiles /dev/vx/rdsk/testdg/v_u14_ugrt
+nsudu135# mkdir /u14/archivelogs/UGRT01
+nsucu125# mkdir /u14/archivelogs/UGRT01
+mount -F vxfs /dev/vx/dsk/testdg/v_u14_ugrt /u14/archivelogs/UGRT01
+chown oracle:oinstall /u14/archivelogs/UGRT01
+
+Unmounted and then went to VCS updates, note, tail -f'd the 
+/var/*vcs/log/engine_A.log file on one of the nodes while doing changes 
+in order to monitor;
+
+haconf -makerw
+hares -add cfs_mu14_ugrt CFSMount MDUuatdb
+hares -modify cfs_mu14_ugrt Critical 0
+hares -modify cfs_mu14_ugrt MountPoint "/u14/archivelogs/UGRT01"
+hares -modify cfs_mu14_ugrt BlockDevice "/dev/vx/dsk/testdg/v_u14_ugrt"
+hares -local cfs_mu14_ugrt MountOpt
+hares -modify cfs_mu14_ugrt MountOpt rw -sys nsudu135
+hares -modify cfs_mu14_ugrt MountOpt rw -sys nsucu125
+hares -modify cfs_mu14_ugrt Primary nsudu135
+hares -link cfs_mu14_ugrt cvm_dg_oradump_voldg
+hares -modify cfs_mu14_ugrt Enabled 1
+
+that stuff all went fine and was able to online resource okay on 
+both nodes.  But then went for the last step and stuffed up.  
+Accidentally tried to add the resource name instead of the volume
+name and the whole thing came down...should have used;
+
+hares -modify cvm_dg_oradump_voldg CVMVolume	v_u13 v_u14 v_u14_arch v_u14_ufrc v_u14_uncoms v_u14_UMRC01 v_u14_ugrt
+haconf -dump -makero
+
+Looking into why it took out the whole cluster, it turns out that 
+the diskgroup resource (cvm_dg_oradump_voldg) has not been set to 
+critical=0, so by default is seen as critical.
+
+Have now updated that so that this doesn't happen again.
+
+</pre>

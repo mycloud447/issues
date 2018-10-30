@@ -1,0 +1,174 @@
+---++ Doc Log 1143563198_01
+
+	$ Date: Tue Mar 28 16:26:38 2006
+	$ Summary: VCS Cluster reporting offline/online errors
+
+---++++ Details:
+
+The original fault reported by OPs was as follows,
+
+<pre>
+2006/03/28 14:12:28 VCS INFO V-16-1-10307 Resource mrc-etl-job (Owner: unknown, Group: Datastage) is offline on 095 (Not initiated by VCS)
+2006/03/28 14:12:28 VCS INFO V-16-6-15004 (095) hatrigger:Failed to send trigger for resfault; script doesn't exist
+2006/03/28 14:17:28 VCS INFO V-16-1-10299 Resource mrc-etl-job (Owner: unknown, Group: Datastage) is online on 095 (Not initiated by VCS)
+2006/03/28 14:17:28 VCS NOTICE V-16-1-10233 Clearing Restart attribute for group Datastage on all nodes
+2006/03/28 14:17:28 VCS NOTICE V-16-1-10447 Group Datastage is online on system 095
+2006/03/28 14:18:29 VCS ERROR V-16-2-13067 (095) Agent is calling clean for resource(mrc etl-job) because the resource became OFFLINE u
+nexpectedly, on its own.
+2006/03/28 14:18:29 VCS INFO V-16-2-13068 (095) Resource(mrc-etl-job) - clean completed successfully.
+</pre>
+
+Looking in the =engine_A.log= (/var/VRTSvcs/log)you will see these errors have been occurring since the day dot on the cluster.  The error relating to =trigger for resfault= is a furfy as the script is not there but it's very interesting what is going on with the offline/online problems.
+
+Firstly let's look at the resource which is at the heart of the problem, =mrc-etl-job=
+
+<pre>
+# ps -ef |grep "phantom DSD.RUN dssMrcMainSequence.VEX_START 0/0/0/0/0"
+  mrcadm 16928	  1  0 15:58:01 ?		  0:15 phantom DSD.RUN dssMrcMainSequence.VEX_START 0/0/0/0/0
+# hares -display mrc-etl-job
+mrc-etl-job  Group				global	  Datastage
+mrc-etl-job  Type				 global	  Application
+mrc-etl-job  AutoStart		  global	  1
+mrc-etl-job  Critical			global	  0
+mrc-etl-job  Enabled			 global	  1
+mrc-etl-job  LastOnline		 global	  095
+mrc-etl-job  MonitorOnly		global	  0
+mrc-etl-job  ResourceOwner	 global	  unknown
+mrc-etl-job  TriggerEvent	  global	  0
+mrc-etl-job  ArgListValues	 094	mrcadm "/mrc/script/MRC_ETL.sh -start dsp_mrc_prd /mrc/ds/dsp_mrc_prd/prm/mrc_etl_conf.xml" "/mrc/script/MRC_ETL.sh -stop dsp_mrc_prd /mrc/ds/dsp_mrc_prd/prm/mrc_etl_conf.xml" "" "" 0 1 "phantom DSD.RUN dssMrcMainSequence.VEX_START 0/0/0/0/0"
+mrc-etl-job  ArgListValues	 095	mrcadm "/mrc/script/MRC_ETL.sh -start dsp_mrc_prd /mrc/ds/dsp_mrc_prd/prm/mrc_etl_conf.xml" "/mrc/script/MRC_ETL.sh -stop dsp_mrc_prd /mrc/ds/dsp_mrc_prd/prm/mrc_etl_conf.xml" "" "" 0 1 "phantom DSD.RUN dssMrcMainSequence.VEX_START 0/0/0/0/0"
+mrc-etl-job  ConfidenceLevel  094	0
+mrc-etl-job  ConfidenceLevel  095	100
+mrc-etl-job  Flags				094
+mrc-etl-job  Flags				095
+mrc-etl-job  IState			  094	not waiting
+mrc-etl-job  IState			  095	not waiting
+mrc-etl-job  Probed			  094	1
+mrc-etl-job  Probed			  095	1
+mrc-etl-job  Start				094	0
+mrc-etl-job  Start				095	1
+mrc-etl-job  State				094	OFFLINE
+mrc-etl-job  State				095	ONLINE
+mrc-etl-job  CleanProgram	  global
+mrc-etl-job  ComputeStats	  global	  0
+mrc-etl-job  MonitorProcesses global	  "phantom DSD.RUN dssMrcMainSequence.VEX_START 0/0/0/0/0"
+mrc-etl-job  MonitorProgram	global
+mrc-etl-job  PidFiles			global
+mrc-etl-job  ResourceInfo	  global	  State Stale Msg  TS
+mrc-etl-job  StartProgram	  global	  /mrc/script/MRC_ETL.sh -start dsp_mrc_prd /mrc/ds/dsp_mrc_prd/prm/mrc_etl_conf.xml
+mrc-etl-job  StopProgram		global	  /mrc/script/MRC_ETL.sh -stop dsp_mrc_prd /mrc/ds/dsp_mrc_prd/prm/mrc_etl_conf.xml
+mrc-etl-job  User				 global	  mrcadm
+mrc-etl-job  MonitorTimeStats 094	Avg 0 TS
+mrc-etl-job  MonitorTimeStats 095	Avg 0 TS
+</pre>
+
+Looking at the ArgListValues,
+
+<pre>
+mrc-etl-job  ArgListValues	 094	mrcadm "/mrc/script/MRC_ETL.sh -start dsp_mrc_prd /mrc/ds/dsp_mrc_prd/prm/mrc_etl_conf.xml" "/mrc/script/MRC_ETL.sh -stop dsp_mrc_prd /mrc/ds/dsp_mrc_prd/prm/mrc_etl_conf.xml" "" "" 0 1 "phantom DSD.RUN dssMrcMainSequence.VEX_START 0/0/0/0/0"
+</pre>
+
+you can see it's monitoring the following process string
+
+<pre>
+"phantom DSD.RUN dssMrcMainSequence.VEX_START 0/0/0/0/0"
+</pre>
+
+An easier way to see this is in the =main.cf= file,
+
+<pre>
+ Application mrc-etl-job (
+					 Critical = 0
+					 User = mrcadm
+					 StartProgram = "/mrc/script/MRC_ETL.sh -start dsp_mrc_prd /mrc/ds/dsp_mrc_prd/prm/mrc_etl_conf.xml"
+					 StopProgram = "/mrc/script/MRC_ETL.sh -stop dsp_mrc_prd /mrc/ds/dsp_mrc_prd/prm/mrc_etl_conf.xml"
+					 MonitorProcesses = {
+								 "phantom DSD.RUN dssMrcMainSequence.VEX_START 0/0/0/0/0" }
+					 )
+</pre>
+
+*NOW* from what I have observed it looks like the process ="phantom DSD.RUN dssMrcMainSequence.VEX_START 0/0/0/0/0"= dies or finishes every now and then and *sometimes* this coincides with VCS running its monitor.  Now if VCS notices the process is not running the following error will be seen,
+
+<pre>
+2006/03/28 14:12:28 VCS INFO V-16-1-10307 Resource mrc-etl-job (Owner: unknown, Group: Datastage) is offline on 095 (Not initiated by VCS)
+</pre>
+
+as according to VCS the process was "stopped" or "killed" outside of cluster.  However when the VCS monitor checks next time the Application has created a new process with the exact same process string and VCS thinks all is Hunky Dory (O worship Mr. Bowie) and issues the next message,
+
+<pre>
+2006/03/28 14:17:28 VCS INFO V-16-1-10299 Resource mrc-etl-job (Owner: unknown, Group: Datastage) is online on 095 (Not initiated by VCS)
+2006/03/28 14:17:28 VCS NOTICE V-16-1-10233 Clearing Restart attribute for group Datastage on all nodes
+2006/03/28 14:17:28 VCS NOTICE V-16-1-10447 Group Datastage is online on system 095
+2006/03/28 14:18:29 VCS ERROR V-16-2-13067 (095) Agent is calling clean for resource(mrc etl-job) because the resource became OFFLINE u
+nexpectedly, on its own.
+2006/03/28 14:18:29 VCS INFO V-16-2-13068 (095) Resource(mrc-etl-job) - clean completed successfully.
+</pre>
+
+and cleans up all its failed flags etc....
+
+If you look at the process VCS is monitoring it appears to be the parent process of other jobs,
+
+<pre>
+# ptree 16928
+16928 phantom DSD.RUN dssMrcMainSequence.VEX_START 0/0/0/0/0
+  17990 phantom DSD.RUN dssVexDataFeedPooling. 0/0/1/0/0
+	 18985 phantom DSD.RUN dssVEGenVEXFeed. 0/0/1/0/0
+		29957 phantom DSD.RUN dssVEGHQEnrichVaRNode. 0/0/1/0/0
+		  1021  phantom DSD.RUN dsjVEPNLEnrichJoin.aggr_for_others 0/0/1/0/0
+			 1064  phantom SH -c 'RT_SC2426/OshExecuter.sh RT_SC2426/OshScript.osh RT_SCTEMP/dsjVE
+				1067  SH -c RT_SC2426/OshExecuter.sh RT_SC2426/OshScript.osh RT_SCTEMP/dsjVEPNLEnrich
+				  1068  /bin/sh RT_SC2426/OshExecuter.sh RT_SC2426/OshScript.osh RT_SCTEMP/dsjVEPNLEnri
+					 1069  /opt/Ascential/DataStage/PXEngine/bin/osh -monitorport 13400 -pf RT_SC2426/jpfi
+			 1070  phantom DSD.OshMonitor dsjVEPNLEnrichJoin.aggr_for_others 1069 MSEVENTS.FALSE
+</pre>
+
+
+---+++Summary
+
+As this appears to be a problem since day one the ticket was sent to the Apps group to explain what the app is doing.  It may be fixed by changing one of the timeout values but that is really a sticky plaster approach.  Awating more info.....  Of course we could still be missing something :-)
+
+If you look at the resource you will see it is set to non-critical.  One could believe this was set so this issue did not fail the services to the other node.
+
+For completeness the VCS Type is =Application=, this is just a default bucket for any app.  The setting are,
+
+<pre>
+# hatype -display Application
+#Type		  Attribute				  Value
+Application  ActionTimeout			 40
+Application  AgentClass				 TS
+Application  AgentFailedOn
+Application  AgentPriority			 0
+Application  AgentReplyTimeout		130
+Application  AgentStartTimeout		60
+Application  ArgList					 User StartProgram StopProgram CleanProgram MonitorProgram PidFiles MonitorProcesses
+Application  AttrChangedTimeout	  60
+Application  CleanTimeout			  60
+Application  CloseTimeout			  60
+Application  ConfInterval			  600
+Application  FaultOnMonitorTimeouts 4
+Application  FireDrill				  0
+Application  InfoInterval			  0
+Application  InfoTimeout				30
+Application  LogDbg
+Application  LogFileSize				33554432
+Application  MonitorInterval		  60
+Application  MonitorStatsParam		Frequency 0 ExpectedValue 100 ValueThreshold 100 AvgThreshold 40
+Application  MonitorTimeout			60
+Application  NumThreads				 10
+Application  OfflineMonitorInterval 300
+Application  OfflineTimeout			300
+Application  OnlineRetryLimit		 0
+Application  OnlineTimeout			 300
+Application  OnlineWaitLimit		  2
+Application  OpenTimeout				60
+Application  Operations				 OnOff
+Application  RestartLimit			  0
+Application  ScriptClass				TS
+Application  ScriptPriority			0
+Application  SourceFile				 ./types.cf
+Application  SupportedActions
+Application  ToleranceLimit			0
+</pre>
+
+
+

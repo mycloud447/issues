@@ -1,0 +1,104 @@
+---++ Doc Log 1175251483_01
+
+	$ Date: Fri Mar 30 10:44:43 2007
+	$ Summary: Find examples
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+find . -type f -size +10000 -exec ls -al {} \;
+find . -atime +1 -type f -exec mv {} TMP \; # mv files older then 1 day to dir TMP
+find . -name "-F" -exec rm {} \;   # a script error created a file called -F 
+find . -exec grep -i "vds admin" {} \;
+find . \! -name "*.Z" -exec compress -f {} \;
+find . -type f \! -name "*.Z" \! -name ".comment" -print | tee -a /tmp/list
+find . -name *.ini
+find . -exec chmod 775 {} \;
+find . -user xuser1 -exec chown -R user2 {} \;
+find . -name ebtcom*
+find . -name mkbook
+find . -exec grep PW0 {} \;
+find . -exec grep -i "pw0" {} \;
+find . -atime +6
+find . -atime +6 -exec ll | more
+find . -atime +6 -exec ll | more \;
+find . -atime +6 -exec ll \;
+find . -atime +6 -exec ls \;
+find . -atime +30 -exec ls \;
+find . -atime +30 -exec ls \; | wc -l
+find . -name auth*
+find . -exec grep -i plotme10 {};
+find . -exec grep -i plotme10 {} \;
+find . -ls -exec grep 'PLOT_FORMAT 22' {} \;
+find . -print -exec grep 'PLOT_FORMAT 22' {} \;
+find . -print -exec grep 'PLOT_FORMAT' {} \;
+find . -print -exec grep 'PLOT_FORMAT' {} \;
+find ./machbook -exec chown 184 {} \;
+find . \! -name '*.Z' -exec compress {} \;
+find . \! -name "*.Z" -exec compress -f {} \;
+find /raid/03c/ecn -xdev -type f -print
+find /raid/03c/ecn -xdev -path -type f -print
+find / -name .ssh* -print | tee -a ssh-stuff
+find . -name "*font*"
+find . -name hpmcad*
+find . -name *fnt*
+find . -name hp_mcad* -print
+find . -grep Pld {} \;
+find . -exec grep Pld {} \;
+find . -exec grep Pld {} \;
+find . -exec grep PENWIDTH {} \; | more
+find . -name config.pro
+find . -name config.pro
+find /raid -type d ".local_sd_customize" -print
+find /raid -type d -name ".local_sd_customize" -print
+find /raid -type d -name ".local_sd_customize" -ok cp /raid/04d/MCAD-apps/I_Custom/SD_custom/site_sd_customize/user_filer_project_dirs {} \;
+find /raid -type d -name ".local_sd_customize" -exec cp /raid/04d/MCAD-apps/I_Custom/SD_custom/site_sd_customize/user_filer_project_dirs {} \;
+find . -name xeroxrelease
+find . -exec grep xeroxrelease {} \;
+find . -name xeroxrelease
+find . -name xeroxrelease* -print 2>/dev/null
+find . -name "*release*" 2>/dev/null
+find / -name "*xerox*" 2>/dev/null
+find . -exec grep -i xeroxrelease {} \;
+find . -print -exec grep -i xeroxrelease {} \;
+find . -print -exec grep -i xeroxrelease {} \; > xeroxrel.lis
+find . -exec grep -i xeroxrel {} \;
+find . -print -exec grep -i xeroxrel {} \;
+find . -print -exec grep -i xeroxrel {} \; | more
+find /raid/03c/inwork -xdev -type f -print >> /raid/04d/user_scripts/prt_list.tmp
+find . -exec grep '31.53' {} \;
+find . -ls -exec grep "31/.53" {} \; > this.lis
+find . -print -exec grep "31/.53" {} \; > this.lis
+find . -print -exec grep 31.53 {} \; > this.lis
+find . -exec grep -i pen {} /;
+find . -exec grep -i pen {} \;
+find . -print -exec grep -i pen {} \; | more
+find . -exec grep -i pen {} \;
+find . -atime +6 -exec ll | more \;
+find . -atime +6 -exec ll \;
+find . -atime +6 -exec ls \;
+find . -atime +30 -exec ls \;
+find . -atime +30 -exec ls \; | wc -l
+find . \! -name '*.Z' -exec compress -f {} \;
+find . -name 'cache*' -depth -exec rm {} \;
+find . -name 'cache*' -depth -print | tee -a /tmp/cachefiles
+find . -name 'cache[0-9][0-9]*' -depth -print | tee -a /tmp/cachefiles
+find . -name 'hp_catfile' 'hp_catlock' -depth -print | tee -a /tmp/hp.cats
+find . -name 'hp_catfile' -name 'hp_catlock' -depth -print | tee -a /tmp/hp.cats
+find . -name 'hp_cat*' -depth -print | tee -a /tmp/hp.cats
+find . -name 'hp_cat[fl]*' -depth -print | tee -a /tmp/hp.cats
+find /raid -name 'hp_cat[fl]*' -depth -print
+find . \! -name '*.Z' -exec compress -f {} \;
+find . -name '*' -exec compress -f {} \;
+find . -xdev -name "wshp1*" -print
+find . -xdev -name "wagoneer*" -print
+find . -name "xcmd" -depth -print
+find /usr/contrib/src -name "xcmd" -depth -print
+find /raid -type d -name ".local_sd_customize" -exec ls {} \; 
+find /raid -type d -name ".local_sd_customize" \
+   -exec cp /raid/04d/MCAD-apps/I_Custom/SD_custom/site_sd_customize/user_filer_project_dirs {} \;
+
+find /var/sadm/pkg -name undo.Z -o -name obsolete.Z -mtime +180  | xargs rm -f
+find /var -xdev -type f -size +100000 -exec ls -lh {} \;
+
+</pre>

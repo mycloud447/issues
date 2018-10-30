@@ -1,0 +1,11 @@
+---++ Doc Log 1144257173_01
+
+	$ Date: Wed Apr 05 17:12:53 2006
+	$ Summary: PROVIDER RUNNER ERROR: srsxfer returned an error
+
+---++++ Details:
+<pre>
+PROVIDER RUNNER ERROR: srsxfer returned an error
+
+Removed SRS which stop this error fron re-occuring.
+</pre>

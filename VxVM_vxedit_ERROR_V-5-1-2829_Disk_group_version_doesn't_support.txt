@@ -1,0 +1,47 @@
+---++ Doc Log 1384305083_01
+        $ Date: Nov 13 06:41:23 2013
+        $ Summary: VxVM vxedit ERROR V-5-1-2829 Disk group version doesn't support
+
+---++++ Details:
+<pre>
+Upgrading a disk group
+========================
+Prior to the release of Veritas Volume Manager 3.0, the disk group version was automatically upgraded (if needed) when the disk group was imported.
+
+Note:
+
+On some platforms, the first release of Veritas Volume Manager was 3.0 or 3.2.
+
+From release 3.0 of Veritas Volume Manager, the two operations of importing a disk group and upgrading its version are separate. You can import a disk group from a previous version and use it without upgrading it.
+
+When you want to use new features, the disk group can be upgraded. The upgrade is an explicit operation. Once the upgrade occurs, the disk group becomes incompatible with earlier releases of VxVM that do not support the new version.
+
+Until the disk group is upgraded, it may still be deported back to the release from which it was imported.
+
+Until completion of the upgrade, the disk group can be used "as is" provided there is no attempt to use the features of the current version. There is no "downgrade" facility. For disk groups which are shared among multiple servers for failover or for off-host processing, verify that the VxVM release on all potential hosts that may use the disk group supports the diskgroup version to which you are upgrading.
+
+Attempts to use a feature of the current version that is not a feature of the version from which the disk group was imported results in an error message similar to this:
+
+VxVM vxedit ERROR V-5-1-2829 Disk group version doesn't support
+
+feature
+
+To use any of the new features, you must run the vxdg upgrade command to explicitly upgrade the disk group to a version that supports those features.
+
+All disk groups have a version number associated with them. Veritas Volume Manager releases support a specific set of disk group versions. VxVM can import and perform operations on a disk group of that version. The operations are limited by what features and operations the disk group version supports.
+
+To list the version of a disk group, use this command:
+
+
+
+# vxdg list dgname 
+
+To upgrade a disk group to the highest version supported by the release of VxVM that is currently running, use this command:
+
+
+# vxdg upgrade dgname 
+
+To create a disk group with a previous version, specify the -T version option to the vxdg init command
+
+# vxdg -T 40 init newdg newdg01=c0t3d0s2
+</pre>

@@ -1,0 +1,288 @@
+<pre>
+How To Configure FSS Shares
+
+# ps -eafc|grep -i fss|grep -i vrts
+root  8909     1  FSS  59   Oct 08 ?         142:32 /opt/VRTSsmf/bin/vxsmf.bin -p RootSMF -B
+root  8877     1  FSS  59   Oct 08 ?           2:01 /opt/VRTSdcli/xprtl/bin/xprtld /opt/VRTSdcli/xprtl/etc/xprtld.conf
+root  8925  8909  FSS  59   Oct 08 ?         143:23 /opt/VRTSsmf/bin/vxsmf.bin -p ICS -c /etc/vx/VxSMF/VxSMF.cfg –parentversion 1.
+root  8844     1  FSS  59   Oct 08 ?           0:00 /opt/VRTSpbx/bin/pbx_exchange
+root  9930     1  FSS  59   Oct 08 ?           5:38 /opt/VRTSvcs/bin/CmdServer
+root  8357  4691  FSS  59 06:32:54 ?           0:00 /opt/VRTSvxfs/sbin/vxfsstat -a -e 2 -c 2 -t 2 /zones/filesystems/amtflwp1/data/
+root  8349 12047  FSS  59 06:32:54 ?           0:00 /opt/VRTSvxfs/sbin/vxfsstat -b -e 2 -c 2 -t 2 /zones/filesystems/itapp1/data/or
+root  8396 22721  FSS  59 06:32:54 pts/2       0:00 grep -i vrts
+
+Note :- Check pset should be set or not, if not don’t start working on it.
+
+# pooladm
+system default
+string  system.comment
+int     system.version 1
+boolean system.bind-default true
+string  system.poold.objectives wt-load
+pool test1-pool
+int     pool.sys_id 5
+boolean pool.active true
+boolean pool.default false
+string  pool.scheduler FSS
+int     pool.importance 1
+string  pool.comment
+pset    pset_default
+pool test2-pool
+int     pool.sys_id 4
+boolean pool.active true
+boolean pool.default false
+string  pool.scheduler FSS
+int     pool.importance 1
+string  pool.comment
+pset    pset_default
+pool test6-pool
+int     pool.sys_id 7
+boolean pool.active true
+boolean pool.default false
+string  pool.scheduler FSS
+int     pool.importance 1
+string  pool.comment
+pset pset_default
+int     pset.sys_id -1
+boolean pset.default true
+uint    pset.min 1
+uint    pset.max 65536
+string  pset.units population
+uint    pset.load 5774
+uint    pset.size 64
+string  pset.comment
+
+# zoneadm list -iv
+ID NAME             STATUS     PATH                           BRAND    IP
+0 global           running    /                              native   shared
+2 test1           running    /zones/hosts/test1            native   shared
+3 test2         running    /zones/hosts/test2          native   shared
+4 test3         running    /zones/hosts/test3          native   shared
+6 test4         running    /zones/hosts/test4          native   shared
+8 test5          running    /zones/hosts/test5           native   shared
+9 test6           running    /zones/hosts/test6            native   shared
+11 test7          running    /zones/hosts/test7           native   shared
+12 test8          running    /zones/hosts/test8           native   shared
+13 test9          running    /zones/hosts/test9           native   shared
+14 test10       running    /zones/hosts/test10        native   shared
+
+cd /etc/zones
+
+# cp -p test4.xml test4.xml.03Dec2012
+# cp -p test5.xml test5.xml.03Dec2012
+# cp -p test7.xml test7.xml.03Dec2012
+# cp -p test7.xml test7.xml.03Dec2012
+# cp -p test6.xml test6.xml.03Dec2012
+# cp -p test3.xml test3.xml.03Dec2012
+# cp -p test8.xml test8.xml.03Dec2012
+# cp -p test10.xml test10.xml.03Dec2012
+# cp -p test9.xml test9.xml.03Dec2012
+# cd /etc/VRTSvcs/conf/config
+
+# cp -p /etc/VRTSvcs/conf/config/main.cf main.cf.03Dec2011
+
+# cd  /zones/scripts
+
+# ./zonecap -c
+ID     NAME                     SHARES(thr)   CAP(thr)   USED(thr)   USED SHARES(%)   USED CAP(%)
+11     test7                            8          8        1.58               19            19
+12     test8                            8          0        0.00                0             0
+13     test9                            8          8        0.15                1             1
+14     test10                         8          8        0.24                3             3
+2      test1                             1          1        0.00                0             0
+3      test2                           8          8        0.00                0             0
+4      test3                           8          8        0.01                0             0
+6      test4                           4          4        0.01                0             0
+8      test5                            4          4        0.06                1             1
+9      test6                            16         16        0.06                0             0
+
+# ./zonefss -l
+ID NAME                     SHARES
+0 global                   3200 (30%)
+2 test1                   100 (0%)
+3 test2                 800 (7%)
+4 test3                 800 (7%)
+6 test4                 400 (3%)
+8 test5                  400 (3%)
+9 test6                   1600 (15%)
+11 test7                  800 (7%)
+12 test8                  800 (7%)
+13 test9                  800 (7%)
+14 test10               800 (7%)
+
+# prctl -P -i zone test4
+zone: 6: test4
+zone.max-swap system 18446744073709551615 max deny -
+zone.max-locked-memory system 18446744073709551615 max deny -
+zone.max-shm-memory system 18446744073709551615 max deny -
+zone.max-shm-ids system 16777216 max deny -
+zone.max-sem-ids system 16777216 max deny -
+zone.max-msg-ids system 16777216 max deny -
+zone.max-lwps system 2147483647 max deny -
+zone.cpu-cap privileged 400 – deny -
+zone.cpu-cap system 4294967295 inf deny -
+zone.cpu-shares privileged 400 – none -
+zone.cpu-shares system 65535 max none -
+
+#hastatus -summ
+– SYSTEM STATE
+A  cluster1        RUNNING              0
+A  cluster2        RUNNING              0
+– GROUP STATE
+B  test4        cluster1        Y          N               ONLINE
+B  test4        cluster2        Y          N               OFFLINE
+B  dbcelu01        cluster2        Y          N               ONLINE
+B  test5         cluster1        Y          N               ONLINE
+B  test5         cluster2        Y          N               OFFLINE
+B  dbrasu1         cluster2        Y          N               ONLINE
+B  test7         cluster1        Y          N               ONLINE
+B  test7         cluster2        Y          N               OFFLINE
+B  dbsymu5         cluster2        Y          N               ONLINE
+B  test2        cluster1        Y          N               ONLINE
+B  test2        cluster2        Y          N               OFFLINE
+B  dvldapu2        cluster2        Y          N               ONLINE
+B  test6          cluster1        Y          N               ONLINE
+B  test6          cluster2        Y          N               OFFLINE
+B  test3        cluster1        Y          N               ONLINE
+B  test3        cluster2        Y          N               OFFLINE
+B  gmdtnu01        cluster2        Y          N               ONLINE
+B  test8         cluster1        Y          N               ONLINE
+B  test8         cluster2        Y          N               OFFLINE
+B  ldapeu6         cluster2        Y          N               ONLINE
+B  test10      cluster1        Y          N               ONLINE
+B  test10      cluster2        Y          N               OFFLINE
+B  mnicb           cluster1        Y          N               ONLINE
+B  mnicb           cluster2        Y          N               ONLINE
+B  test1          cluster1        Y          N               ONLINE
+B  test1          cluster2        Y          N               OFFLINE
+B  test9         cluster1        Y          N               ONLINE
+B  test9         cluster2        Y          N               OFFLINE
+B  ribdbu1         cluster2        Y          N               ONLINE
+
+# hagrp -resources test4|grep -i ZON
+test4_ZON
+
+# hares -display test4_ZON |egrep “CpuCap|Share”
+test4_ZON CpuCap           global        400
+test4_ZON Shares           global        400
+
+# haconf -makerw
+
+# hares -modify test4_ZON CpuCap 0
+
+#  hares -display test4_ZON |egrep “CpuCap|Share”
+test4_ZON CpuCap           global        0
+test4_ZON Shares           global        400
+
+# prctl -P -i zone test4|grep -i zone.cpu-cap
+zone.cpu-cap privileged 400 – deny -
+zone.cpu-cap system 4294967295 inf deny -
+
+# prctl -r -t privileged -n zone.cpu-cap -v 4294967295 -i zone test4   —> dont use this, please use the below.
+
+#  prctl -x  -n zone.cpu-cap   -i zone dbeng
+
+# prctl -P -i zone test4|grep -i zone.cpu-cap
+zone.cpu-cap privileged 4294967295 – deny -
+zone.cpu-cap system 4294967295 inf deny -
+
+# hares -modify test7_ZON Share 400
+
+# prctl -r -t privileged -n zone.cpu-shares -v 400 -i zone test7
+
+# prctl -P -i zone test7
+zone: 11: test7
+zone.max-swap system 18446744073709551615 max deny -
+zone.max-locked-memory system 18446744073709551615 max deny -
+zone.max-shm-memory system 18446744073709551615 max deny -
+zone.max-shm-ids system 16777216 max deny -
+zone.max-sem-ids system 16777216 max deny -
+zone.max-msg-ids system 16777216 max deny -
+zone.max-lwps system 2147483647 max deny -
+zone.cpu-cap privileged 4294967295 – deny -
+zone.cpu-cap system 4294967295 inf deny -
+zone.cpu-shares privileged 400 – none -
+zone.cpu-shares system 65535 max none -
+
+# ./zonecap -c
+ID     NAME                     SHARES(thr)   CAP(thr)   USED(thr)   USED SHARES(%)   USED CAP(%)
+11     test7                            4          0        0.00                0             0
+12     test8                            8          0        0.00                0             0
+13     test9                            8          0        0.00                0             0
+14     test10                         8          0        0.00                0             0
+2      test1                             1          1        0.00                0             0
+3      test2                           1          0        0.00                0             0
+4      test3                           8          0        0.00                0             0
+6      test4                           4          0        0.00                0             0
+8      test5                            4          0        0.00                0             0
+9      test6                            16          0        0.00                0             0
+
+# haconf -dump -makero
+
+ROOT#cat /tmp/test
+######## zone cluster group names ###############
+test1
+test2
+test3
+test4
+test5
+test6
+test7
+test8
+test9
+test10
+test11
+#for i in `cat /tmp/test`^Jdo^Jhagrp -resources $i |grep -i ZON^Jdone
+ZONE_test1
+test2_ZON
+ZONE_test3
+test4_ZON
+test5_ZON
+ZONE_test6
+ZONE_test7
+ZONE_test8
+ZONE_test9
+ZONE_test10
+ZONE_test11
+
+#cat /tmp/test1
+ZONE_test1
+test2_ZON
+ZONE_test3
+test4_ZON
+test5_ZON
+ZONE_test6
+ZONE_test7
+ZONE_test8
+ZONE_test9
+ZONE_test10
+ZONE_test11
+
+# for i in `cat /tmp/test1`
+# do
+# hares -display $i |egrep “CpuCap|Share”
+# echo “”
+# done
+ZONE_test1 CpuCap          global        0
+ZONE_test1 Shares          global        100
+test2_ZON CpuCap           global        0
+test2_ZON Shares           global        400
+ZONE_test3 CpuCap          global        0
+ZONE_test3 Shares          global        800
+test4_ZON CpuCap           global        0
+test4_ZON Shares           global        800
+test5_ZON    CpuCap           global        0
+test5_ZON    Shares           global        200
+ZONE_test6 CpuCap           global        0
+ZONE_test6 Shares           global        300
+ZONE_test7 CpuCap         global        0
+ZONE_test7 Shares         global        100
+ZONE_test8 CpuCap       global        0
+ZONE_test8 Shares       global        100
+ZONE_test9 CpuCap          global        0
+ZONE_test9 Shares          global        100
+ZONE_test10 CpuCap          global        0
+ZONE_test10 Shares          global        400
+ZONE_test11 CpuCap           global        0
+ZONE_test11 Shares           global        1600
+</pre>

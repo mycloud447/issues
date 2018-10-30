@@ -1,0 +1,77 @@
+---++ Doc Log 1181571962_01
+
+	$ Date: Mon Jun 11 14:26:02 2007
+	$ Summary: Split brains fixs
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+the following commands fixed it.
+
+# vxdg deport dg05_130
+# /etc/vx/bin/vxsplitlines -g dg05_130
+# /usr/sbin/vxdg -f -o selectcp=1173857769.160.abc060 import dg05_130
+# vxprint -g dg05_130 -m | egrep '^dm|ssbid'
+dm   dg05_d01
+        ssbid=0.8
+dm   dg05_d02
+        ssbid=0.8
+dm   dg05_d03
+        ssbid=0.8
+dm   dg05_d04
+        ssbid=0.0
+dm   dg05_d05
+        ssbid=0.7
+dm   dg05_d06
+        ssbid=0.7
+# vxdisk list Disk_0 | grep ssb
+ssb:       actual_seqno=0.0
+# vxdisk list Disk_1 | grep ssb
+ssb:       actual_seqno=0.0
+# vxdisk list Disk_2 | grep ssb
+ssb:       actual_seqno=0.0
+# vxdisk list Disk_8 | grep ss
+ssb:       actual_seqno=0.0
+# vxdisk list Disk_9 | grep ssb
+ssb:       actual_seqno=0.0
+# vxdisk list Disk_10 | grep ssb
+ssb:       actual_seqno=0.0
+# vxdg deport dg05_130
+# /etc/vx/bin/vxsplitlines -g dg05_130 -c Disk_0
+  VxVM vxsplitlines INFO V-5-2-2701 DANAME(DMNAME)      || Actual SSB
+|| Expected SSB
+  VxVM vxsplitlines INFO V-5-2-2700 Disk_0( dg05_d01 )          || 0.0
+|| 0.8 ssb ids don't match
+  VxVM vxsplitlines INFO V-5-2-2700 Disk_1( dg05_d02 )          || 0.0
+|| 0.8 ssb ids don't match
+  VxVM vxsplitlines INFO V-5-2-2700 Disk_2( dg05_d03 )          || 0.0
+|| 0.8 ssb ids don't match
+  VxVM vxsplitlines INFO V-5-2-2700 Disk_9( dg05_d05 )          || 0.0
+|| 0.7 ssb ids don't match
+  VxVM vxsplitlines INFO V-5-2-2700 Disk_10( dg05_d06 )         || 0.0
+|| 0.7 ssb ids don't match
+  VxVM vxsplitlines INFO V-5-2-2706
+# /etc/vx/diag.d/vxprivutil set /dev/rdsk/c6t5006016A30600378d0s2 ssbid=0.8
+# /etc/vx/diag.d/vxprivutil set /dev/rdsk/c6t5006016A30600378d2s2 ssbid=0.8
+# /etc/vx/diag.d/vxprivutil set /dev/rdsk/c6t5006016A30600378d4s2 ssbid=0.8
+# /etc/vx/diag.d/vxprivutil set /dev/rdsk/c4t5006016330600378d3s2 ssbid=0.7
+# /etc/vx/diag.d/vxprivutil set /dev/rdsk/c4t5006016330600378d5s2 ssbid=0.7
+# /usr/sbin/vxdg -f import dg05_130
+# vxdg -g dg05_130 -k adddisk dg05_d04=Disk_8
+# vxdisk -o alldgs list
+
+# vxvol -g dg05_130 -f start algo54
+# vxprint -g dg05_130 -th
+
+: root@:/# mount /opt/algo.54
+UX:vxfs mount: ERROR: V-3-21268: /dev/vx/dsk/dg05_130/algo54 is corrupted. needs checking
+
+: root@:/# fsck -o full /dev/vx/dsk/dg05_130/algo54
+log replay in progress
+
+: root@:/# mount /opt/algo.54
+: root@:/# df -k /opt/algo.54
+Filesystem            kbytes    used   avail capacity  Mounted on
+/dev/vx/dsk/dg05_130/algo54
+                     104857600 53915027 47759497    54%    /opt/algo.54
+</pre>

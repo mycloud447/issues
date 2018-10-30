@@ -1,0 +1,207 @@
+---++ Doc Log 1383886280_01
+        $ Date: Nov 08 10:21:20 2013
+        $ Summary: SF upgrade Installer script exited without installing the core packages (VRTSvxvm, VRTSvcs etc)
+
+---++++ Details:
+<pre>
+$ pkgadd -d VRTSvxvm.pkg
+
+The following packages are available:
+  1  VRTSvxvm     Binaries for VERITAS Volume Manager by Symantec
+                  (sparc) 5.1,REV=10.06.2009.22.05
+
+Select package(s) you wish to process (or 'all' to process
+all packages). (default: all) [?,??,q]:
+
+Processing package instance <VRTSvxvm> from </var/crash/veritas/dvd1-sol_sparc/pkgs/VRTSvxvm.pkg>
+
+Binaries for VERITAS Volume Manager by Symantec
+(sparc) 5.1,REV=10.06.2009.22.05
+Copyright: Copyright (c) 2009 Symantec Corporation.
+All rights reserved.
+
+Symantec, the Symantec Logo and Veritas are trademarks
+or registered trademarks of Symantec Corporation or its
+affiliates in the U.S. and other countries. Other names
+may be trademarks of their respective owners.
+
+The Licensed Software and Documentation are deemed to be commercial
+computer software as defined in FAR 12.212 and subject to restricted
+rights as defined in FAR Section 52.227-19 "Commercial Computer
+Software - Restricted Rights" and DFARS 227.7202, et seq. Commercial
+Computer Software and Commercial Computer Software Documentation.,
+as applicable, and any successor regulations.  Any use, modification,
+reproduction release, performance, display or disclosure of the
+Licensed Software and Documentation by the U.S. Government shall be
+solely in accordance with the terms of this Agreement.
+
+
+At the following prompt:
+
+ - Enter "y" if you are upgrading VxVM and want to use the
+   existing VxVM configuration. Do not run vxinstall after
+   installation.
+
+ - Enter "n" if this is a new installation. All disks will still
+   have old configuration. You will need to run vxinstall and then
+   vxdiskadm after installation to initialize and configure VxVM.
+
+Restore and reuse the old VxVM configuration [y,n,q,?] (default: y):
+Using </> as the package base directory.
+## Processing package information.
+## Processing system information.
+   30 package pathnames are already properly installed.
+## Verifying package dependencies.
+WARNING:
+    The <SUNWcsu> package "Core Solaris, (Usr)" is a
+    prerequisite package and is not completely installed.
+
+Do you want to continue with the installation of <VRTSvxvm> [y,n,?] y
+## Verifying disk space requirements.
+## Checking for conflicts with packages already installed.
+
+The following files are already installed on the system and are being
+used by another package:
+* /kernel/drv/vxapm <attribute change only>
+* /kernel/drv/vxapm/sparcv9 <attribute change only>
+* /kernel/drv/vxdmp.conf
+* /kernel/drv/vxio.conf
+  /opt/VRTS/man <attribute change only>
+  /opt/VRTS/man/man1m <attribute change only>
+  /opt/VRTS/man/man4 <attribute change only>
+  /opt/VRTS/man/man7 <attribute change only>
+
+* - conflict with a file which does not belong to any package.
+
+Do you want to install these conflicting files [y,n,?,q] y
+## Checking for setuid/setgid programs.
+
+This package contains scripts which will be executed with super-user
+permission during the process of installing this package.
+
+Do you want to continue with the installation of <VRTSvxvm> [y,n,?] y
+
+Installing Binaries for VERITAS Volume Manager by Symantec as <VRTSvxvm>
+
+## Executing preinstall script.
+## Installing part 1 of 1.
+pkgadd: ERROR: unable to create package object </kernel/drv/vxapm>.
+    unable to determine group name for gid <119>
+    unable to determine owner name for uid <4237>
+/kernel/drv/vxapm <attribute change only>
+pkgadd: ERROR: unable to create package object </kernel/drv/vxapm/sparcv9>.
+    unable to determine group name for gid <119>
+    unable to determine owner name for uid <4237>
+/kernel/drv/vxapm/sparcv9 <attribute change only>
+9338 blocks
+346364 blocks
+pkgadd: ERROR: unable to create package object </kernel/drv/vxapm>.
+    unable to determine group name for gid <119>
+    unable to determine owner name for uid <4237>
+/kernel/drv/vxapm <attribute change only>
+pkgadd: ERROR: unable to create package object </kernel/drv/vxapm/sparcv9>.
+    unable to determine group name for gid <119>
+    unable to determine owner name for uid <4237>
+/kernel/drv/vxapm/sparcv9 <attribute change only>
+[ verifying class <none> ]
+ERROR: attribute verification of </kernel/drv/vxapm> failed
+    unable to determine group name for gid <119>
+    unable to determine owner name for uid <4237>
+ERROR: attribute verification of </kernel/drv/vxapm/sparcv9> failed
+    unable to determine group name for gid <119>
+    unable to determine owner name for uid <4237>
+## Executing postinstall script.
+
+Move /kernel/drv/vxio.SunOS_5.9 to /kernel/drv/vxio ...
+Move /kernel/drv/vxspec.SunOS_5.9 to /kernel/drv/vxspec ...
+
+Move /kernel/drv/sparcv9/vxio.SunOS_5.9 to /kernel/drv/sparcv9/vxio ...
+Move /kernel/drv/sparcv9/vxspec.SunOS_5.9 to /kernel/drv/sparcv9/vxspec ...
+Move /sbin/vxconfigd.SunOS_5.9 to /sbin/vxconfigd ...
+Move /sbin/vxesd.SunOS_5.9 to /sbin/vxesd ...
+Move /usr/lib/vxvm/bin/vxparms.SunOS_5.9 to /usr/lib/vxvm/bin/vxparms ...
+Move /usr/lib/vxvm/bin/vxedvtoc.SunOS_5.9 to /usr/lib/vxvm/bin/vxedvtoc ...
+
+Restoring config in /VXVM-CFG-BAK/volboot to /etc/vx
+Restoring config in /VXVM-CFG-BAK/vxio.conf to /kernel/drv
+Restoring config in /VXVM-CFG-BAK/vxdmp.conf to /kernel/drv
+Restoring config in /VXVM-CFG-BAK/array.info to /etc/vx
+Restoring config in /VXVM-CFG-BAK/jbod.info to /etc/vx
+Restoring config in /VXVM-CFG-BAK/ddl.support to /etc/vx
+Restoring config in /VXVM-CFG-BAK/vxvm.exclude to /etc/vx
+Restoring config in /VXVM-CFG-BAK/vxdmp.exclude to /etc/vx
+Restoring config in /VXVM-CFG-BAK/vvrports to /etc/vx
+Restoring config in /VXVM-CFG-BAK/.rdg to /etc/vx/vras
+Restoring config in /VXVM-CFG-BAK/vras_env to /etc/vx/vras
+Restoring config in /VXVM-CFG-BAK/guid.state to /etc/vx
+Restoring config in /VXVM-CFG-BAK/hacomm.conf to /etc/vx
+Restoring config in /VXVM-CFG-BAK/reconfig.d to /etc/vx
+
+Move /kernel/drv/vxdmp.SunOS_5.9 to /kernel/drv/vxdmp ...
+Move /kernel/drv/sparcv9/vxdmp.SunOS_5.9 to /kernel/drv/sparcv9/vxdmp ...
+
+Adding vxdmp driver for SunOS version 5.9 ...
+
+Adding vxio driver for SunOS version 5.9 ...
+Adding vxspec driver for SunOS version 5.9 ...
+Adding vxspec lines to /etc/devlink.tab ...
+Adding vxdmp lines to /etc/devlink.tab ...
+Adding vxlo lines to /etc/devlink.tab ...
+Running /usr/sbin/devlinks -t /etc/devlink.tab ...
+Adding vxio vxspec vxdmp lines to /etc/system ...
+Copy liba5k.so.2 to /etc/vx/slib/liba5k_stub.so.2
+Copy libg_fc.so.2 to /etc/vx/slib/libg_fc_stub.so.2
+Copy libvxscsi.so to /etc/vx/ ...
+Copy libsocket.so.1 to /etc/vx/ ...
+Copy libnsl.so.1 to /etc/vx/ ...
+Copy libintl.so.1 to /etc/vx/ ...
+Copy libdevinfo.so.1 to /etc/vx/ ...
+Copy libthread.so.1 to /etc/vx/ ...
+Copy libc.so.1 to /etc/vx/ ...
+Copy libm.so.1 to /etc/vx/ ...
+Copy libkstat.so.1 to /etc/vx/ ...
+Copy libmp.so.2 to /etc/vx/ ...
+Copy liba5k.so.2 to /etc/vx/ ...
+Copy libg_fc.so.2 to /etc/vx/ ...
+Copy libdevice.so.1 to /etc/vx/ ...
+Copy libnvpair.so.1 to /etc/vx/ ...
+Copy libdevid.so.1 to /etc/vx/ ...
+Copy libc_psr.so.1 to /etc/vx/ ...
+Copy libgen.so.1 to /etc/vx/ ...
+/kernel/drv/vxapm/sparcv9.SunOS_5.8.1
+/usr/lib/vxvm/root/kernel/drv/vxapm/sparcv9.SunOS_5.8
+/etc/vx/apmkey.d/32/sparcv9.key.SunOS_5.8.1
+/kernel/drv/vxapm/sparcv9.SunOS_5.9.1
+/usr/lib/vxvm/root/kernel/drv/vxapm/sparcv9.SunOS_5.9
+/etc/vx/apmkey.d/32/sparcv9.key.SunOS_5.9.1
+/kernel/drv/vxapm/sparcv9/sparcv9.SunOS_5.8.1
+/usr/lib/vxvm/root/kernel/drv/vxapm/sparcv9/sparcv9.SunOS_5.8
+/etc/vx/apmkey.d/64/sparcv9.key.SunOS_5.8.1
+/kernel/drv/vxapm/sparcv9/sparcv9.SunOS_5.9.1
+/usr/lib/vxvm/root/kernel/drv/vxapm/sparcv9/sparcv9.SunOS_5.9
+/etc/vx/apmkey.d/64/sparcv9.key.SunOS_5.9.1
+/kernel/drv/vxapm/sparcv9/sparcv9.SunOS_5.10.1
+/usr/lib/vxvm/root/kernel/drv/vxapm/sparcv9/sparcv9.SunOS_5.10
+/etc/vx/apmkey.d/64/sparcv9.key.SunOS_5.10.1
+/etc/vx/apmkey.d/32/sparcv9.key
+/etc/vx/apmkey.d/64/sparcv9.key
+
+Package successfully installed.
+
+Installation of <VRTSvxvm> partially failed.
+
+
+
+ROOT CAUSE OF THIS ISSUE: 
+========================
+
+SF upgrade core packages got failed due to SUNWcsu package was in partially installed.
+
+
+RESOLUTION: 
+==========
+1.Remove the partially installed SF packages on the servers. 
+2.Re-install the SUNWcsu packages on the server ( Note: Make sure you installed the correct version of the package) 
+3.Installed SF packages on the servers.
+
+</pre>

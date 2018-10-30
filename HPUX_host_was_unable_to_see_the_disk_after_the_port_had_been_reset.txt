@@ -1,0 +1,27 @@
+---++ Doc Log 1141740970_01
+
+	$ Date: Tue Mar 07 14:16:10 2006
+	$ Summary: 
+
+---++++ Details:
+<pre>
+the san disks have multiple paths to each device and one side of them 
+had disapeared due to a possible SAN issue. Pat fogarty from the san team 
+was able to check the switch port and reset this. 
+
+The reason that the HPUX host was unable to see the disk after the port 
+had been reset was due to it being held in NVRAM or whatever the HPUX equiv is... 
+
+so to resolve 
+
+ioscan -F (full listing of all devs) 
+ioscan -h 0/4/0 (this was the FC channel that lost the paths)
+insf -H 0/4/0 <---- path from above to rebuild the devices 
+vgchange -a y vg03 <---- this got HPUX to checl /dev/vg03/ area against /etc/lvmtab
+
+to see the current ones used by this VG do... 
+
+strings /etc/lvmtab
+
+</pre>
+

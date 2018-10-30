@@ -1,0 +1,149 @@
+---++ Doc Log 1383634601_01
+        $ Date: Tue Nov 05:: 12:26:41
+        $ Summary: wiping I/O Fenc keys
+
+---++++ Details:
+<pre>
+bash$ /sbin/vxfenconfig -c
+
+VXFEN vxfenconfig NOTICE Driver will use SCSI-3 compliant disks.
+
+VXFEN vxfenconfig ERROR V-11-2-1016 There exists the potential for a preexisting split-brain
+
+        The coordinator disks list no nodes which,
+
+        are in the current membership.  However, they,
+
+        also list nodes which are not in the,
+
+        current membership.
+
+
+
+        I/O Fencing Disabled!
+
+Solution
+=======
+
+Clear the keys on the node where you have the problem using the following example:
+
+# mkdir /var/tmp/IO
+# /sbin/vxfenadm -g all -f /etc/vxfentab | tee vxfenadm_-g_all.pre
+# /sbin/vxfenadm -r all -f /etc/vxfentab | tee vxfenadm_-r_all.pre
+
+Here is an example:
+
+Note :- while wiping the keys from quorum disks all cluster / port b should be in down state
+
+# vxfenadm -g /dev/rdsk/c2t0d19s2
+
+Reading SCSI Registration Keys...
+
+Device Name: /dev/rdsk/c2t0d19s2
+
+Total Number Of Keys: 2             <<== 2 keys.
+
+key[0]:
+
+        Key Value [Numeric Format]:  65,80,71,82,48,48,48,51
+
+        Key Value [Character Format]: APGR0003
+
+key[1]:
+
+        Key Value [Numeric Format]:  65,80,71,82,48,48,48,51
+
+        Key Value [Character Format]: APGR0003
+
+
+Create a file /tmp/disks as follows for the disks that have key:
+
+/dev/rdsk/c2t0d19s2
+/dev/rdsk/c2t0d27s2
+/dev/rdsk/c2t0d23s2
+
+
+Then try running the following commands on this file:
+# /sbin/vxfenadm –a –k TMP –f /tmp/disks
+# /sbin/vxfenadm –c –k TMP –f /tmp/disks
+# /sbin/vxfenadm -a -k TMP -f /tmp/disks
+
+Registration and Ignore completed for disk path: /dev/rdsk/c2t0d27s2
+Registration and Ignore completed for disk path: /dev/rdsk/c2t0d19s2
+Registration and Ignore completed for disk path: /dev/rdsk/c2t0d23s2
+
+# /sbin/vxfenadm –c –k TMP –f /tmp/disks
+Clear completed for disk path: /dev/rdsk/c2t0d19s2
+Clear completed for disk path: /dev/rdsk/c2t0d23s2
+Clear completed for disk path: /dev/rdsk/c2t0d27s2
+
+Check if the keys exist:
+=======================
+# vxfenadm -g /dev/rdsk/c2t0d19s2
+
+Reading SCSI Registration Keys...
+
+Device Name: /dev/rdsk/c2t0d19s2
+
+Total Number Of Keys: 0            <<== No keys.
+
+No keys...
+
+
+Once it’s done start port “b”
+
+bash$ /sbin/vxfenconfig –c
+
+=========================================================
+1. Start a "ksh" shell:
+# ksh
+
+2. Create a file of all disks on the system.
+# ls -l /dev/rdsk | egrep '^c[12345678].*s2$' | while read disk
+do
+echo "/dev/rdsk/$disk" >> /tmp/file1
+done
+
+3.Validate file
+# cat /tmp/file1
+
+(OR vxfenadm –g all –f /etc/vxfentab ) to just check
+
+4. Validate vxfenadm
+# vxfenadm -g all -f /tmp/file1
+
+5. Register and ignore
+# vxfenadm -a -k TMP -f /tmp/file1
+ 
+6. Validate vxfenadm
+# vxfenadm -g all -f /tmp/file1
+
+7. Clear and abort keys
+# vxfenadm -c -k TMP -f /tmp/file1
+
+8. Validate vxfenadm
+# vxfenadm -g all -f /tmp/file1
+
+9. Exit the shell
+# exit
+
+**************************************************** 
+ALTERNATE PROCEDURE
+
+5. Register and ignore
+# vxfenadm -m -k TMP -f /tmp/file1
+ 
+7. Clear and abort keys
+# vxfenadm -x -k TMP -f /tmp/file1
+ 
+****************************************************
+To prempt and abort the victim keys
+
+vxfenadm –p –k TMP –V65,86,67,83,0,0,0,0 –f /tmp/file1
+
+OR
+
+vxfenadm –p –k TMP –vAVCS –f /tmp/file1 (Note – may not work)
+
+
+</pre>

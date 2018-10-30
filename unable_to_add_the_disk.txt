@@ -1,0 +1,105 @@
+---++ Doc Log 1210670487_01
+
+	$ Date: Tue May 13 09:21:27 2008
+	$ Summary: unable to add the disk
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+How to add the disk in Linux ??
+
+Was getting following error initializing disk
+ # vxdisksetup -i sdax
+VxVM vxparms ERROR V-5-1-6536 error reading partitions
+VxVM vxdisksetup ERROR V-5-2-43 sdax: Invalid disk device for vxdisksetup
+
+How to fix this ?? 
+
+Check OS native name
+ # vxdisk -e list
+DEVICE   TYPE   DISK GROUP        STATUS       OS_NATIVE_NAME   %
+sda          auto      -             -            online       sda         
+sdao         auto      -             -            online       sdv         
+sdap         auto      -             -            online       sdw         
+sdaq         auto      -             -            online       sdx         
+sdar         auto      -             -            online       sdy         
+sdas         auto      -             -            online       sdz         
+sdat         auto      -             -            online       sdaa        
+sdau         auto      -             -            online       sdab        
+sdav         auto      -             -            online       sdac        
+sdaw         auto      -             -            online       sdad        
+sdax         auto      -             -            error        sdae        
+sday         auto      -             -            error        sdaf        
+
+To see the current partation table.
+ #fdisk -ul /dev/sdae 
+
+Disk /dev/sdae: 36.2 GB, 36203397120 bytes
+64 heads, 32 sectors/track, 34526 cylinders, total 70709760 sectors
+Units = sectors of 1 * 512 = 512 bytes
+
+ # fdisk /dev/sdae
+
+Label disk using OS_NATIVE_NAME with DOS label
+ #fdisk /dev/sdae
+
+The number of cylinders for this disk is set to 34526.
+There is nothing wrong with that, but this is larger than 1024,
+and could in certain setups cause problems with:
+1) software that runs at boot time (e.g., old versions of LILO)
+2) booting and partitioning software from other OSs
+   (e.g., DOS FDISK, OS/2 FDISK)
+
+Command (m for help): o
+Building a new DOS disklabel. Changes will remain in memory only,
+until you decide to write them. After that, of course, the previous
+content won't be recoverable.
+
+
+The number of cylinders for this disk is set to 34526.
+There is nothing wrong with that, but this is larger than 1024,
+and could in certain setups cause problems with:
+1) software that runs at boot time (e.g., old versions of LILO)
+2) booting and partitioning software from other OSs
+   (e.g., DOS FDISK, OS/2 FDISK)
+Warning: invalid flag 0x0000 of partition table 4 will be corrected by w(rite)
+
+Command (m for help): w
+The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+Syncing disks.
+
+
+Command (m for help): o (Write DOS label)
+Command (m for help): w (Save Partition Table)
+
+ # vxdctl enable
+
+ # vxdisk list 
+
+gbbclp0187s:/etc/vx/bin # vxdisk list
+DEVICE       TYPE            DISK         GROUP        STATUS
+sda          auto:none       -            -            online invalid
+sdao         auto:cdsdisk    -            -            online
+sdap         auto:cdsdisk    -            -            online
+sdaq         auto:cdsdisk    -            -            online
+sdar         auto:cdsdisk    -            -            online
+sdas         auto:cdsdisk    -            -            online
+sdat         auto:cdsdisk    -            -            online
+sdau         auto:cdsdisk    -            -            online
+sdav         auto:cdsdisk    -            -            online
+sdaw         auto:cdsdisk    -            -            online
+sdax         auto:none       -            -            online invalid
+sday         auto            -            -            error
+sdaz         auto            -            -            error
+
+ # vxdisksetup -if sdax (Initialize using force option)
+
+gbbclp0187s:/etc/vx/bin # vxdisk list |grep sdax 
+sdax         auto:none       -            -            online
+
+Disk is now initialized.
+
+!!! Enjoy !!!
+</pre>

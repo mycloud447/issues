@@ -1,0 +1,37 @@
+---++ Doc Log 1267462741_01
+
+	$ Date: Mon Mar 01 16:59:01 2010
+	$ Summary: Problem removing root disk from OS for replacement
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+When replacing a root disk if in a failing state, you need to carry out the Veritas vxdiskadm opt 4 and then cfgadm -c unconfigure C#::c#t#d#
+
+If the above fails with this error:
+
+# cfgadm -c unconfigure c1::dsk/c1t0d0
+cfgadm: Component system is busy, try again: failed to offline:
+     Resource              Information
+------------------  -------------------------
+/dev/dsk/c1t0d0s2   Device being used by VxVM
+
+Then carry out the following procedure:
+
+1) Run the following command to rename 'es_rcm.pl' script.
+# mv /etc/rcm/scripts/es_rcm.pl /etc/rcm/scripts/DONTUSE
+NOTE: VxVM 4.1 and above 'es_rcm.pl' script is under /usr/lib/rcm/scripts
+# mv /usr/lib/rcm/scripts/es_rcm.pl /usr/lib/rcm/scripts/DONTUSE
+2) Run "/usr/sbin/cfgadm -c unconfigure ......" again. This command will finish successfully.
+Example:
+# /usr/sbin/cfgadm -c unconfigure c0::dsk/c0t0d0
+3) After that, rename back file "DONTUSE" to the original name.
+# mv /etc/rcm/scripts/DONTUSE /etc/rcm/scripts/es_rcm.pl
+NOTE: VxVM 4.1 and above 'es_rcm.pl' script is under /usr/lib/rcm/scripts
+# mv /usr/lib/rcm/scripts/DONTUSE /usr/lib/rcm/scripts/es_rcm.pl
+4) Then physically replace the failed boot disk with new one.
+5) Run the following command.
+# cfgadm -c configure c0::dsk/c0t0d0
+
+
+</pre>

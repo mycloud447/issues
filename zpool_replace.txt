@@ -1,0 +1,22 @@
+---++ Doc Log 1388989020_01
+        $ Date: Jan 06 11:47:00 2014
+        $ Summary: zpool replace
+
+---++++ Details:
+<pre>
+2)	zpool offline rpool c1t5d0
+3)	cfgadm -c unconfigure c1::dsk/c1t5d0
+4)	# cfgadm -al | grep -i c1t5d0     (Here the disk is inserted physically)
+5)	cfgadm -c configure c1::dsk/c1t5d0
+6)	# echo | format | grep -i c1t5d0
+7)	# cfgadm -al | grep -i c1::dsk/c1t5d0
+8)	#zpool replace rpool c1t5d0
+9)	#zpool onliine  rpool c1t5d0
+10)	#zpool status rpool
+11)	# zpool list
+12)	# installboot -F zfs /usr/platform/`uname -i`/lib/fs/zfs/bootblk /dev/rdsk/c1t5d0
+
+or else we can direct replace with singel command.
+
+After H/W engg replaced the disk do # zpool replace rpool c1t5d0
+</pre>

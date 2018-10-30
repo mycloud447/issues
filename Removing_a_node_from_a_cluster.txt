@@ -1,0 +1,249 @@
+---++ Doc Log 1384416033_01
+        $ Date: Nov 14 13:30:33 2013
+        $ Summary: Removing a node from a cluster
+
+---++++ Details:
+<pre>
+Removing a node from a cluster
+==============================
+
+1. Backup the configuration file
+# cp /etc/VRTSvcs/conf/config/main.cf /etc/VRTSvcs/conf/config/main.cf.orig
+
+2. Check the status of the nodes and the service groups
+# hastatus –summary
+
+3. Switch service group which is online on the node leaving the cluster
+# hagrp –switch <service group> to <node name>
+
+4. Delete the node from the VCS configuration
+	1. Make the cluster configuration R/W
+	# haconf –makerw
+	2. Stop the cluster on leaving node
+	# hastop –sys <node>
+	4. Delete the node from the cluster
+	# hasys –delete <node>
+	5. Now again make the cluster configuration Read Only.
+	# haconf –dump –makero
+
+5. Modify the LLT and GAB configuration files to reflect changes
+Modify /etc/llthosts, /etc/llttab and /etc/gabtab files on the remining node on the cluster.
+
+6. Remove VCS configuration on the node leaving the cluster
+
+	1. Unconfigure and unload LLT and GAB
+	# /sbin/gabconfig –U
+	# /sbin/lltconfig –U
+
+	2. Unload the LLT and GAB modules
+	# modunload –i <gab_module>
+	# modunload –I <llt_module>
+
+	3. Rename the startup files to prevent LLT, GAB and VCS from
+
+	starting up in future.
+	# mv /etc/rc2.d/S92gab /etc/rc2.d/s92gab
+	# mv /etc/rc3.d/S99vcs /etc/rc3.d/s99vcs
+
+	4. Remove VCS package from the node
+
+	5. If nodes having I/O fenc unload it
+	#/sbin/vxfenadm -d
+	# /sbin/vxfenconfig -U
+
+
+=======================> More detail information <=================
+Pre Task
+========
+# iostat -En 
+# prtdiag -v
+# prtconf -vp |grep -i boot
+# echo |format 
+# uptime
+# eeprom
+# ifconfig -a
+# df -k 
+# netstat -rnv
+# cat /etc/vfstab
+# cat /etc/system
+# hastatus -summ
+# cat /etc/VRTSvcs/conf/config/main.cf
+# cat /etc/VRTSvcs/conf/config/types.cf
+
+Collect Veritas Configuration
+=============================
+
+# vxdisk -e list
+# vxdisk -o alldgs list
+# vxprint -Ath
+# vxdg list
+# vxinfo -g <DGs>
+
+# mkdir -p /var/tmp/backup/dgbackup
+# /usr/lib/vxvm/bin/vxconfigbackup -l /var/tmp/backup/dgbackup
+# vxprint -mvphrs -g <dgname> > /var/tmp/backup/<dgname>.txt
+Copy the directory backup to your local desktop
+
+Check the Service Groups related/running on the host.
+====================================================
+/opt/VRTSvcs/bin/hastatus -summ | grep -i remove_host| awk ' {print $2 }'
+|tail +2
+
+ClusterService
+SG_01_02-fsg
+SG_03_04-fsg
+SG_05_06-fsg
+SG_07_08-fsg
+SG_09_10-fsg
+SG_11_12-fsg
+SG_13_14-fsg
+SG_15_16-fsg
+SG_17_18-fsg
+SG_19_20-fsg
+SG_21_22-fsg
+mnics-psg
+
+Ensure no Service Group is ONLINE on the host.
+=============================================
+# /opt/VRTSvcs/bin/hagrp -display | grep ONLINE
+
+Take backup of main.cf & types.cf files on the decommision node.
+================================================================
+# /opt/VRTSvcs/bin/haconf -makerw
+
+Update the AutoStart List
+==========================
+
+# /opt/VRTSvcs/bin/hagrp -modify ClusterService AutoStartList host1 host2
+ host3 host4 host5 host6 host7 host8 host9 host10 host11 host12 host13 host14
+
+# /opt/VRTSvcs/bin/hagrp -modify SG_01_02-fsg AutoStartList <remaining 14
+# nodes>
+
+# /opt/VRTSvcs/bin/hagrp -modify SG_03_04-fsg AutoStartList <remaining 14
+# nodes>
+
+# /opt/VRTSvcs/bin/hagrp -modify SG_05_06-fsg AutoStartList <remaining 14
+# nodes>
+
+# /opt/VRTSvcs/bin/hagrp -modify SG_07_08-fsg AutoStartList <remaining 14
+# nodes>
+
+# /opt/VRTSvcs/bin/hagrp -modify SG_09_10-fsg AutoStartList <remaining 14
+# nodes>
+
+# /opt/VRTSvcs/bin/hagrp -modify SG_11_12-fsg AutoStartList <remaining 14
+# nodes>
+
+# /opt/VRTSvcs/bin/hagrp -modify SG_13_14-fsg AutoStartList <remaining 14
+# nodes>
+
+# /opt/VRTSvcs/bin/hagrp -modify SG_15_16-fsg AutoStartList <remaining 14
+# nodes>
+
+# /opt/VRTSvcs/bin/hagrp -modify SG_17_18-fsg AutoStartList <remaining 14
+# nodes>
+
+# /opt/VRTSvcs/bin/hagrp -modify SG_19_20-fsg AutoStartList <remaining 14
+# nodes>
+
+# /opt/VRTSvcs/bin/hagrp -modify SG_21_22-fsg AutoStartList <remaining 14
+# nodes>
+
+# /opt/VRTSvcs/bin/hagrp -modify mnics-psg AutoStartList <remaining 14 nodes>
+
+Stop the Cluster local in the node and remove/delete the node from the
+Cluster.
+===============================================================================
+
+# /opt/VRTSvcs/bin/hastop -sys remove_host  
+# /opt/VRTSvcs/bin/hasys -delete remove_host
+# /opt/VRTSvcs/bin/haconf -dump -makero
+
+Update the /etc/llthosts file on remaining 14 nodes.
+=====================================================
+
+Update the /etc/gabtab file on remaining 14 nodes.
+==================================================
+# cat /etc/gabtab
+/sbin/gabconfig -c -n14
+
+Rename the Cluster related files on the decommision node.
+==========================================================
+
+# mv /etc/llthosts /etc/llthosts.backup
+# mv /etc/gabtab /etc/gabtab.backup
+# mv /etc/lltttab /etc/lltttab.backup
+# mv /etc/vxfentab /etc/vxfentab.backup
+# mv /etc/vxfendg /etc/vxfendg.backup
+# mv /etc/vxfenmode /etc/vxfenmode.backup
+
+Verify the status of the cluster
+=================================
+
+# /opt/VRTSvcs/bin/hastatus -summ
+# cat /etc/VRTSvcs/conf/config/main.cf
+# cat /etc/VRTSvcs/conf/config/types.cf
+
+If I/o fenc exists unload and reload it ===> suggest to take outage for the
+complete cluster
+========================================
+
+After "hastop -local"  and then do /sbin/vxfenconfig -U and /sbin/vxfenconfig
+-c  ------> It will update I/O fenc with hosts and keys.
+
+Sysadmin Backout
+================
+Restore the original Cluster related files on the decommision node.
+# mv /etc/llthosts.backup /etc/llthosts
+# mv /etc/gabtab.backup /etc/gabtab
+# mv /etc/lltttab.backup /etc/lltttab
+# mv /etc/vxfentab.backup /etc/vxfentab
+# mv /etc/vxfendg.backup /etc/vxfendg
+# mv /etc/vxfenmode.backup /etc/vxfenmode
+
+Update the /etc/llthosts file on remaining 14 nodes, with new host details
+============================================================================
+
+Update the /etc/gabtab file on remaining 14 nodes
+=================================================
+
+Add the node to the cluster and Start the Cluster.
+=================================================
+
+# /opt/VRTSvcs/bin/haconf -makerw
+# /opt/VRTSvcs/bin/hasys -add remove_host
+# /opt/VRTSvcs/bin/hastart -local    ------ from host another host
+# (remove_host)
+
+==========================================================================
+
+# /opt/VRTSvcs/bin/haconf -makerw
+
+Update the AutoStart List.
+=========================
+
+# /opt/VRTSvcs/bin/hagrp -modify ClusterService AutoStartList host1 host2 ....
+# host15
+
+# /opt/VRTSvcs/bin/hagrp -modify SG_01_02-fsg AutoStartList <all 15 nodes>
+# /opt/VRTSvcs/bin/hagrp -modify SG_03_04-fsg AutoStartList <all 15 nodes>
+# /opt/VRTSvcs/bin/hagrp -modify SG_05_06-fsg AutoStartList <all 15 nodes>
+# /opt/VRTSvcs/bin/hagrp -modify SG_07_08-fsg AutoStartList <all 15 nodes>
+# /opt/VRTSvcs/bin/hagrp -modify SG_09_10-fsg AutoStartList <all 15 nodes>
+# /opt/VRTSvcs/bin/hagrp -modify SG_11_12-fsg AutoStartList <all 15 nodes>
+# /opt/VRTSvcs/bin/hagrp -modify SG_13_14-fsg AutoStartList <all 15 nodes>
+# /opt/VRTSvcs/bin/hagrp -modify SG_15_16-fsg AutoStartList <all 15 nodes>
+# /opt/VRTSvcs/bin/hagrp -modify SG_17_18-fsg AutoStartList <all 15 nodes>
+# /opt/VRTSvcs/bin/hagrp -modify SG_19_20-fsg AutoStartList <all 15 nodes>
+# /opt/VRTSvcs/bin/hagrp -modify SG_21_22-fsg AutoStartList <all 15 nodes>
+# /opt/VRTSvcs/bin/hagrp -modify mnics-psg AutoStartList <all 15 nodes>
+# /opt/VRTSvcs/bin/haconf -dump -makero
+
+Check the Status of the Cluster.
+================================
+
+# /opt/VRTSvcs/bin/hastatus -summ
+# cat /etc/VRTSvcs/conf/config/main.cf
+# cat /etc/VRTSvcs/conf/config/types.cf
+</pre>

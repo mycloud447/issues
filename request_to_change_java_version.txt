@@ -1,0 +1,39 @@
+---++ Doc Log 1144077472_01
+
+	$ Date: Mon Apr 03 15:17:52 2006
+	$ Summary: request to change java version
+
+---++++ Details:
+<pre>
+got request to change java version.  as per previous doclog 
+when server was upgraded and java and checking status of 
+system;
+
+/usr # ./j2se/bin/java -fullversion
+java full version "1.4.2_10-b03"
+# ls -isald j*                
+    512754    2 drwxr-xr-x   8 root     bin          512 Feb 28 19:11 j2se
+    495689    2 drwxr-xr-x   7 root     bin          512 Apr  7  2003 j2se-1.4.1_02-b06
+    585864    2 drwxr-xr-x   7 root     bin          512 Jul 30  2004 j2se-1.4.2_04-b05
+    231080    2 drwxr-xr-x   7 root     bin          512 Mar 14 18:07 j2se1.4.2_05-b04
+   2675209    2 drwxr-xr-x   8 root     bin          512 Feb 28 19:11 j2se1.4.2_10
+     11570    2 lrwxrwxrwx   1 root     other         16 Mar 14 18:06 java -> j2se1.4.2_05-b04
+     11285    2 lrwxrwxrwx   1 root     other         17 Jul 30  2004 java.old -> j2se-1.4.1_02-b06
+    208412    2 drwxrwxr-x   6 root     bin          512 Feb 20  2003 java1.1
+    923812    2 drwxr-xr-x   2 root     bin          512 Feb 28 19:10 jdk
+   1734671    2 drwxr-xr-x   2 root     bin          512 Jul 30  2004 jdk1.4.2_05
+    439445    2 drwxr-xr-x   3 root     bin          512 Feb 28 19:10 jdk1.4.2_10
+# ls java
+COPYRIGHT    README       bin          java         jre          man
+LICENSE      README.html  include      java.newer   lib          src.zip
+# ./java/bin/java -fullversion
+java full version "1.4.2_05-b04"
+
+
+the system java has changed to 1.4.2_05 -- altho' jdk is still 
+1.4.2_10;
+
+# diff -r jdk jdk1.4.2_10 |grep -v '^Common'
+# 
+
+</pre>

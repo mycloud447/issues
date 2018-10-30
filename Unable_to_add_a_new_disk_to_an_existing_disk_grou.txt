@@ -1,0 +1,75 @@
+---++ Doc Log 1383610009_01
+        $ Date: Tue Nov 05:: 05:36:49
+        $ Summary: Unable to add a new disk to an existing disk group
+
+---++++ Details:
+<pre>
+
+Problem
+
+Unable to add a new disk to an existing diskgroup (DG) after upgrade to Veritas Volume Manager (VxVM) 5.1SP1RP3.
+Error
+
+# /usr/sbin/vxdg -g oradg adddisk 002oradg=emc2_0fe5
+VxVM vxdg ERROR V-5-1-0 Disk Group oradg has only cloned disks and tyring to add standard disk to diskgroup. Mix of standard and cloned disks in a diskgroup is not allowed. Please follow the vxdg (1M) man page.
+Environment
+
+Solaris 10
+
+VxVM 5.1SP1RP3
+Cause
+
+Prior to VxVM 5.1SP1RP3, vxdg adddisk command did not check whether the newly added disk is a clone or standard disk. 5.1SP1RP3 patch which introduced this check via e2815517 (vxdg adddisk should not allow mixing clone & non-clone disks in a DiskGroup) prevents mix of standard and clone disks in a DG.
+Solution
+
+If there is a mismatch of udid and udid_asl fields and/or clone_disk flag is set as seen in vxdisk -v list <disk> outputs, vxdisk updateudid needs to be run on the existing disks in the DG. This is explained in TECH196717.
+
+ 
+
+*** Error when adding disk to DG:
+# /usr/sbin/vxdg -g oradg adddisk 002oradg=emc2_0fe5
+VxVM vxdg ERROR V-5-1-0 Disk Group oradg has only cloned disks and tyring to add standard disk to diskgroup. Mix of standard and cloned disks in a diskgroup is not allowed. Please follow the vxdg (1M) man page.
+
+ 
+
+*** Only 2 disks in DG:
+
+# grep oradg vxdisk_alldg_list
+emc1_151f    auto:cdsdisk    001oradg  oradg   online
+emc1_0511    auto:cdsdisk    000oradg  oradg   online
+
+ 
+
+*** Both disks have mismatched udid which means that vxvm considers the disks as clone disks.
+
+# grep udid vxdisk_list_emc1_151f
+udid:      EMC%5FSYMMETRIX%5F000290104663%5F630151F008
+tag      udid_asl=EMC%5FSYMMETRIX%5F104663%5F6351F008
+
+# grep udid vxdisk_list_emc1_0511
+udid:      EMC%5FSYMMETRIX%5F000290104663%5F6300511000
+tag      udid_asl=EMC%5FSYMMETRIX%5F104663%5F63511000
+
+ 
+
+*** Whereas the new disk has matching udid, which means it is considered as standard disk.
+
+# grep udid vxdisk_list_emc2_0fe5
+udid:      EMC%5FSYMMETRIX%5F000292600663%5F6300FE5000
+tag      udid_asl=EMC%5FSYMMETRIX%5F000292600663%5F6300FE5000
+
+# vxdg deport oradg
+# vxdisk -fg oradg updateudid emc1_151f
+# vxdisk -fg oradg updateudid emc1_0511
+# vxdisk set emc1_151f clone=off
+# vxdisk set emc1_0511 clone=off
+# vxdg import oradg
+#
+
+ 
+
+*** Once the udid is fixed, you would be able to add the new disk to the DG:
+
+# vxdg -g oradg adddisk 002oradg=emc2_0fe5
+#
+</pre>

@@ -1,0 +1,26 @@
+---++ Doc Log 1191939963_01
+
+	$ Date: Tue Oct 09:: 14:26:03
+	$ Summary: GAB Ports
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+Veritas Cluster Server GAB ports 
+LLT is actually a Veritas developed protocol sitting on the Data Link layer of the ISO model, while ARP (part of the IP stack) sits between datalink and network layers. LLT does "talk" from MAC address to MAC address. 
+
+Like TCP, you can have different ports (known TCP ports include 80 for http protocol, 21 for FTP ,etc..) GAB ports are numbered and used for: 
+
+PORT  SERVICE  
+a  gab to gab communications between nodes in a cluster  
+b  io fencing  
+d  Oracle to Oracle communications ina RAC cluster  
+f  fsckd (part of Veritas Cluster File system)  
+h  HAD (the main VCS engine)  
+o  ODM (Oracle Disk Manager) part of RAC  
+q  qlockd (part of Veritas Cluster filesystem)  
+u  used as an exclusive port in establishing Cluster Volume Manager members  
+v  vxconfigd used in Cluster Volume Manager  
+w  used in kernel-to-kernel communication for Cluster Volume Manager  
+
+</pre>

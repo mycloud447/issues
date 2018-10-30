@@ -1,0 +1,28 @@
+---++ Doc Log 1383633445_01
+        $ Date: Tue Nov 05:: 12:07:25
+        $ Summary: RMAN setup
+
+---++++ Details:
+<pre>
+I didn't have any issues usingthe following commands on SF5.1 versions
+
+Pre Implementation: (per diskgroup)
+-----------------------------------
+1. vxsnap -g <diskgroup>  print   - Verify the existing setup
+
+2. vxsnap -g <diskgroup>  list
+
+Implementation :
+----------------
+1. vxdg split <diskgroup> OM_<diskgroup> <OM volume1, OM Volume2,...>   - Split diskgroup for RM implementation or test
+2. vxdg list  - verify 
+3. vxprint -htg  OM_<diskgroup>  - Verify
+
+Post Implementation (or backout)
+---------------------------------
+1. vxdg join OM_<diskgroup> <diskgroup>  - Join the OM diskgroup that was split either for backout or post change after RM testing
+2. vxvol -g <diskgroup> startall  - Start OM volumes
+3. vxprint -htg <diskgroup>   - verifiy
+4. vxsnap -g <diskgroup> refresh <volume>   - refresh snap
+5. vxtask list  - monitor
+</pre>

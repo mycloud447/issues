@@ -1,0 +1,13 @@
+---++ Doc Log 1454064143_01
+	<p /> <dl>
+        <dt> Date: </dt><dd> Jan 29 16:12:23 2016
+        </dd> <dt> Summary: </dt><dd> ORA-12709:_error_while_loading_create_database_character_set
+	</dd></dl>
+	<p />
+
+---++++ Details:
+<pre>
+Error :- ORA-12709: error while loading create database character set
+
+solution :- Once the server moved to virtual DBA needs to comment database parameter (parallel_automatic_tuning=TRU) before he start the DB  
+</pre>

@@ -1,0 +1,28 @@
+---++ Doc Log 1139672996_01
+
+	$ Date: Sat Feb 11 15:49:56 2006
+	$ Summary: VVR heartbeat errors
+
+---++++ Details:
+<pre>
+Called out for errors like following;
+Feb 11 15:36:55 server123 vmunix: WARNING: vxvm:vxio: Heartbeat unacknowledged from node 128.9.69.80 for 10 seconds
+
+
+grep vxio /var/adm/syslog/syslog.log and see that the heartbeat had
+problems for a little time but recovered within a minute;
+
+Feb 11 15:17:21 server123 vmunix: WARNING: vxvm:vxio: Heartbeat unacknowledged from node 128.9.69.80 for 8 seconds
+Feb 11 15:17:22 server123 vmunix: WARNING: vxvm:vxio: Heartbeat unacknowledged from node 128.9.69.80 for 9 seconds
+Feb 11 15:17:23 server123 vmunix: WARNING: vxvm:vxio: Heartbeat unacknowledged from node 128.9.69.80 for 10 seconds
+Feb 11 15:17:28 server123 vmunix: WARNING: vxvm:vxio: Rlink to_syrep195 disconnected from remote
+Feb 11 15:17:57 server123 vmunix: NOTICE: vxvm:vxio: Rlink to_syrep195 connected to remote
+Feb 11 15:36:53 server123 vmunix: WARNING: vxvm:vxio: Heartbeat unacknowledged from node 128.9.69.80 for 8 seconds
+Feb 11 15:36:54 server123 vmunix: WARNING: vxvm:vxio: Heartbeat unacknowledged from node 128.9.69.80 for 9 seconds
+Feb 11 15:36:55 server123 vmunix: WARNING: vxvm:vxio: Heartbeat unacknowledged from node 128.9.69.80 for 10 seconds
+Feb 11 15:36:57 server123 vmunix: WARNING: vxvm:vxio: Rlink to_syrep195 disconnected from remote
+Feb 11 15:37:10 server123 vmunix: NOTICE: vxvm:vxio: Rlink to_syrep195 connected to remote
+
+all okay then.
+
+</pre>

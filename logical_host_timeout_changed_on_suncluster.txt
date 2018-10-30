@@ -1,0 +1,43 @@
+---++ Doc Log 1142321769_01
+
+	$ Date: Tue Mar 14 07:36:09 2006
+	$ Summary: logical host timeout changed on suncluster
+
+---++++ Details:
+<pre>
+
+Increase Cluster Parameters and change script files. On servers 011 and 016 increase the Logical Host Timeout Value from 180 seconds to 600 seconds by performing the following (taken from Sun website)
+
+1. Use the "scconf" command to retrieve the logical host masters and the tunable timeout parameters: 
+# scconf <clustername> -p 
+In the resulting output, look for the following information: 
+> Logical Host Timeout Value :
+> Step10 :720
+> Step11 :720
+> Logical Host :180
+>
+> Logical Host : sap
+>
+> Node List : host1 host2
+> Disk Groups : sapdg
+> ... 
+2. Increase the logical host timeout on ALL nodes in the cluster using the command: 
+
+# scconf <clustername> -l 600
+
+The timeout should be set to a value that is 120 (seconds) smaller than the values of the Step10 and Step11 values observed from first step of this procedure. With default values (as in the sample output above), the timeout will be 600; however, do not decrease the timeout value if it is already higher than the value derived above.
+
+3. Use the "scconf" command to retrieve the logical host masters and the tunable timeout parameters: 
+# scconf <clustername> -p 
+In the resulting output, look for the following information to check the increase in value
+> Logical Host Timeout Value :
+> Step10 :720
+> Step11 :720
+> Logical Host :600
+>
+> Logical Host : sap
+>
+> Node List : host1 host2
+> Disk Groups : sapdg
+> ... 
+</pre>

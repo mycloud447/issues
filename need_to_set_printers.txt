@@ -1,0 +1,45 @@
+---++ Doc Log 1153401877_01
+
+	$ Date: Thu Jul 20 13:24:37 2006
+	$ Summary: need to set printers....
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+this is how to add printers to summit... 
+
+
+# lpset -n system -a bsdaddr=hbmehodubfap00,170.71.101.189 tsysum
+# lpstat -a | grep -i sys
+tsysum2 accepting requests since Fri Jun  3 15:19:09 BST 2005
+tsysum3 accepting requests since Thu Jul 20 10:51:44 BST 2006
+tsysum accepting requests since Jul 20 13:23 2006
+#
+# lpstat tsysum
+# echo test | lp -d tsysum ;lpstat tsysum
+request id is tsysum-562 (1 file)
+# lpstat tsysum
+#
+
+
+This example adds support for the print queue cs_co4_lj, an HP LaserJet printer, to a Solaris system (version 8) using Sun's lpset program. 
+The local queue is also called cs_co3_lj. We make it the default queue on the system.
+
+# lpset -n system -a bsdaddr=lpd-serv.cam.ac.uk,cs_co4_lj cs_co4_lj
+# lpset -n system -a use=cs_co4_lj _default
+Syntax explained
+lpset's syntax can be determined by reading the lpset(1) and printers.conf(4) manual pages. The salient points, however, are the following.
+
+-n system 
+This instructs lpset to update the /etc/printers.conf file as opposed to a NIS+ database. 
+-a key=value 
+The -a option sets a key=value pair for the relevant print queue. 
+bsdaddr=lpd-serv.cam.ac.uk,cs_co4_lj 
+This key/value pair specifies, by its presence, that the BSD (lpd) style of communication should be used to talk to remote print server. The part of the value before the comma specifies the server's name and the part afterwards specifies the name of the print queue on the server. 
+cs_co4_lj 
+This specifies the local name for the print queue. We recommend that you match local and remote print queue names for ease of your user support. 
+use=cs_co4_lj 
+This key/value pair specifies what real queue to use for a queue name. It's a simple form of aliasing. 
+_default 
+This alias identifies the system's default printer and is typically only used with the use=... key/value pair. 
+</pre>

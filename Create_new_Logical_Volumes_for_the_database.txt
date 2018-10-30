@@ -1,0 +1,49 @@
+---++ Doc Log 1218013161_01
+
+	$ Date: Wed Aug 06 08:59:21 2008
+	$ Summary: Create new Logical Volumes for the database
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+The user dont want to downtime in extending the filesystem and he need to run oracle 10g and 91 in different volums. Hence creating new logical volumes.
+
+Confirmed the volumegroup has enough space to create the volumes.
+
+Existing Volume group:
+
+# vgdisplay
+  --- Volume group ---
+  VG Name               vg00
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  29
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                255
+  Cur LV                21
+  Open LV               21
+  Max PV                255
+  Cur PV                1
+  Act PV                1
+  VG Size               1.36 TB
+  PE Size               8.00 MB
+  Total PE              178673
+  Alloc PE / Size       47104 / 368.00 GB
+  Free  PE / Size       131569 / 1.00 TB
+  VG UUID               5bjCXH-CqBG-h5PB-53iW-13Fx-wrgM-LvdQ0T
+
+# 
+
+The below steps are followed to create three logical volumes with 50gb each in the volumegroup vg00
+
+lvcreate -L 50G -n u15 vg00
+lvcreate -L 50G -n u16 vg00
+lvcreate -L 50G -n u17 vg00
+
+mkfs -t ext3 /dev/vg00/u15
+mkfs -t ext3 /dev/vg00/u16
+mkfs -t ext3 /dev/vg00/u17
+
+Make entry in the /etc/fstab, create mount points and mount the filesystem. 
+</pre>

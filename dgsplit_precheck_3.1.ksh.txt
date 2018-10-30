@@ -1,0 +1,665 @@
+---++ Doc Log 1427172738_01
+        $ Date: Mar 24 10:22:18 2015
+        $ Summary: dgsplit_precheck_3.1.ksh
+
+---++++ Details:
+<pre>
+#!/usr/bin/ksh
+# Version : 3.1
+
+PATH=/usr/bin:/usr/sbin:/usr/local/bin:/sbin:/usr/ucb:/usr/local/soe/bin:/bin:/usr/openwin/bin:/usr/ccs/bin:/etc/opt/SUNWmd/sbin:/opt/SUNWldm/bin:/opt/VRTS/bin:/usr/opt/SUNWmd/sbin:./;export PATH;FGRED=`echo "\033[31m"`;BGRED=`echo "\033[41m"`;NORMAL=`echo "\033[m"`;GREEN="\033[01;32m"
+        clear
+        print -n "1) DiskGroup split prechecks/feasibility check for Data/redo/archiv/dbfra/other volumes.
+
+2) OM-VP cut-over prechecks/feasibility check for PR (primary) and OM (sanp) volumes.
+
+=========> Q/q for quit. \n"
+        print -n "\nPlease select your option: "
+        read option
+                case $option in
+                        1)
+        print -n "Pre DG remidation script, "${FGRED}do you want to continue? [YES/NO]${NORMAL}" :"
+        read mesg
+
+         if [ $mesg == YES ] || [ $mesg == yes ] || [ $mesg == Yes ];then
+         if [ `whoami` == root ];then
+                modinfo |grep vx >/dev/null 2>&1
+         if [[ $? == 0 ]];then
+                print -n "Please provide diskgroup you want to verify fesability :"; read dg
+                vxdg list |awk '{print $1}'|fgrep -x $dg >/dev/null 2>&1
+         if [[ $? == 0 ]];then
+print "    Limitations of Disk Group Split and Join
+    ========================================
+
+    "${FGRED}Split or join disk group version must be 90 or greater.${NORMAL}"
+    The reconfiguration must involve an integral number of physical disks.
+    Objects to be moved must not contain open volumes.
+    Disks cannot be moved between CDS and non-CDS compatible disk groups.
+    Data change objects (DCOs) and snap objects that have been dissociated by Persistent FastResync cannot be moved between disk groups.
+    VERITAS Volume Replicator (VVR) objects cannot be moved between disk groups.
+    Splitting or moving a volume into a different disk group changes the volume's record ID.
+    The operation can only be performed on the master node of a cluster if either the source disk group or the target disk group is shared.
+    "${FGRED}For DG split VERITAS Storage Foundation Standard licence will not work, required enterprise license${NORMAL}""
+echo ""${GREEN}    Note: Provide Primary volume details along with respective snap volumes${NORMAL}""
+
+    if [ -r /var/DPP/DGsplit_$dg ];then
+            mv /var/DPP/DGsplit_$dg  /var/DPP/DGsplit_$dg.`date +%d%m%Y_%H%M%S`
+            mkdir -p /var/DPP/DGsplit_$dg
+            else
+            mkdir -p /var/DPP/DGsplit_$dg
+    fi
+            DGSPLIT=`echo /var/DPP/DGsplit_$dg`
+            vxinfo -g $dg |grep -v dcl|awk '{print $1}' > $DGSPLIT/dginfo ; cp $DGSPLIT/dginfo $DGSPLIT/dginfo_pending
+                                echo "--------------------------"
+                                echo "Total number of Volumes :`wc -w < $DGSPLIT/dginfo_pending`"
+                                echo
+                                cat $DGSPLIT/dginfo_pending
+                                echo
+            print -n "Do you have data volumes? [ Yes/No ] :"; read data_vol
+                if [ $data_vol == YES ] || [ $data_vol == yes ] || [ $data_vol == Yes ];then
+                                vi $DGSPLIT/data_vol
+                                line=`grep -c ^ $DGSPLIT/data_vol`
+                        if [ $line == 1 ]; then
+                                a=1
+                                lines=`wc -w < $DGSPLIT/data_vol`
+                                echo "============================"
+                                print "Number of Volumes : $lines"
+                        while [ $a -le $lines ]
+                        do
+                                vol=`cat $DGSPLIT/data_vol|awk -F" " '{print $'$a'}'`
+                                cat $DGSPLIT/dginfo_pending > $DGSPLIT/pending_dg ; fgrep -xv $vol $DGSPLIT/pending_dg > $DGSPLIT/dginfo_pending
+                                fgrep -x $vol $DGSPLIT/dginfo >/dev/null 2>&1
+                        if [ $? = 0 ];then
+                                print ""${GREEN}$vol${NORMAL}" volume found in "${FGRED}$dg${NORMAL}" diskgroup"
+                        else
+                                print -n ""${FGRED}Error:${NORMAL}" Volume $vol not found in diskgroup \n"
+                                exit 0
+                        fi
+                                a=`expr $a + 1`
+                        done
+                         if [[ -s $DGSPLIT/dginfo_pending ]];then
+                                echo
+                                print "Remaining volumes :`wc -w < $DGSPLIT/dginfo_pending` \n"
+                                echo "-----------------------------------"
+                                cat $DGSPLIT/dginfo_pending
+                                echo
+                         fi
+                                /usr/sbin/vxprint -g $dg -htv `cat $DGSPLIT/data_vol` |awk '$1~/sd/ {print $8}'|sort|uniq > $DGSPLIT/data_lun
+                                else
+                                echo
+                                echo "Error: All volumes should be in same line separated by space"
+                                exit 0
+                        fi
+             fi
+            print -n "Do you have redo volumes [ Yes/No ] :"; read redo
+                if [ $redo == YES ] || [ $redo == yes ] || [ $redo == Yes ];then
+                                vi $DGSPLIT/redo_vol
+                                line=`grep -c ^ $DGSPLIT/redo_vol`
+                        if [ $line == 1 ]; then
+                                a=1
+                                lines=`wc -w < $DGSPLIT/redo_vol`
+                                echo "============================"
+                                print "Number of Volumes : $lines"
+                        while [ $a -le $lines ]
+                        do
+                                vol=`cat $DGSPLIT/redo_vol|awk -F" " '{print $'$a'}'`
+                                cat $DGSPLIT/dginfo_pending > $DGSPLIT/pending_dg ; fgrep -xv $vol $DGSPLIT/pending_dg > $DGSPLIT/dginfo_pending
+                                fgrep -x $vol $DGSPLIT/dginfo >/dev/null 2>&1
+                        if [ $? = 0 ];then
+                                print ""${GREEN}$vol${NORMAL}" volume found in "${FGRED}$dg${NORMAL}" diskgroup"
+                        else
+                                print -n ""${FGRED}Error:${NORMAL}" Volume $vol not found in diskgroup \n"
+                                exit 0
+                        fi
+                                a=`expr $a + 1`
+                        done
+                         if [[ -s $DGSPLIT/dginfo_pending ]];then
+                                echo
+                                print "Remaining volumes :`wc -w < $DGSPLIT/dginfo_pending` \n"
+                                echo "-----------------------------------"
+                                cat $DGSPLIT/dginfo_pending
+                                echo
+                         fi
+                                /usr/sbin/vxprint -g $dg -htv `cat $DGSPLIT/redo_vol` |awk '$1~/sd/ {print $8}'|sort|uniq > $DGSPLIT/redo_lun
+                                else
+                                echo
+                                echo "Error: All volumes should be in same line separated by space"
+                                exit 0
+                        fi
+                fi
+                            print -n "Do you have archiv volumes [ Yes/No ] :"; read archiv
+                                if [ $archiv == YES ] || [ $archiv == yes ] || [ $archiv == Yes ];then
+                                        vi $DGSPLIT/archiv_vol
+                                        line=`grep -c ^ $DGSPLIT/archiv_vol`
+                                if [ $line == 1 ]; then
+                                        a=1
+                                        lines=`wc -w < $DGSPLIT/archiv_vol`
+                                        echo "============================"
+                                        print "Number of Volumes : $lines"
+                                while [ $a -le $lines ]
+                                do
+                                vol=`cat $DGSPLIT/archiv_vol|awk -F" " '{print $'$a'}'`
+                                cat $DGSPLIT/dginfo_pending > $DGSPLIT/pending_dg ; fgrep -xv $vol $DGSPLIT/pending_dg > $DGSPLIT/dginfo_pending
+                                fgrep -x $vol $DGSPLIT/dginfo >/dev/null 2>&1
+                        if [ $? = 0 ];then
+                                print ""${GREEN}$vol${NORMAL}" volume found in "${FGRED}$dg${NORMAL}" diskgroup"
+                        else
+                                print -n ""${FGRED}Error:${NORMAL}" Volume $vol not found in diskgroup \n"
+                                exit 0
+                        fi
+                               a=`expr $a + 1`
+                        done
+                         if [[ -s $DGSPLIT/dginfo_pending ]];then
+                                echo
+                                print "Remaining volumes :`wc -w < $DGSPLIT/dginfo_pending` \n"
+                                echo "-----------------------------------"
+                                cat $DGSPLIT/dginfo_pending
+                                echo
+                         fi
+                                /usr/sbin/vxprint -g $dg -htv `cat $DGSPLIT/archiv_vol` |awk '$1~/sd/ {print $8}'|sort|uniq > $DGSPLIT/archiv_lun
+                        else
+                            echo
+                            echo "Error: All volumes should be in same line separated by space"
+                            exit 0
+                fi
+            fi
+                 print -n "Do you have dbfra volumes [ Yes/No ] :"; read dbfra
+                    if [ $dbfra == YES ] || [ $dbfra == yes ] || [ $dbfra == Yes ];then
+                        vi $DGSPLIT/dbfra_vol
+                        line=`grep -c ^ $DGSPLIT/dbfra_vol`
+                        if [ $line == 1 ]; then
+                                a=1
+                                lines=`wc -w < $DGSPLIT/dbfra_vol`
+                                echo "============================"
+                                print "Number of Volumes : $lines"
+                        while [ $a -le $lines ]
+                        do
+                                vol=`cat $DGSPLIT/dbfra_vol|awk -F" " '{print $'$a'}'`
+                                cat $DGSPLIT/dginfo_pending > $DGSPLIT/pending_dg ; fgrep -xv $vol $DGSPLIT/pending_dg > $DGSPLIT/dginfo_pending
+                                fgrep -x $vol $DGSPLIT/dginfo >/dev/null 2>&1
+                        if [ $? = 0 ];then
+                                print ""${GREEN}$vol${NORMAL}" volume found in "${FGRED}$dg${NORMAL}" diskgroup"
+                        else
+                                print -n ""${FGRED}Error:${NORMAL}" Volume $vol not found in diskgroup \n"
+                                exit 0
+                        fi
+                                a=`expr $a + 1`
+                        done
+                         if [[ -s $DGSPLIT/dginfo_pending ]];then
+                                echo
+                                print "Remaining volumes :`wc -w < $DGSPLIT/dginfo_pending` \n"
+                                echo "-----------------------------------"
+                                cat $DGSPLIT/dginfo_pending
+                                echo
+                         fi
+                            /usr/sbin/vxprint -g $dg -htv `cat $DGSPLIT/dbfra_vol` |awk '$1~/sd/ {print $8}'|sort|uniq > $DGSPLIT/dbfra_lun
+                        else
+                                echo
+                                echo "Error: All volumes should be in same line separated by space"
+                                exit 0
+                        fi
+                fi
+                 print -n "Do you have any other volumes in $dg disk group? [ Yes/No ] :"; read other
+                    if [ $other == YES ] || [ $other == yes ] || [ $other == Yes ];then
+                        vi $DGSPLIT/other_vol
+                        line=`grep -c ^ $DGSPLIT/other_vol`
+                        if [ $line == 1 ]; then
+                                a=1
+                                lines=`wc -w < $DGSPLIT/other_vol`
+                                echo "============================"
+                                print "Number of Volumes : $lines"
+                        while [ $a -le $lines ]
+                        do
+                                vol=`cat $DGSPLIT/other_vol|awk -F" " '{print $'$a'}'`
+                                cat $DGSPLIT/dginfo_pending > $DGSPLIT/pending_dg ; fgrep -xv $vol $DGSPLIT/pending_dg > $DGSPLIT/dginfo_pending
+                                fgrep -x $vol $DGSPLIT/dginfo >/dev/null 2>&1
+                        if [ $? = 0 ];then
+                                print ""${GREEN}$vol${NORMAL}" volume found in "${FGRED}$dg${NORMAL}" diskgroup"
+                        else
+                                print -n ""${FGRED}Error:${NORMAL}" Volume $vol not found in diskgroup \n"
+                                exit 0
+                        fi
+                                a=`expr $a + 1`
+                        done
+                         if [[ -s $DGSPLIT/dginfo_pending ]];then
+                                 echo
+                                 print "Remaining volumes :`wc -w < $DGSPLIT/dginfo_pending` \n"
+                                 echo "-----------------------------------"
+                                 cat $DGSPLIT/dginfo_pending
+                                 echo
+                         fi
+                                /usr/sbin/vxprint -g $dg -htv `cat $DGSPLIT/other_vol` |awk '$1~/sd/ {print $8}'|sort|uniq > $DGSPLIT/other_lun
+                        else
+                                echo
+                                echo "Error: All volumes should be in same line separated by space"
+                                exit 0
+                        fi
+            fi
+if [ -r $DGSPLIT/data_vol ] || [ -r $DGSPLIT/redo_vol ] || [ -r $DGSPLIT/archiv_vol ] || [ -r $DGSPLIT/dbfra_vol ] || [ -r $DGSPLIT/other_vol ];then
+
+        if [ -r $DGSPLIT/data_lun ]; then
+            if [[ -s $DGSPLIT/redo_lun ]] ; then
+                cat $DGSPLIT/redo_lun >> $DGSPLIT/data_com_lun
+                        fi
+            if [[ -s $DGSPLIT/archiv_lun ]] ; then
+                cat $DGSPLIT/archiv_lun >> $DGSPLIT/data_com_lun
+                        fi
+            if [[ -s $DGSPLIT/dbfra_lun ]] ; then
+                cat $DGSPLIT/dbfra_lun >> $DGSPLIT/data_com_lun
+                        fi
+            if [[ -s $DGSPLIT/other_lun ]] ; then
+                cat $DGSPLIT/other_lun >> $DGSPLIT/data_com_lun
+                        fi
+        fi
+
+        if [ -r $DGSPLIT/redo_lun ]; then
+            if [[ -s $DGSPLIT/data_lun ]] ; then
+                cat $DGSPLIT/data_lun >> $DGSPLIT/redo_com_lun
+            fi
+            if [[ -s $DGSPLIT/archiv_lun ]] ; then
+                cat $DGSPLIT/archiv_lun >> $DGSPLIT/redo_com_lun
+            fi
+            if [[ -s $DGSPLIT/dbfra_lun ]] ; then
+                cat $DGSPLIT/dbfra_lun >> $DGSPLIT/redo_com_lun
+            fi
+            if [[ -s $DGSPLIT/other_lun ]] ; then
+                cat $DGSPLIT/other_lun >> $DGSPLIT/redo_com_lun
+            fi
+        fi
+
+        if [ -r $DGSPLIT/archiv_lun ]; then
+            if [[ -s $DGSPLIT/redo_lun ]] ; then
+                cat $DGSPLIT/redo_lun >> $DGSPLIT/archiv_com_lun
+            fi
+            if [[ -s $DGSPLIT/data_lun ]] ; then
+                cat $DGSPLIT/data_lun >> $DGSPLIT/archiv_com_lun
+            fi
+            if [[ -s $DGSPLIT/dbfra_lun ]] ; then
+                cat $DGSPLIT/dbfra_lun >> $DGSPLIT/archiv_com_lun
+            fi
+            if [[ -s $DGSPLIT/other_lun ]] ; then
+                cat $DGSPLIT/other_lun >> $DGSPLIT/archiv_com_lun
+            fi
+        fi
+
+        if [ -r $DGSPLIT/dbfra_lun ]; then
+            if [[ -s $DGSPLIT/redo_lun ]] ; then
+                cat $DGSPLIT/redo_lun >> $DGSPLIT/dbfra_com_lun
+            fi
+            if [[ -s $DGSPLIT/data_lun ]] ; then
+                cat $DGSPLIT/data_lun >> $DGSPLIT/dbfra_com_lun
+            fi
+            if [[ -s $DGSPLIT/archiv_lun ]] ; then
+                cat $DGSPLIT/archiv_lun >> $DGSPLIT/dbfra_com_lun
+            fi
+            if [[ -s $DGSPLIT/other_lun ]] ; then
+                cat $DGSPLIT/other_lun >> $DGSPLIT/dbfra_com_lun
+            fi
+        fi
+
+        if [ -r $DGSPLIT/other_lun ]; then
+            if [[ -s $DGSPLIT/redo_lun ]] ; then
+                cat $DGSPLIT/redo_lun >> $DGSPLIT/other_com_lun
+            fi
+            if [[ -s $DGSPLIT/data_lun ]] ; then
+                cat $DGSPLIT/data_lun >> $DGSPLIT/other_com_lun
+            fi
+            if [[ -s $DGSPLIT/archiv_lun ]] ; then
+                cat $DGSPLIT/archiv_lun >> $DGSPLIT/other_com_lun
+            fi
+            if [[ -s $DGSPLIT/dbfra_lun ]] ; then
+                cat $DGSPLIT/dbfra_lun >> $DGSPLIT/other_com_lun
+            fi
+        fi
+        if [ -r $DGSPLIT/data_com_lun ] || [ -r $DGSPLIT/redo_com_lun ] || [ -r $DGSPLIT/archiv_com_lun ] || [ -r $DGSPLIT/dbfra_com_lun ] || [ -r $DGSPLIT/other_com_lun ];then
+
+                        if [ `wc -w < $DGSPLIT/dginfo_pending` != 0 ]; then
+                                echo
+                                echo ""${FGRED}Below volumes are not included in this feasibility test, cannot proceed${NORMAL}""
+                                echo "------------------------------------------------------------------------------------"
+                                cat $DGSPLIT/dginfo_pending
+                                exit 0
+                        fi
+
+                if [[ -s $DGSPLIT/data_com_lun ]] ; then
+                        echo "Analysing data volume luns"
+                        echo "--------------------------"
+                        /usr/bin/cat $DGSPLIT/data_lun|while read line1
+                do
+                        /usr/bin/cat $DGSPLIT/data_com_lun |while read line2
+                do
+                if [[ $line1 == $line2 ]]; then
+                        /usr/bin/echo $line1 >> $DGSPLIT/data_mixed_lun
+                fi
+                        done
+                done
+            if [ -s $DGSPLIT/data_mixed_lun ];then
+                echo ""${FGRED}Below luns are mingled up, disk group split not possible for data volumes${NORMAL}""
+                cat $DGSPLIT/data_mixed_lun
+                echo ""
+                echo ""${FGRED}Below are the detailed information${NORMAL}""
+                echo ""
+                for x in `cat $DGSPLIT/data_mixed_lun`;do
+                echo ">>>>>>>>>>>> "${GREEN} $x ${NORMAL}""
+                /usr/sbin/vxprint -AhtQq |grep -i $x|grep sd|awk '{print $2 "\t\t" $3}'
+                echo ""
+                done
+                else
+                echo ""${GREEN}All Data volume luns are in seperate spindle${NORMAL}""
+                        fi
+    fi
+
+        if [ -r $DGSPLIT/redo_com_lun ]; then
+                        echo "Analysing redo volume luns"
+                        echo "--------------------------"
+                        /usr/bin/cat $DGSPLIT/redo_lun|while read line1
+                do
+                        /usr/bin/cat $DGSPLIT/redo_com_lun |while read line2
+                do
+                if [[ $line1 == $line2 ]]; then
+                        /usr/bin/echo $line1 >> $DGSPLIT/redo_mixed_lun
+                fi
+        done
+     done
+                if [ -s $DGSPLIT/redo_mixed_lun ];then
+                echo ""${FGRED}Below luns are mingled up, disk group split not possible for redo volumes${NORMAL}""
+                cat $DGSPLIT/redo_mixed_lun
+                echo ""
+                echo ""${FGRED}Below are the detailed information....!${NORMAL}""
+                echo ""
+                for x in `cat $DGSPLIT/redo_mixed_lun`;do
+                echo ">>>>>>>>>>>> "${GREEN} $x ${NORMAL}""
+                /usr/sbin/vxprint -AhtQq |grep -i $x|grep sd|awk '{print $2 "\t\t" $3}'
+                echo ""
+                done
+                else
+                echo ""${GREEN}All redo volume luns are in seperate spindle${NORMAL}""
+        fi
+    fi
+
+        if [ -r $DGSPLIT/archiv_com_lun ]; then
+                        echo "Analysing archiv volume luns"
+                        echo "----------------------------"
+
+                        /usr/bin/cat $DGSPLIT/archiv_lun|while read line1
+                do
+                        /usr/bin/cat $DGSPLIT/archiv_com_lun |while read line2
+                do
+                if [[ $line1 == $line2 ]]; then
+
+                        /usr/bin/echo $line1 >> $DGSPLIT/archiv_mixed_lun
+                fi
+                        done
+                done
+                if [ -s $DGSPLIT/archiv_mixed_lun ];then
+                echo ""${FGRED}Below luns are mingled up, disk group split not possible for archiv volumes${NORMAL}""
+                cat $DGSPLIT/archiv_mixed_lun
+                echo ""
+                echo ""${FGRED}Below are the detailed information....!${NORMAL}""
+                echo ""
+                for x in `cat $DGSPLIT/archiv_mixed_lun`;do
+                echo ">>>>>>>>>>>> "${GREEN} $x ${NORMAL}""
+                /usr/sbin/vxprint -AhtQq |grep -i $x|grep sd|awk '{print $2 "\t\t" $3}'
+                echo ""
+                done
+                else
+                echo ""${GREEN}All archiv volume luns are in seperate spindle${NORMAL}""
+        fi
+     fi
+
+        if [ -r $DGSPLIT/dbfra_com_lun ]; then
+                echo "Analysing dbfra volume luns"
+            echo "---------------------------"
+
+                        /usr/bin/cat $DGSPLIT/dbfra_lun|while read line1
+                do
+                        /usr/bin/cat $DGSPLIT/dbfra_com_lun |while read line2
+                do
+                if [[ $line1 == $line2 ]]; then
+
+                        /usr/bin/echo $line1 >> $DGSPLIT/dbfra_mixed_lun
+                fi
+                        done
+                done
+                if [ -s $DGSPLIT/dbfra_mixed_lun ];then
+                echo ""${FGRED}Below luns are mingled up, disk group split not possible for dbfra volumes${NORMAL}""
+                cat $DGSPLIT/dbfra_mixed_lun
+                echo ""
+                echo ""${FGRED}Below are the detailed information....!${NORMAL}""
+                echo ""
+                for x in `cat $DGSPLIT/dbfra_mixed_lun`;do
+                echo ">>>>>>>>>>>> "${GREEN} $x ${NORMAL}""
+                /usr/sbin/vxprint -AhtQq |grep -i $x|grep sd|awk '{print $2 "\t\t" $3}'
+                echo ""
+                done
+                else
+                echo ""${GREEN}All dbfra volume luns are in seperate spindle${NORMAL}""
+        fi
+       fi
+
+        if [ -r $DGSPLIT/other_com_lun ]; then
+                        echo "Analysing other volume luns"
+                        echo "---------------------------"
+                        /usr/bin/cat $DGSPLIT/other_lun|while read line1
+                do
+                        /usr/bin/cat $DGSPLIT/other_com_lun |while read line2
+                do
+                if [[ $line1 == $line2 ]]; then
+                        /usr/bin/echo $line1 >> $DGSPLIT/other_mixed_lun
+                fi
+                        done
+                done
+                if [ -s $DGSPLIT/other_mixed_lun ];then
+                echo ""${FGRED}Below luns are mingled up, disk group split not possible for OTHER volumes${NORMAL}""
+                cat $DGSPLIT/other_mixed_lun
+                echo ""
+                echo ""${FGRED}Below are the detailed information....!${NORMAL}""
+                echo ""
+                for x in `cat $DGSPLIT/other_mixed_lun`;do
+                echo ">>>>>>>>>>>> "${GREEN} $x ${NORMAL}""
+                /usr/sbin/vxprint -AhtQq |grep -i $x|grep sd|awk '{print $2 "\t\t" $3}'
+                echo ""
+                done
+                else
+                echo ""${GREEN}All OTHER volume luns are in seperate spindle${NORMAL}""
+        fi
+      fi
+            else
+            echo ""${FGRED}None of second set volume details are provided, for verifying the luns are in separate spindle${NORMAL}""
+            fi
+            else
+            echo ""${FGRED}No volumes provided ${NORMAL}""
+            fi
+                else
+                print ""${FGRED}$dg disk group not found in the configuration${NORMAL}""
+        fi
+                else
+                echo  ""${FGRED} Veritas not installed can not proceed${NORMAL}""
+        fi
+                else
+                user=`id | cut -d= -f2 | cut -d\( -f2 |cut -d\) -f1`
+                echo  ""${FGRED} You logged in as $user, root login is required.${NORMAL}""
+        fi
+                else
+                echo "User aborted ......."
+                exit 0
+        fi
+                ;;
+                        2)
+                        print -n "Pre DG remidation check script for OM-VP, "${FGRED}do you want to continue? [YES/NO]${NORMAL}" :"
+                        read mesg
+                if [ $mesg == YES ] || [ $mesg == yes ] || [ $mesg == Yes ];then
+                        if [ `whoami` == root ];then
+                                modinfo |grep vx >/dev/null 2>&1
+                        if [[ $? == 0 ]];then
+                print -n "Please provide diskgroup you want to verify fesability :"; read dg
+                vxdg list |awk '{print $1}'|fgrep -x $dg >/dev/null 2>&1
+         if [[ $? == 0 ]];then
+print "    Limitations of Disk Group Split and Join
+    ========================================
+
+    "${FGRED}Split or join disk group version must be 90 or greater.${NORMAL}"
+    The reconfiguration must involve an integral number of physical disks.
+    Objects to be moved must not contain open volumes.
+    Disks cannot be moved between CDS and non-CDS compatible disk groups.
+    Data change objects (DCOs) and snap objects that have been dissociated by Persistent FastResync cannot be moved between disk groups.
+    VERITAS Volume Replicator (VVR) objects cannot be moved between disk groups.
+    Splitting or moving a volume into a different disk group changes the volume's record ID.
+    The operation can only be performed on the master node of a cluster if either the source disk group or the target disk group is shared.
+    "${FGRED}For DG split VERITAS Storage Foundation Standard licence will not work, required enterprise license${NORMAL}""
+
+    if [ -r /var/DPP/OM_DGsplit_$dg ];then
+            mv /var/DPP/OM_DGsplit_$dg  /var/DPP/OM_DGsplit_$dg.`date +%d%m%Y_%H%M%S`
+            mkdir -p /var/DPP/OM_DGsplit_$dg
+            else
+            mkdir -p /var/DPP/OM_DGsplit_$dg
+    fi
+            DGSPLIT=`echo /var/DPP/OM_DGsplit_$dg`
+            vxinfo -g $dg |grep -v dcl|awk '{print $1}' > $DGSPLIT/dginfo ; cp $DGSPLIT/dginfo $DGSPLIT/dginfo_pending
+                                echo "-----------------------------------"
+                                echo "Total number of volumes :`wc -w < $DGSPLIT/dginfo_pending` "
+                                echo
+                                cat $DGSPLIT/dginfo_pending
+                                echo
+                        print -n "Do you have primary volumes? [ Yes/No ] :"; read primary_vol
+                          if [ $primary_vol == YES ] || [ $primary_vol == yes ] || [ $primary_vol == Yes ];then
+                                vi $DGSPLIT/primary_vol
+                                line=`grep -c ^ $DGSPLIT/primary_vol`
+                        if [ $line == 1 ]; then
+                                a=1
+                                lines=`wc -w < $DGSPLIT/primary_vol`
+                                echo "============================"
+                                print "Number of Volumes : $lines"
+                        while [ $a -le $lines ]
+                        do
+                                vol=`cat $DGSPLIT/primary_vol|awk -F" " '{print $'$a'}'`
+                                cat $DGSPLIT/dginfo_pending > $DGSPLIT/pending_dg ; fgrep -xv $vol $DGSPLIT/pending_dg > $DGSPLIT/dginfo_pending
+                                fgrep -x $vol $DGSPLIT/dginfo >/dev/null 2>&1
+                        if [ $? = 0 ];then
+                                print ""${GREEN}$vol${NORMAL}" volume found in "${FGRED}$dg${NORMAL}" diskgroup"
+                        else
+                                print -n ""${FGRED}Error:${NORMAL}" Volume $vol not found in diskgroup \n"
+                                exit 0
+                        fi
+                                a=`expr $a + 1`
+                        done
+                         if [[ -s $DGSPLIT/dginfo_pending ]] ; then
+                                echo
+                                print "Remaining volumes :`wc -w < $DGSPLIT/dginfo_pending` \n"
+                                echo "-----------------------------------"
+                                cat $DGSPLIT/dginfo_pending
+                                echo
+                         fi
+                                /usr/sbin/vxprint -g $dg -htv `cat $DGSPLIT/primary_vol` |awk '$1~/sd/ {print $8}'|sort|uniq > $DGSPLIT/primary_lun
+                         else
+                                echo
+                                echo "Error: All volumes should be in same line separated by space"
+                                exit 0
+                        fi
+            fi
+                        print -n "Do you have OM (PFI|SNAP) volumes? [ Yes/No ] :"; read OM_vol
+                            if [ $OM_vol == YES ] || [ $OM_vol == yes ] || [ $OM_vol == Yes ];then
+                                vi $DGSPLIT/OM_vol
+                                line=`grep -c ^ $DGSPLIT/OM_vol`
+                        if [ $line == 1 ]; then
+                                a=1
+                                lines=`wc -w < $DGSPLIT/OM_vol`
+                                echo "============================"
+                                print "Number of Volumes : $lines"
+                        while [ $a -le $lines ]
+                        do
+                                vol=`cat $DGSPLIT/OM_vol|awk -F" " '{print $'$a'}'`
+                                cat $DGSPLIT/dginfo_pending > $DGSPLIT/pending_dg ; fgrep -xv $vol $DGSPLIT/pending_dg > $DGSPLIT/dginfo_pending
+                                fgrep -x $vol $DGSPLIT/dginfo >/dev/null 2>&1
+                        if [ $? = 0 ];then
+                                print ""${GREEN}$vol${NORMAL}" volume found in "${FGRED}$dg${NORMAL}" diskgroup"
+                        else
+                                print -n ""${FGRED}Error:${NORMAL}" Volume $vol not found in diskgroup \n"
+                                exit 0
+                        fi
+                                a=`expr $a + 1`
+                        done
+                         if [[ -s $DGSPLIT/dginfo_pending ]] ; then
+                               echo
+                                print "Remaining volumes :`wc -w < $DGSPLIT/dginfo_pending` \n"
+                               echo "-----------------------------------"
+                               cat $DGSPLIT/dginfo_pending
+                               echo
+                         fi
+                                /usr/sbin/vxprint -g $dg -htv `cat $DGSPLIT/OM_vol` |awk '$1~/sd/ {print $8}'|sort|uniq > $DGSPLIT/OM_lun
+                else
+                                echo  ""
+                                echo "Error: All volumes should be in same line separated by space"
+                                exit 0
+                fi
+            fi
+
+                if [ -r $DGSPLIT/primary_vol ] || [ -r $DGSPLIT/OM_vol ];then
+                        if [ -r $DGSPLIT/primary_lun ] && [ -r $DGSPLIT/OM_lun ];then
+                        if [ `wc -w < $DGSPLIT/dginfo_pending` != 0 ]; then
+                                echo ""${FGRED}Below volumes are not included in this feasibility test, cannot proceed${NORMAL}""
+                                echo "--------------------------------------------------------------------"
+                                cat $DGSPLIT/dginfo_pending
+                                exit 0
+                        fi
+                        /usr/bin/cat $DGSPLIT/primary_lun|while read line1
+                        do
+                        /usr/bin/cat $DGSPLIT/OM_lun |while read line2
+                        do
+                        if [[ $line1 == $line2 ]]; then
+                             /usr/bin/echo $line1 >> $DGSPLIT/com_lun
+                         fi
+                        done
+                done
+                if [ -s $DGSPLIT/com_lun ];then
+                clear
+                echo
+                echo ""${FGRED}Below luns are mingled up, DG split not possible for PR and OM volumes${NORMAL}""
+                cat $DGSPLIT/com_lun
+                echo
+                echo ""${FGRED}Below are the detailed information${NORMAL}""
+                echo ""
+                for x in `cat $DGSPLIT/com_lun`;do
+                echo ">>>>>>>>>>>> "${GREEN} $x ${NORMAL}""
+                /usr/sbin/vxprint -AhtQq |grep -i $x|grep sd|awk '{print $2 "\t\t" $3}'
+                echo ""
+                done
+             else
+                                echo
+                                echo "---------------------------------------------"
+                                echo ""${GREEN}All PR and OM lunus are in seperate spindle${NORMAL}""
+                fi
+                                else
+                                echo ""${FGRED}Error:${NORMAL}" Second set volumes not provided"
+                                fi
+                                else
+                                echo ""${FGRED}No volume details provided${NORMAL}""
+                                fi
+
+                                else
+                                print ""${FGRED}$dg disk group not found in the configuration${NORMAL}""
+                fi
+                else
+                echo
+                echo  ""${FGRED} Veritas not installed ${NORMAL}""
+                echo ""
+        fi
+                else
+                user=`id | cut -d= -f2 | cut -d\( -f2 |cut -d\) -f1`
+                echo ""
+                echo  ""${FGRED} You are not root user. $user user do not have permissions to run this script. ${NORMAL}""
+                echo ""
+        fi
+                                else
+                echo "User aborted ......."
+                exit 0
+        fi
+                ;;
+                        Q|q)
+                exit 0
+                ;;
+                        *)
+                echo "Wrong option or, no option selected"
+                ;;
+                esac
+</pre>

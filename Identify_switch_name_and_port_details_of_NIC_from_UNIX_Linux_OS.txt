@@ -1,0 +1,32 @@
+---++ Doc Log 1391046620_01
+        $ Date: Jan 30 07:20:20 2014
+        $ Summary: Identify switch name and port details of NIC from UNIX/Linux OS
+
+---++++ Details:
+<pre>
+# tcpdump -nn -v -i eth1 -s 1500 -c 1 'ether proto 0x88cc'
+tcpdump: listening on eth1, link-type EN10MB (Ethernet), capture size 1500 bytes
+17:20:46.370094 24:b6:57:ac:b3:ee > 01:80:c2:00:00:0e, ethertype Unknown (0x88cc), length 311: 
+	0x0000:  0207 0424 b657 acb3 ee04 0c07 4574 6831  ...$.W......Eth1
+	0x0010:  3031 2f31 2f34 3506 0200 7808 1045 7468  01/1/45...x..Eth ---> switch port
+	0x0020:  6572 6e65 7431 3031 2f31 2f34 350a 2373  ernet101/1/45.#s
+	0x0030:  6c65 6e2d 756d 692d 7432 2d73 3132 2e69  len-umi-t2-s12.i ------> device
+	0x0040:  6463 6d67 6d74 2e74 656c 7374 7261 2e63  dcmgmt.mycloud.c
+	0x0050:  6f6d 0c95 4369 7363 6f20 4e65 7875 7320  om..Cisco.Nexus.
+	0x0070:  2028 4e58 2d4f 5329 2053 6f66 7477 6172  .(NX-OS).Softwar
+	0x0080:  650a 5441 4320 7375 7070 6f72 743a 2068  e.TAC.support:.h
+	0x0090:  7474 703a 2f2f 7777 772e 6369 7363 6f2e  ttp://www.cisco.
+	0x00a0:  636f 6d2f 7461 630a 436f 7079 7269 6768  com/tac.Copyrigh
+	0x00b0:  7420 2863 2920 3230 3032 2d32 3031 322c  t.(c).2002-2012,
+	0x00d0:  496e 632e 2041 6c6c 2072 6967 6874 7320  Inc..All.rights.
+	0x00e0:  7265 7365 7276 6564 2e0e 0400 0400 0410  reserved........
+	0x00f0:  0e07 0624 b657 acb3 ee02 0500 0000 00fe  ...$.W..........
+	0x0100:  1700 1b21 0102 0a00 0000 0000 0100 0000  ...!............
+	0x0110:  000c 0500 0080 0180 fe05 0001 4201 00fe  ............B...
+	0x0120:  0600 80c2 0105 a400 00                   .........
+1 packets captured
+1 packets received by filter
+0 packets dropped by kernel
+#
+From the above information, we can notice that  "eth1"  NIC  is  connected to " slen-umi-t2-s12" device at switch port "01/1/45".
+</pre>

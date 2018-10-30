@@ -1,0 +1,2046 @@
+---++ Doc Log 1196683573_01
+
+	$ Date: Mon Dec 03 12:06:13 2007
+	$ Summary: splitbrain
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+(root_test303)@/etc # vxdisk list c3t0d33s2
+Device:    c3t0d33s2
+devicetag: c3t0d33
+type:      auto
+hostid:
+disk:      name= id=1133516759.32.test303
+group:     name=appdg id=1133513788.18.test303
+info:      format=cdsdisk,privoffset=256,pubslice=2,privslice=2
+flags:     online ready private autoconfig
+pubpaths:  block=/dev/vx/dmp/c3t0d33s2 char=/dev/vx/rdmp/c3t0d33s2
+version:   3.1
+iosize:    min=512 (bytes) max=256 (blocks)
+public:    slice=2 offset=2304 len=70703616 disk_offset=0
+private:   slice=2 offset=256 len=2048 disk_offset=0
+update:    time=1196676135 seqno=0.33
+ssb:       actual_seqno=0.1
+headers:   0 240
+configs:   count=1 len=1280
+logs:      count=1 len=192
+Defined regions:
+ config   priv 000048-000239[000192]: copy=01 offset=000000 enabled
+ config   priv 000256-001343[001088]: copy=01 offset=000192 enabled
+ log      priv 001344-001535[000192]: copy=01 offset=000000 enabled
+ lockrgn  priv 001536-001679[000144]: part=00 offset=000000
+Multipathing information:
+numpaths:   1
+c3t0d33s2       state=enabled
+(root_test303)@/etc # /usr/sbin/vxdg -o selectcp=1133513788.18.test303 import appdg
+VxVM vxdg ERROR V-5-1-587 Disk group appdg: import failed: Disk for disk group not found
+
+(root_test303)@/etc # vxdisk list c4t0d29s2
+Device:    c4t0d29s2
+devicetag: c4t0d29
+type:      auto
+hostid:
+disk:      name= id=1133513777.14.test303
+group:     name=appdg id=1133513788.18.test303
+info:      format=cdsdisk,privoffset=256,pubslice=2,privslice=2
+flags:     online ready private autoconfig
+pubpaths:  block=/dev/vx/dmp/c4t0d29s2 char=/dev/vx/rdmp/c4t0d29s2
+version:   3.1
+iosize:    min=512 (bytes) max=256 (blocks)
+public:    slice=2 offset=2304 len=70703616 disk_offset=0
+private:   slice=2 offset=256 len=2048 disk_offset=0
+update:    time=1196680006 seqno=0.34
+ssb:       actual_seqno=0.0
+headers:   0 240
+configs:   count=1 len=1280
+logs:      count=1 len=192
+Defined regions:
+ config   priv 000048-000239[000192]: copy=01 offset=000000 enabled
+ config   priv 000256-001343[001088]: copy=01 offset=000192 enabled
+ log      priv 001344-001535[000192]: copy=01 offset=000000 enabled
+ lockrgn  priv 001536-001679[000144]: part=00 offset=000000
+Multipathing information:
+numpaths:   1
+c4t0d29s2       state=enabled
+(root_test303)@/usr/lib # cd vxvm
+(root_test303)@/usr/lib/vxvm # ls
+bin       diag.d    lib       root      type      voladm.d
+
+(root_test303)@/usr/lib/vxvm # ls -lrt
+total 14
+drwxr-xr-x   2 root     sys         1536 Dec 30  2004 bin
+drwxr-xr-x   2 root     sys          512 Dec 30  2004 lib
+drwxr-xr-x   4 root     sys          512 Dec 30  2004 diag.d
+drwxr-xr-x   5 root     sys          512 Dec 30  2004 root
+drwxr-xr-x   5 root     sys          512 Dec 30  2004 voladm.d
+drwxr-xr-x   6 root     sys          512 Dec 30  2004 type
+(root_test303)@/usr/lib/vxvm # cd diag.d
+(root_test303)@/usr/lib/vxvm/diag.d # ./vxprivutil dumpconfig /dev/vx/dmp/c4t0d29s2 > /var/tmp/saber.out
+(root_test303)@/usr/lib/vxvm/diag.d # cat /var/tmp/saber.out
+#Config copy 01
+
+#Header nblocks=5120 blksize=128 hdrsize=512
+#flags=0x100 (CLEAN)
+#version: 4/11
+#dgname: appdg  dgid: 1133513788.18.test303
+#config: tid=0.1091 nstpool=0 nrvg=0 nrlink=0 ncache=0 nvol=4 nplex=4 nsd=8 ndm=5 nda=0
+#pending: tid=0.1091 nstpool=0 nrvg=0 nrlink=0 ncache=0 nvol=4 nplex=4 nsd=8 ndm=5 nda=0
+#
+#Block    4: flag=0    ref=82   offset=0    frag_size=104
+#Block    5: flag=0    ref=52   offset=0    frag_size=82
+#Block    6: flag=0    ref=82   offset=104  frag_size=12
+#Block    8: flag=0    ref=83   offset=0    frag_size=73
+#Block   10: flag=0    ref=84   offset=0    frag_size=104
+#Block   11: flag=0    ref=84   offset=104  frag_size=5
+#Block   13: flag=0    ref=85   offset=0    frag_size=65
+#Block   15: flag=0    ref=87   offset=0    frag_size=104
+#Block   16: flag=0    ref=87   offset=104  frag_size=8
+#Block   18: flag=0    ref=88   offset=0    frag_size=69
+#Block   20: flag=0    ref=89   offset=0    frag_size=104
+#Block   21: flag=0    ref=89   offset=104  frag_size=12
+#Block   23: flag=0    ref=90   offset=0    frag_size=72
+#Block   50: flag=0    ref=86   offset=0    frag_size=75
+#Block   60: flag=0    ref=96   offset=0    frag_size=104
+#Block   61: flag=0    ref=96   offset=104  frag_size=6
+#Block   63: flag=0    ref=97   offset=0    frag_size=104
+#Block   64: flag=0    ref=97   offset=104  frag_size=6
+#Block   71: flag=0    ref=100  offset=0    frag_size=76
+#Block   73: flag=0    ref=101  offset=0    frag_size=76
+#Block   75: flag=0    ref=102  offset=0    frag_size=76
+#Block   85: flag=0    ref=120  offset=0    frag_size=104
+#Block   86: flag=0    ref=120  offset=104  frag_size=6
+#Block   93: flag=0    ref=123  offset=0    frag_size=75
+#Block   95: flag=0    ref=124  offset=0    frag_size=75
+#Block  108: flag=0    ref=139  offset=0    frag_size=104
+#Block  109: flag=0    ref=139  offset=104  frag_size=6
+#Block  111: flag=0    ref=140  offset=0    frag_size=104
+#Block  112: flag=0    ref=140  offset=104  frag_size=6
+#Block  119: flag=0    ref=143  offset=0    frag_size=76
+#Block  121: flag=0    ref=144  offset=0    frag_size=76
+#
+#Record   52: type=0x3f115 flags=0    gen_flags=0x4  size=82
+#Blocks: 5
+dg   appdg
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dgid=1133513788.18.test303
+  rid=0.1025
+  update_tid=0.1027
+  nconfig=default
+  nlog=default
+  base_minor=21000
+  version=110
+  cds=on
+  alignment=16
+  last_platform=SOLARIS
+  maxdev=32767
+#Record   82: type=0x1100121 flags=0    gen_flags=0x4  size=116
+#Blocks: 4 6
+vol  concordvol
+  use_type=fsgen
+  fstype="
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  state="ACTIVE
+  writeback=on
+  writecopy=off
+  specify_writecopy=off
+  pl_num=1
+  start_opts="
+  read_pol=SELECT
+  minor=21001
+  user=root
+  group=root
+  mode=0600
+  log_type=REGION
+  len=10485760
+  log_len=0
+  update_tid=0.1091
+  rid=0.1045
+  detach_tid=0.0
+  active=off
+  forceminor=off
+  badlog=off
+  recover_checkpoint=0
+  sd_num=0
+  sdnum=0
+  kdetach=off
+  storage=off
+  layered=off
+  apprecover=off
+  recover_seqno=0
+  recov_id=0
+  primary_datavol=
+  vvr_tag=0
+  morph=off
+  guid={a82d7fda-1dd1-11b2-9d91-0003ba9704c7}
+  inst_invalid=off
+  incomplete=off
+  instant=off
+  restore=off
+  snap_after_restore=off
+  iscachevol=off
+  oldlog=off
+  nostart=off
+  norecov=off
+  logmap_align=0
+  logmap_len=0
+  inst_src_guid={00000000-0000-0000-0000-000000000000}
+  cascaded=off
+#Record   83: type=0x4022 flags=0    gen_flags=0x4  size=73
+#Blocks: 8
+plex concordvol-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  layout=CONCAT
+  sd_num=1
+  state="ACTIVE
+  log_sd=
+  update_tid=0.1091
+  rid=0.1047
+  vol_rid=0.1045
+  detach_tid=0.0
+  log=off
+  noerror=off
+  kdetach=off
+  stale=off
+  ncolumn=0
+  raidlog=off
+  guid={a82da06e-1dd1-11b2-9d91-0003ba9704c7}
+  mapguid={00000000-0000-0000-0000-000000000000}
+#Record   84: type=0x1100121 flags=0    gen_flags=0x4  size=109
+#Blocks: 10 11
+vol  db
+  use_type=fsgen
+  fstype="
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  state="ACTIVE
+  writeback=on
+  writecopy=off
+  specify_writecopy=off
+  pl_num=1
+  start_opts="
+  read_pol=SELECT
+  minor=21002
+  user=root
+  group=root
+  mode=0600
+  log_type=REGION
+  len=197132288
+  log_len=0
+  update_tid=0.1091
+  rid=0.1052
+  detach_tid=0.0
+  active=off
+  forceminor=off
+  badlog=off
+  recover_checkpoint=0
+  sd_num=0
+  sdnum=0
+  kdetach=off
+  storage=off
+  layered=off
+  apprecover=off
+  recover_seqno=0
+  recov_id=0
+  primary_datavol=
+  vvr_tag=0
+  morph=off
+  guid={b1490bfc-1dd1-11b2-9d91-0003ba9704c7}
+  inst_invalid=off
+  incomplete=off
+  instant=off
+  restore=off
+  snap_after_restore=off
+  iscachevol=off
+  oldlog=off
+  nostart=off
+  norecov=off
+  logmap_align=0
+  logmap_len=0
+  inst_src_guid={00000000-0000-0000-0000-000000000000}
+  cascaded=off
+#Record   85: type=0x4022 flags=0    gen_flags=0x4  size=65
+#Blocks: 13
+plex db-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  layout=CONCAT
+  sd_num=3
+  state="ACTIVE
+  log_sd=
+  update_tid=0.1091
+  rid=0.1054
+  vol_rid=0.1052
+  detach_tid=0.0
+  log=off
+  noerror=off
+  kdetach=off
+  stale=off
+  ncolumn=0
+  raidlog=off
+  guid={b1492d08-1dd1-11b2-9d91-0003ba9704c7}
+  mapguid={00000000-0000-0000-0000-000000000000}
+#Record   86: type=0x20123 flags=0    gen_flags=0x4  size=75
+#Blocks: 50
+sd   appdg03-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=0
+  pl_offset=0
+  len=10485760
+  update_tid=0.1050
+  rid=0.1049
+  guid={a82dc0e4-1dd1-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1047
+  dm_rid=0.1030
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record   87: type=0x1100121 flags=0    gen_flags=0x4  size=112
+#Blocks: 15 16
+vol  oracle
+  use_type=fsgen
+  fstype="
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  state="ACTIVE
+  writeback=on
+  writecopy=off
+  specify_writecopy=off
+  pl_num=1
+  start_opts="
+  read_pol=SELECT
+  minor=21003
+  user=root
+  group=root
+  mode=0600
+  log_type=REGION
+  len=8388608
+  log_len=0
+  update_tid=0.1091
+  rid=0.1063
+  detach_tid=0.0
+  active=off
+  forceminor=off
+  badlog=off
+  recover_checkpoint=0
+  sd_num=0
+  sdnum=0
+  kdetach=off
+  storage=off
+  layered=off
+  apprecover=off
+  recover_seqno=0
+  recov_id=0
+  primary_datavol=
+  vvr_tag=0
+  morph=off
+  guid={b88cd196-1dd1-11b2-9d91-0003ba9704c7}
+  inst_invalid=off
+  incomplete=off
+  instant=off
+  restore=off
+  snap_after_restore=off
+  iscachevol=off
+  oldlog=off
+  nostart=off
+  norecov=off
+  logmap_align=0
+  logmap_len=0
+  inst_src_guid={00000000-0000-0000-0000-000000000000}
+  cascaded=off
+#Record   88: type=0x4022 flags=0    gen_flags=0x4  size=69
+#Blocks: 18
+plex oracle-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  layout=CONCAT
+  sd_num=2
+  state="ACTIVE
+  log_sd=
+  update_tid=0.1091
+  rid=0.1065
+  vol_rid=0.1063
+  detach_tid=0.0
+  log=off
+  noerror=off
+  kdetach=off
+  stale=off
+  ncolumn=0
+  raidlog=off
+  guid={b88cf2de-1dd1-11b2-9d91-0003ba9704c7}
+  mapguid={00000000-0000-0000-0000-000000000000}
+#Record   89: type=0x1100121 flags=0    gen_flags=0x4  size=116
+#Blocks: 20 21
+vol  backupvol
+  use_type=fsgen
+  fstype="
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  state="ACTIVE
+  writeback=on
+  writecopy=off
+  specify_writecopy=off
+  pl_num=1
+  start_opts="
+  read_pol=SELECT
+  minor=21000
+  user=root
+  group=root
+  mode=0600
+  log_type=REGION
+  len=136314880
+  log_len=0
+  update_tid=0.1091
+  rid=0.1073
+  detach_tid=0.0
+  active=off
+  forceminor=off
+  badlog=off
+  recover_checkpoint=0
+  sd_num=0
+  sdnum=0
+  kdetach=off
+  storage=off
+  layered=off
+  apprecover=off
+  recover_seqno=0
+  recov_id=0
+  primary_datavol=
+  vvr_tag=0
+  morph=off
+  guid={6af7406e-1dd2-11b2-9d91-0003ba9704c7}
+  inst_invalid=off
+  incomplete=off
+  instant=off
+  restore=off
+  snap_after_restore=off
+  iscachevol=off
+  oldlog=off
+  nostart=off
+  norecov=off
+  logmap_align=0
+  logmap_len=0
+  inst_src_guid={00000000-0000-0000-0000-000000000000}
+  cascaded=off
+#Record   90: type=0x4022 flags=0    gen_flags=0x4  size=72
+#Blocks: 23
+plex backupvol-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  layout=CONCAT
+  sd_num=2
+  state="ACTIVE
+  log_sd=
+  update_tid=0.1091
+  rid=0.1075
+  vol_rid=0.1073
+  detach_tid=0.0
+  log=off
+  noerror=off
+  kdetach=off
+  stale=off
+  ncolumn=0
+  raidlog=off
+  guid={6af761d4-1dd2-11b2-9d91-0003ba9704c7}
+  mapguid={00000000-0000-0000-0000-000000000000}
+#Record   96: type=0x33114 flags=0    gen_flags=0x4  size=110
+#Blocks: 60 61
+dm   appdg04
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  diskid=1133516758.30.test303
+  last_diskid=1133516758.30.test303
+  last_da_name=c3t0d32s2
+  rid=0.1032
+  guid={7382c984-1dd2-11b2-9d90-0003ba9704c7}
+  allocator_reserved=off
+  removed=off
+  spare=off
+  failing=off
+  update_tid=0.1061
+  last_da_dev=32/1040
+  last_disk_offset=2304
+  ssbid=0.0
+#Record   97: type=0x33114 flags=0    gen_flags=0x4  size=110
+#Blocks: 63 64
+dm   appdg05
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  diskid=1133516759.32.test303
+  last_diskid=1133516759.32.test303
+  last_da_name=c3t0d33s2
+  rid=0.1034
+  guid={73b40486-1dd2-11b2-9d90-0003ba9704c7}
+  allocator_reserved=off
+  removed=off
+  spare=off
+  failing=off
+  update_tid=0.1061
+  last_da_dev=32/1080
+  last_disk_offset=2304
+  ssbid=0.0
+#Record  100: type=0x20123 flags=0    gen_flags=0x4  size=76
+#Blocks: 71
+sd   appdg03-02
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=10485760
+  pl_offset=0
+  len=55725056
+  update_tid=0.1061
+  rid=0.1056
+  guid={b1494d9c-1dd1-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1054
+  dm_rid=0.1030
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record  101: type=0x20123 flags=0    gen_flags=0x4  size=76
+#Blocks: 73
+sd   appdg04-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=0
+  pl_offset=55725056
+  len=70703616
+  update_tid=0.1061
+  rid=0.1058
+  guid={b1497bf0-1dd1-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1054
+  dm_rid=0.1032
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record  102: type=0x20123 flags=0    gen_flags=0x4  size=76
+#Blocks: 75
+sd   appdg05-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=0
+  pl_offset=126428672
+  len=70703616
+  update_tid=0.1061
+  rid=0.1060
+  guid={b149a526-1dd1-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1054
+  dm_rid=0.1034
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record  120: type=0x33114 flags=0    gen_flags=0x4  size=110
+#Blocks: 85 86
+dm   appdg03
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  diskid=1133516757.28.test303
+  last_diskid=1133516757.28.test303
+  last_da_name=c3t0d31s2
+  rid=0.1030
+  guid={734caac0-1dd2-11b2-9d90-0003ba9704c7}
+  allocator_reserved=off
+  removed=off
+  spare=off
+  failing=off
+  update_tid=0.1070
+  last_da_dev=32/1032
+  last_disk_offset=2304
+  ssbid=0.0
+#Record  123: type=0x20123 flags=0    gen_flags=0x4  size=75
+#Blocks: 93
+sd   appdg02-02
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=65611264
+  pl_offset=0
+  len=5092352
+  update_tid=0.1070
+  rid=0.1067
+  guid={b88d1412-1dd1-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1065
+  dm_rid=0.1028
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record  124: type=0x20123 flags=0    gen_flags=0x4  size=75
+#Blocks: 95
+sd   appdg03-03
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=66210816
+  pl_offset=5092352
+  len=3296256
+  update_tid=0.1070
+  rid=0.1069
+  guid={b88d4072-1dd1-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1065
+  dm_rid=0.1030
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record  139: type=0x33114 flags=0    gen_flags=0x4  size=110
+#Blocks: 108 109
+dm   appdg01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  diskid=1133513777.14.test303
+  last_diskid=1133513777.14.test303
+  last_da_name=c3t0d29s2
+  rid=0.1026
+  guid={86b934fe-1dd2-11b2-9d8f-0003ba9704c7}
+  allocator_reserved=off
+  removed=off
+  spare=off
+  failing=off
+  update_tid=0.1080
+  last_da_dev=32/1016
+  last_disk_offset=2304
+  ssbid=0.0
+#Record  140: type=0x33114 flags=0    gen_flags=0x4  size=110
+#Blocks: 111 112
+dm   appdg02
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  diskid=1133516756.26.test303
+  last_diskid=1133516756.26.test303
+  last_da_name=c3t0d30s2
+  rid=0.1028
+  guid={731882ea-1dd2-11b2-9d90-0003ba9704c7}
+  allocator_reserved=off
+  removed=off
+  spare=off
+  failing=off
+  update_tid=0.1080
+  last_da_dev=32/1024
+  last_disk_offset=2304
+  ssbid=0.0
+#Record  143: type=0x20123 flags=0    gen_flags=0x4  size=76
+#Blocks: 119
+sd   appdg01-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=0
+  pl_offset=0
+  len=70703616
+  update_tid=0.1080
+  rid=0.1077
+  guid={6af783b2-1dd2-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1075
+  dm_rid=0.1026
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record  144: type=0x20123 flags=0    gen_flags=0x4  size=76
+#Blocks: 121
+sd   appdg02-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=0
+  pl_offset=70703616
+  len=65611264
+  update_tid=0.1080
+  rid=0.1079
+  guid={6af7af72-1dd2-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1075
+  dm_rid=0.1028
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+(root_test303)@/usr/lib/vxvm/diag.d # ls -l /var/tmp/saber.out
+-rw-r--r--   1 root     other      13457 Dec  3 11:17 /var/tmp/saber.out
+
+(root_test303)@/usr/lib/vxvm/diag.d # cat /var/tmp/saber.out | vxprint -D - -ht
+Disk group: appdg
+
+DG NAME         NCONFIG      NLOG     MINORS   GROUP-ID
+ST NAME         STATE        DM_CNT   SPARE_CNT         APPVOL_CNT
+DM NAME         DEVICE       TYPE     PRIVLEN  PUBLEN   STATE
+RV NAME         RLINK_CNT    KSTATE   STATE    PRIMARY  DATAVOLS  SRL
+RL NAME         RVG          KSTATE   STATE    REM_HOST REM_DG    REM_RLNK
+CO NAME         CACHEVOL     KSTATE   STATE
+VT NAME         NVOLUME      KSTATE   STATE
+V  NAME         RVG/VSET/CO  KSTATE   STATE    LENGTH   READPOL   PREFPLEX UTYPE
+PL NAME         VOLUME       KSTATE   STATE    LENGTH   LAYOUT    NCOL/WID MODE
+SD NAME         PLEX         DISK     DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+SV NAME         PLEX         VOLNAME  NVOLLAYR LENGTH   [COL/]OFF AM/NM    MODE
+SC NAME         PLEX         CACHE    DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+DC NAME         PARENTVOL    LOGVOL
+SP NAME         SNAPVOL      DCO
+
+dg appdg        default      default  21000    1133513788.18.test303
+
+dm appdg01      -            -        -        -        -
+dm appdg02      -            -        -        -        -
+dm appdg03      -            -        -        -        -
+dm appdg04      -            -        -        -        -
+dm appdg05      -            -        -        -        -
+
+v  backupvol    -            DISABLED ACTIVE   136314880 SELECT   -        fsgen
+pl backupvol-01 backupvol    DISABLED ACTIVE   136314880 CONCAT   -        RW
+sd appdg01-01   backupvol-01 appdg01  0        70703616 0         -        DIS
+sd appdg02-01   backupvol-01 appdg02  0        65611264 70703616  -        DIS
+
+v  concordvol   -            DISABLED ACTIVE   10485760 SELECT    -        fsgen
+pl concordvol-01 concordvol  DISABLED ACTIVE   10485760 CONCAT    -        RW
+sd appdg03-01   concordvol-01 appdg03 0        10485760 0         -        DIS
+
+v  db           -            DISABLED ACTIVE   197132288 SELECT   -        fsgen
+pl db-01        db           DISABLED ACTIVE   197132288 CONCAT   -        RW
+sd appdg03-02   db-01        appdg03  10485760 55725056 0         -        DIS
+sd appdg04-01   db-01        appdg04  0        70703616 55725056  -        DIS
+sd appdg05-01   db-01        appdg05  0        70703616 126428672 -        DIS
+
+v  oracle       -            DISABLED ACTIVE   8388608  SELECT    -        fsgen
+pl oracle-01    oracle       DISABLED ACTIVE   8388608  CONCAT    -        RW
+sd appdg02-02   oracle-01    appdg02  65611264 5092352  0         -        DIS
+sd appdg03-03   oracle-01    appdg03  66210816 3296256  5092352   -        DIS
+(root_test303)@/usr/lib/vxvm/diag.d # cd /etc/
+
+
+(root_test303)@/etc # vxdisk -o alldgs list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c1t0d0s2     auto:sliced     rootdisk     rootdg       online
+c1t1d0s2     auto:sliced     rootmirror   rootdg       online
+c1t2d0s2     auto:none       -            -            online invalid
+c1t3d0s2     auto:none       -            -            online invalid
+c3t0d0s2     auto            -            -            error
+c3t0d29s2    auto:cdsdisk    -           (appdg)       online
+c3t0d30s2    auto:cdsdisk    -           (appdg)       online
+c3t0d31s2    auto:cdsdisk    -           (appdg)       online
+c3t0d32s2    auto:cdsdisk    -           (appdg)       online
+c3t0d33s2    auto:cdsdisk    -           (appdg)       online
+c4t0d0s2     auto            -            -            error
+c4t0d29s2    auto:cdsdisk    -           (appdg)       online
+c4t0d30s2    auto:cdsdisk    -           (appdg)       online
+c4t0d31s2    auto:cdsdisk    -           (appdg)       online
+c4t0d32s2    auto:cdsdisk    -           (appdg)       online
+c4t0d33s2    auto:cdsdisk    -           (appdg)       online
+(root_test303)@/etc # format
+Searching for disks...done
+
+c3t0d0: configured with capacity of 44.06MB
+c4t0d0: configured with capacity of 44.06MB
+
+
+AVAILABLE DISK SELECTIONS:
+       0. c1t0d0 <SUN72G cyl 14087 alt 2 hd 24 sec 424>
+          /pci@1f,700000/scsi@2/sd@0,0
+       1. c1t1d0 <SUN72G cyl 14087 alt 2 hd 24 sec 424>
+          /pci@1f,700000/scsi@2/sd@1,0
+       2. c1t2d0 <SUN72G cyl 14087 alt 2 hd 24 sec 424>
+          /pci@1f,700000/scsi@2/sd@2,0
+       3. c1t3d0 <SUN72G cyl 14087 alt 2 hd 24 sec 424>
+          /pci@1f,700000/scsi@2/sd@3,0
+       4. c3t0d0 <EMC-SYMMETRIX-5671 cyl 94 alt 2 hd 15 sec 64>
+          /pci@1c,600000/lpfc@1/sd@0,0
+       5. c3t0d29 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1c,600000/lpfc@1/sd@0,1d
+       6. c3t0d30 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1c,600000/lpfc@1/sd@0,1e
+       7. c3t0d31 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1c,600000/lpfc@1/sd@0,1f
+       8. c3t0d32 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1c,600000/lpfc@1/sd@0,20
+       9. c3t0d33 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1c,600000/lpfc@1/sd@0,21
+      10. c4t0d0 <EMC-SYMMETRIX-5671 cyl 94 alt 2 hd 15 sec 64>
+          /pci@1e,600000/lpfc@2/sd@0,0
+      11. c4t0d29 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1e,600000/lpfc@2/sd@0,1d
+      12. c4t0d30 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1e,600000/lpfc@2/sd@0,1e
+      13. c4t0d31 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1e,600000/lpfc@2/sd@0,1f
+      14. c4t0d32 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1e,600000/lpfc@2/sd@0,20
+- hit space for more or s to select -
+(root_test303)@/etc/vx # cd /dev/vx/dmp
+(root_test303)@/dev/vx/dmp # ls
+c1t0d0     c1t1d0s2   c1t2d0s5   c3t0d0     c3t0d29s2  c3t0d30s5  c3t0d32    c3t0d33s2  c4t0d0s5   c4t0d30    c4t0d31s2  c4t0d32s5
+c1t0d0s0   c1t1d0s3   c1t2d0s6   c3t0d0s0   c3t0d29s3  c3t0d30s6  c3t0d32s0  c3t0d33s3  c4t0d0s6   c4t0d30s0  c4t0d31s3  c4t0d32s6
+c1t0d0s1   c1t1d0s4   c1t2d0s7   c3t0d0s1   c3t0d29s4  c3t0d30s7  c3t0d32s1  c3t0d33s4  c4t0d0s7   c4t0d30s1  c4t0d31s4  c4t0d32s7
+c1t0d0s2   c1t1d0s5   c1t3d0     c3t0d0s2   c3t0d29s5  c3t0d31    c3t0d32s2  c3t0d33s5  c4t0d29    c4t0d30s2  c4t0d31s5  c4t0d33
+c1t0d0s3   c1t1d0s6   c1t3d0s0   c3t0d0s3   c3t0d29s6  c3t0d31s0  c3t0d32s3  c3t0d33s6  c4t0d29s0  c4t0d30s3  c4t0d31s6  c4t0d33s0
+c1t0d0s4   c1t1d0s7   c1t3d0s1   c3t0d0s4   c3t0d29s7  c3t0d31s1  c3t0d32s4  c3t0d33s7  c4t0d29s1  c4t0d30s4  c4t0d31s7  c4t0d33s1
+c1t0d0s5   c1t2d0     c1t3d0s2   c3t0d0s5   c3t0d30    c3t0d31s2  c3t0d32s5  c4t0d0     c4t0d29s2  c4t0d30s5  c4t0d32    c4t0d33s2
+c1t0d0s6   c1t2d0s0   c1t3d0s3   c3t0d0s6   c3t0d30s0  c3t0d31s3  c3t0d32s6  c4t0d0s0   c4t0d29s3  c4t0d30s6  c4t0d32s0  c4t0d33s3
+c1t0d0s7   c1t2d0s1   c1t3d0s4   c3t0d0s7   c3t0d30s1  c3t0d31s4  c3t0d32s7  c4t0d0s1   c4t0d29s4  c4t0d30s7  c4t0d32s1  c4t0d33s4
+c1t1d0     c1t2d0s2   c1t3d0s5   c3t0d29    c3t0d30s2  c3t0d31s5  c3t0d33    c4t0d0s2   c4t0d29s5  c4t0d31    c4t0d32s2  c4t0d33s5
+c1t1d0s0   c1t2d0s3   c1t3d0s6   c3t0d29s0  c3t0d30s3  c3t0d31s6  c3t0d33s0  c4t0d0s3   c4t0d29s6  c4t0d31s0  c4t0d32s3  c4t0d33s6
+c1t1d0s1   c1t2d0s4   c1t3d0s7   c3t0d29s1  c3t0d30s4  c3t0d31s7  c3t0d33s1  c4t0d0s4   c4t0d29s7  c4t0d31s1  c4t0d32s4  c4t0d33s7
+(root_test303)@/dev/vx/dmp # rm *
+(root_test303)@/dev/vx/dmp # ls
+(root_test303)@/dev/vx/dmp # cd ../rdmp
+(root_test303)@/dev/vx/rdmp # ls
+c1t0d0     c1t1d0s2   c1t2d0s5   c3t0d0     c3t0d29s2  c3t0d30s5  c3t0d32    c3t0d33s2  c4t0d0s5   c4t0d30    c4t0d31s2  c4t0d32s5
+c1t0d0s0   c1t1d0s3   c1t2d0s6   c3t0d0s0   c3t0d29s3  c3t0d30s6  c3t0d32s0  c3t0d33s3  c4t0d0s6   c4t0d30s0  c4t0d31s3  c4t0d32s6
+c1t0d0s1   c1t1d0s4   c1t2d0s7   c3t0d0s1   c3t0d29s4  c3t0d30s7  c3t0d32s1  c3t0d33s4  c4t0d0s7   c4t0d30s1  c4t0d31s4  c4t0d32s7
+c1t0d0s2   c1t1d0s5   c1t3d0     c3t0d0s2   c3t0d29s5  c3t0d31    c3t0d32s2  c3t0d33s5  c4t0d29    c4t0d30s2  c4t0d31s5  c4t0d33
+c1t0d0s3   c1t1d0s6   c1t3d0s0   c3t0d0s3   c3t0d29s6  c3t0d31s0  c3t0d32s3  c3t0d33s6  c4t0d29s0  c4t0d30s3  c4t0d31s6  c4t0d33s0
+c1t0d0s4   c1t1d0s7   c1t3d0s1   c3t0d0s4   c3t0d29s7  c3t0d31s1  c3t0d32s4  c3t0d33s7  c4t0d29s1  c4t0d30s4  c4t0d31s7  c4t0d33s1
+c1t0d0s5   c1t2d0     c1t3d0s2   c3t0d0s5   c3t0d30    c3t0d31s2  c3t0d32s5  c4t0d0     c4t0d29s2  c4t0d30s5  c4t0d32    c4t0d33s2
+c1t0d0s6   c1t2d0s0   c1t3d0s3   c3t0d0s6   c3t0d30s0  c3t0d31s3  c3t0d32s6  c4t0d0s0   c4t0d29s3  c4t0d30s6  c4t0d32s0  c4t0d33s3
+c1t0d0s7   c1t2d0s1   c1t3d0s4   c3t0d0s7   c3t0d30s1  c3t0d31s4  c3t0d32s7  c4t0d0s1   c4t0d29s4  c4t0d30s7  c4t0d32s1  c4t0d33s4
+c1t1d0     c1t2d0s2   c1t3d0s5   c3t0d29    c3t0d30s2  c3t0d31s5  c3t0d33    c4t0d0s2   c4t0d29s5  c4t0d31    c4t0d32s2  c4t0d33s5
+c1t1d0s0   c1t2d0s3   c1t3d0s6   c3t0d29s0  c3t0d30s3  c3t0d31s6  c3t0d33s0  c4t0d0s3   c4t0d29s6  c4t0d31s0  c4t0d32s3  c4t0d33s6
+c1t1d0s1   c1t2d0s4   c1t3d0s7   c3t0d29s1  c3t0d30s4  c3t0d31s7  c3t0d33s1  c4t0d0s4   c4t0d29s7  c4t0d31s1  c4t0d32s4  c4t0d33s7
+(root_test303)@/dev/vx/rdmp # rm *
+(root_test303)@/dev/vx/rdmp # ls -l
+total 0
+(root_test303)@/dev/vx/rdmp # vxconfigd -k
+(root_test303)@/dev/vx/rdmp # vxdisk -o alldgs list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c1t0d0s2     auto:sliced     rootdisk     rootdg       online
+c1t1d0s2     auto:sliced     rootmirror   rootdg       online
+c1t2d0s2     auto:none       -            -            online invalid
+c1t3d0s2     auto:none       -            -            online invalid
+c3t0d0s2     auto            -            -            offline
+c3t0d29s2    auto:cdsdisk    -           (appdg)       online
+c3t0d30s2    auto:cdsdisk    -           (appdg)       online
+c3t0d31s2    auto:cdsdisk    -           (appdg)       online
+c3t0d32s2    auto:cdsdisk    -           (appdg)       online
+c3t0d33s2    auto:cdsdisk    -           (appdg)       online
+c4t0d0s2     auto            -            -            offline
+c4t0d29s2    auto:cdsdisk    -           (appdg)       online
+c4t0d30s2    auto:cdsdisk    -           (appdg)       online
+c4t0d31s2    auto:cdsdisk    -           (appdg)       online
+c4t0d32s2    auto:cdsdisk    -           (appdg)       online
+c4t0d33s2    auto:cdsdisk    -           (appdg)       online
+(root_test303)@/dev/vx/rdmp # format
+Searching for disks...done
+
+c3t0d0: configured with capacity of 44.06MB
+c4t0d0: configured with capacity of 44.06MB
+
+
+AVAILABLE DISK SELECTIONS:
+       0. c1t0d0 <SUN72G cyl 14087 alt 2 hd 24 sec 424>
+          /pci@1f,700000/scsi@2/sd@0,0
+       1. c1t1d0 <SUN72G cyl 14087 alt 2 hd 24 sec 424>
+          /pci@1f,700000/scsi@2/sd@1,0
+       2. c1t2d0 <SUN72G cyl 14087 alt 2 hd 24 sec 424>
+          /pci@1f,700000/scsi@2/sd@2,0
+       3. c1t3d0 <SUN72G cyl 14087 alt 2 hd 24 sec 424>
+          /pci@1f,700000/scsi@2/sd@3,0
+       4. c3t0d0 <EMC-SYMMETRIX-5671 cyl 94 alt 2 hd 15 sec 64>
+          /pci@1c,600000/lpfc@1/sd@0,0
+       5. c3t0d29 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1c,600000/lpfc@1/sd@0,1d
+       6. c3t0d30 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1c,600000/lpfc@1/sd@0,1e
+       7. c3t0d31 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1c,600000/lpfc@1/sd@0,1f
+       8. c3t0d32 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1c,600000/lpfc@1/sd@0,20
+       9. c3t0d33 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1c,600000/lpfc@1/sd@0,21
+      10. c4t0d0 <EMC-SYMMETRIX-5671 cyl 94 alt 2 hd 15 sec 64>
+          /pci@1e,600000/lpfc@2/sd@0,0
+      11. c4t0d29 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1e,600000/lpfc@2/sd@0,1d
+      12. c4t0d30 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1e,600000/lpfc@2/sd@0,1e
+      13. c4t0d31 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1e,600000/lpfc@2/sd@0,1f
+      14. c4t0d32 <EMC-SYMMETRIX-5671 cyl 36826 alt 2 hd 30 sec 64>
+          /pci@1e,600000/lpfc@2/sd@0,20
+- hit space for more or s to select -
+(root_test303)@/dev/vx/rdmp # cd /usr/lib/
+(root_test303)@/usr/lib # ks
+ksh: ks:  not found
+(root_test303)@/usr/lib # cd vxvm
+(root_test303)@/usr/lib/vxvm # ls
+bin       diag.d    lib       root      type      voladm.d
+(root_test303)@/usr/lib/vxvm # cd diag.d
+(root_test303)@/usr/lib/vxvm/diag.d # ls
+config.d      kmsgdump64    vxaslkey      vxconfigdump  vxdmpdebug    vxdmpmod      vxkprint      vxwwnluid
+kmsgdump      macros.d      vxautoconfig  vxdevwalk     vxdmpdev      vxdmptp       vxprivutil
+kmsgdump32    vxasldebug    vxcheckasl    vxdmpdbprint  vxdmpinq      vxecopyutil   vxr5logutil
+(root_test303)@/usr/lib/vxvm/diag.d # ./vxdmpinq /dev/rdsk/c3t0d29s2
+
+Inquiry for /dev/rdsk/c3t0d29s2, evpd 0x0, page code 0x0, flags 0x0
+        Vendor id                        : EMC
+        Product id                       : SYMMETRIX
+        Revision                         : 5671
+        Serial Number                    : 1828C000W
+(root_test303)@/usr/lib/vxvm/diag.d # ls
+config.d      kmsgdump64    vxaslkey      vxconfigdump  vxdmpdebug    vxdmpmod      vxkprint      vxwwnluid
+kmsgdump      macros.d      vxautoconfig  vxdevwalk     vxdmpdev      vxdmptp       vxprivutil
+kmsgdump32    vxasldebug    vxcheckasl    vxdmpdbprint  vxdmpinq      vxecopyutil   vxr5logutil
+
+
+(root_test303)@/usr/lib/vxvm/diag.d # ./vxasldebug
+output of vxddladm listsupport all ...done
+output of vxddladm listversion ...done
+output of vxddladm listjbod ...done
+output of vxdmpadm listenclosure all ...done
+output of vxdmpadm getctlr all ...done
+output of vxdmpadm listctlr all ...done
+vxdisk list ...done
+Inquiry commands ...done
+check ASL library ...done
+Device Walk ...done
+Coping ASL files ...done
+Creating /tmp/test303.aslconf.1203113259.21693.tar ...done
+
+----------------------------------------------------------
+
+Please forward file : /tmp/test303.aslconf.1203113259.21693.tar to Veritas
+
+----------------------------------------------------------
+
+(root_test303)@/usr/lib/vxvm/diag.d # ls -l /tmp/test303.aslconf.1203113259.21693.tar
+-rw-r--r--   1 root     other     432128 Dec  3 11:33 /tmp/test303.aslconf.1203113259.21693.tar
+(root_test303)@/usr/lib/vxvm/diag.d # scp /tmp/test303.aslconf.1203113259.21693.tar ravundav@90:/var/tmp
+ravundav@90's password:
+test303.aslconf.1203113259.21693.tar                                                              100%  422KB   0.0KB/s   00:00
+(root_test303)@/usr/lib/vxvm/diag.d # vxdiskadm
+
+Volume Manager Support Operations
+Menu: VolumeManager/Disk
+
+ 1      Add or initialize one or more disks
+ 2      Encapsulate one or more disks
+ 3      Remove a disk
+ 4      Remove a disk for replacement
+ 5      Replace a failed or removed disk
+ 6      Mirror volumes on a disk
+ 7      Move volumes from a disk
+ 8      Enable access to (import) a disk group
+ 9      Remove access to (deport) a disk group
+ 10     Enable (online) a disk device
+ 11     Disable (offline) a disk device
+ 12     Mark a disk as a spare for a disk group
+ 13     Turn off the spare flag on a disk
+ 14     Unrelocate subdisks back to a disk
+ 15     Exclude a disk from hot-relocation use
+ 16     Make a disk available for hot-relocation use
+ 17     Prevent multipathing/Suppress devices from VxVM's view
+ 18     Allow multipathing/Unsuppress devices from VxVM's view
+ 19     List currently suppressed/non-multipathed devices
+ 20     Change the disk naming scheme
+ 21     Get the newly connected/zoned disks in VxVM view
+ 22     Change/Display the default disk layouts
+ 23     Mark a disk as allocator-reserved for a disk group
+ 24     Turn off the allocator-reserved flag on a disk
+ list   List disk information
+
+
+ ?      Display help about menu
+ ??     Display help about the menuing system
+ q      Exit from menus
+
+Select an operation to perform: 17
+
+Exclude Devices
+Menu: VolumeManager/Disk/ExcludeDevices
+  VxVM  INFO V-5-2-1239
+This operation might lead to some devices being suppressed from VxVM's view
+  or prevent them from being multipathed by vxdmp (This operation can be
+  reversed using the vxdiskadm command).
+
+Do you want to continue ? [y,n,q,?] (default: y)
+
+Volume Manager Device Operations
+Menu: VolumeManager/Disk/ExcludeDevices
+
+ 1      Suppress all paths through a controller from VxVM's view
+ 2      Suppress a path from VxVM's view
+ 3      Suppress disks from VxVM's view by specifying a VID:PID combination
+ 4      Suppress all but one paths to a disk
+ 5      Prevent multipathing of all disks on a controller by VxVM
+ 6      Prevent multipathing of a disk by VxVM
+ 7      Prevent multipathing of disks by specifying a VID:PID combination
+ 8      List currently suppressed/non-multipathed devices
+
+ ?      Display help about menu
+ ??     Display help about the menuing system
+ q      Exit from menus
+
+Select an operation to perform: 1
+
+Exclude controllers from VxVM
+Menu: VolumeManager/Disk/ExcludeDevices/CTLR-VXVM
+  Use this operation to exclude all paths through a controller from VxVM.
+
+  This operation can be reversed using the vxdiskadm command.
+  VxVM  INFO V-5-2-1263
+You can specify a controller name at the prompt. A controller name is of
+  the form c#, example c3, c11 etc. Enter 'all' to exclude all paths on all
+  the controllers on the host. To see the list of controllers on the system,
+  type 'list'.
+
+Enter a controller name [<ctlr-name>,all,list,list-exclude,q,?] list
+  VxVM  INFO V-5-2-1214 The following controllers were found on the system :
+
+
+   c1              c3              c4
+
+
+Hit RETURN to continue.
+
+Exclude controllers from VxVM
+Menu: VolumeManager/Disk/ExcludeDevices/CTLR-VXVM
+  Use this operation to exclude all paths through a controller from VxVM.
+
+  This operation can be reversed using the vxdiskadm command.
+  VxVM  INFO V-5-2-1263
+You can specify a controller name at the prompt. A controller name is of
+  the form c#, example c3, c11 etc. Enter 'all' to exclude all paths on all
+  the controllers on the host. To see the list of controllers on the system,
+  type 'list'.
+
+Enter a controller name [<ctlr-name>,all,list,list-exclude,q,?] c4
+  VxVM  WARNING V-5-2-1233
+This is the last controller through which some or all disk(s) in the
+  following enclosures are accesible:
+
+
+   OTHER_DISKS
+
+
+Continue operation? [y,n,q,?] (default: y)
+  VxVM  INFO V-5-2-1306
+All paths to the following enclosures through controller c4 will be hidden
+  from VxVM as a result of this operation :
+
+
+   OTHER_DISKS
+
+
+Continue operation? [y,n,q,?] (default: y)
+  VxVM  NOTICE V-5-2-1323
+The controller c4 will be disabled. The entries for paths on controller c4
+  will still be visible through VxVM utilities in a disabled state till a
+  reboot. After a reboot these entries will not be seen.
+
+
+Hit RETURN to continue.
+
+Do you wish to exclude more controllers ? [y,n,q,?] (default: n)
+
+Volume Manager Device Operations
+Menu: VolumeManager/Disk/ExcludeDevices
+
+ 1      Suppress all paths through a controller from VxVM's view
+ 2      Suppress a path from VxVM's view
+ 3      Suppress disks from VxVM's view by specifying a VID:PID combination
+ 4      Suppress all but one paths to a disk
+ 5      Prevent multipathing of all disks on a controller by VxVM
+ 6      Prevent multipathing of a disk by VxVM
+ 7      Prevent multipathing of disks by specifying a VID:PID combination
+ 8      List currently suppressed/non-multipathed devices
+
+ ?      Display help about menu
+ ??     Display help about the menuing system
+ q      Exit from menus
+
+Select an operation to perform: q
+
+Volume Manager Support Operations
+Menu: VolumeManager/Disk
+
+ 1      Add or initialize one or more disks
+ 2      Encapsulate one or more disks
+ 3      Remove a disk
+ 4      Remove a disk for replacement
+ 5      Replace a failed or removed disk
+ 6      Mirror volumes on a disk
+ 7      Move volumes from a disk
+ 8      Enable access to (import) a disk group
+ 9      Remove access to (deport) a disk group
+ 10     Enable (online) a disk device
+ 11     Disable (offline) a disk device
+ 12     Mark a disk as a spare for a disk group
+ 13     Turn off the spare flag on a disk
+ 14     Unrelocate subdisks back to a disk
+ 15     Exclude a disk from hot-relocation use
+ 16     Make a disk available for hot-relocation use
+ 17     Prevent multipathing/Suppress devices from VxVM's view
+ 18     Allow multipathing/Unsuppress devices from VxVM's view
+ 19     List currently suppressed/non-multipathed devices
+ 20     Change the disk naming scheme
+ 21     Get the newly connected/zoned disks in VxVM view
+ 22     Change/Display the default disk layouts
+ 23     Mark a disk as allocator-reserved for a disk group
+ 24     Turn off the allocator-reserved flag on a disk
+ list   List disk information
+
+
+ ?      Display help about menu
+ ??     Display help about the menuing system
+ q      Exit from menus
+
+Select an operation to perform: q
+  VxVM vxdiskadm NOTICE V-5-2-1187 Please wait while the device suppression/unsuppression operations take effect.
+
+Goodbye.
+(root_test303)@/usr/lib/vxvm/diag.d #
+(root_test303)@/usr/lib/vxvm/diag.d #
+(root_test303)@/usr/lib/vxvm/diag.d #
+(root_test303)@/usr/lib/vxvm/diag.d # vxdisk list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c1t0d0s2     auto:sliced     rootdisk     rootdg       online
+c1t1d0s2     auto:sliced     rootmirror   rootdg       online
+c1t2d0s2     auto:none       -            -            online invalid
+c1t3d0s2     auto:none       -            -            online invalid
+c3t0d0s2     auto            -            -            offline
+c3t0d29s2    auto:cdsdisk    -            -            online
+c3t0d30s2    auto:cdsdisk    -            -            online
+c3t0d31s2    auto:cdsdisk    -            -            online
+c3t0d32s2    auto:cdsdisk    -            -            online
+c3t0d33s2    auto:cdsdisk    -            -            online
+c4t0d0s2     auto            -            -            offline
+c4t0d29s2    auto            -            -            error
+c4t0d30s2    auto            -            -            error
+c4t0d31s2    auto            -            -            error
+c4t0d32s2    auto            -            -            error
+c4t0d33s2    auto            -            -            error
+(root_test303)@/usr/lib/vxvm/diag.d # vxdisk ^C
+(root_test303)@/usr/lib/vxvm/diag.d # ^C
+(root_test303)@/usr/lib/vxvm/diag.d # vxconfigd -k
+(root_test303)@/usr/lib/vxvm/diag.d # vxdisk list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c1t0d0s2     auto:sliced     rootdisk     rootdg       online
+c1t1d0s2     auto:sliced     rootmirror   rootdg       online
+c1t2d0s2     auto:none       -            -            online invalid
+c1t3d0s2     auto:none       -            -            online invalid
+c3t0d0s2     auto            -            -            offline
+c3t0d29s2    auto:cdsdisk    -            -            online
+c3t0d30s2    auto:cdsdisk    -            -            online
+c3t0d31s2    auto:cdsdisk    -            -            online
+c3t0d32s2    auto:cdsdisk    -            -            online
+c3t0d33s2    auto:cdsdisk    -            -            online
+c4t0d0s2     auto            -            -            offline
+c4t0d29s2    auto            -            -            error
+c4t0d30s2    auto            -            -            error
+c4t0d31s2    auto            -            -            error
+c4t0d32s2    auto            -            -            error
+c4t0d33s2    auto            -            -            error
+(root_test303)@/usr/lib/vxvm/diag.d # cd /dev/vx/dmp
+(root_test303)@/dev/vx/dmp # ls
+c1t0d0     c1t1d0s2   c1t2d0s5   c3t0d0     c3t0d29s2  c3t0d30s5  c3t0d32    c3t0d33s2  c4t0d0s5   c4t0d30    c4t0d31s2  c4t0d32s5
+c1t0d0s0   c1t1d0s3   c1t2d0s6   c3t0d0s0   c3t0d29s3  c3t0d30s6  c3t0d32s0  c3t0d33s3  c4t0d0s6   c4t0d30s0  c4t0d31s3  c4t0d32s6
+c1t0d0s1   c1t1d0s4   c1t2d0s7   c3t0d0s1   c3t0d29s4  c3t0d30s7  c3t0d32s1  c3t0d33s4  c4t0d0s7   c4t0d30s1  c4t0d31s4  c4t0d32s7
+c1t0d0s2   c1t1d0s5   c1t3d0     c3t0d0s2   c3t0d29s5  c3t0d31    c3t0d32s2  c3t0d33s5  c4t0d29    c4t0d30s2  c4t0d31s5  c4t0d33
+c1t0d0s3   c1t1d0s6   c1t3d0s0   c3t0d0s3   c3t0d29s6  c3t0d31s0  c3t0d32s3  c3t0d33s6  c4t0d29s0  c4t0d30s3  c4t0d31s6  c4t0d33s0
+c1t0d0s4   c1t1d0s7   c1t3d0s1   c3t0d0s4   c3t0d29s7  c3t0d31s1  c3t0d32s4  c3t0d33s7  c4t0d29s1  c4t0d30s4  c4t0d31s7  c4t0d33s1
+c1t0d0s5   c1t2d0     c1t3d0s2   c3t0d0s5   c3t0d30    c3t0d31s2  c3t0d32s5  c4t0d0     c4t0d29s2  c4t0d30s5  c4t0d32    c4t0d33s2
+c1t0d0s6   c1t2d0s0   c1t3d0s3   c3t0d0s6   c3t0d30s0  c3t0d31s3  c3t0d32s6  c4t0d0s0   c4t0d29s3  c4t0d30s6  c4t0d32s0  c4t0d33s3
+c1t0d0s7   c1t2d0s1   c1t3d0s4   c3t0d0s7   c3t0d30s1  c3t0d31s4  c3t0d32s7  c4t0d0s1   c4t0d29s4  c4t0d30s7  c4t0d32s1  c4t0d33s4
+c1t1d0     c1t2d0s2   c1t3d0s5   c3t0d29    c3t0d30s2  c3t0d31s5  c3t0d33    c4t0d0s2   c4t0d29s5  c4t0d31    c4t0d32s2  c4t0d33s5
+c1t1d0s0   c1t2d0s3   c1t3d0s6   c3t0d29s0  c3t0d30s3  c3t0d31s6  c3t0d33s0  c4t0d0s3   c4t0d29s6  c4t0d31s0  c4t0d32s3  c4t0d33s6
+c1t1d0s1   c1t2d0s4   c1t3d0s7   c3t0d29s1  c3t0d30s4  c3t0d31s7  c3t0d33s1  c4t0d0s4   c4t0d29s7  c4t0d31s1  c4t0d32s4  c4t0d33s7
+(root_test303)@/dev/vx/dmp # rm *
+(root_test303)@/dev/vx/dmp # cd ../rdmp
+(root_test303)@/dev/vx/rdmp # ls
+c1t0d0     c1t1d0s2   c1t2d0s5   c3t0d0     c3t0d29s2  c3t0d30s5  c3t0d32    c3t0d33s2  c4t0d0s5   c4t0d30    c4t0d31s2  c4t0d32s5
+c1t0d0s0   c1t1d0s3   c1t2d0s6   c3t0d0s0   c3t0d29s3  c3t0d30s6  c3t0d32s0  c3t0d33s3  c4t0d0s6   c4t0d30s0  c4t0d31s3  c4t0d32s6
+c1t0d0s1   c1t1d0s4   c1t2d0s7   c3t0d0s1   c3t0d29s4  c3t0d30s7  c3t0d32s1  c3t0d33s4  c4t0d0s7   c4t0d30s1  c4t0d31s4  c4t0d32s7
+c1t0d0s2   c1t1d0s5   c1t3d0     c3t0d0s2   c3t0d29s5  c3t0d31    c3t0d32s2  c3t0d33s5  c4t0d29    c4t0d30s2  c4t0d31s5  c4t0d33
+c1t0d0s3   c1t1d0s6   c1t3d0s0   c3t0d0s3   c3t0d29s6  c3t0d31s0  c3t0d32s3  c3t0d33s6  c4t0d29s0  c4t0d30s3  c4t0d31s6  c4t0d33s0
+c1t0d0s4   c1t1d0s7   c1t3d0s1   c3t0d0s4   c3t0d29s7  c3t0d31s1  c3t0d32s4  c3t0d33s7  c4t0d29s1  c4t0d30s4  c4t0d31s7  c4t0d33s1
+c1t0d0s5   c1t2d0     c1t3d0s2   c3t0d0s5   c3t0d30    c3t0d31s2  c3t0d32s5  c4t0d0     c4t0d29s2  c4t0d30s5  c4t0d32    c4t0d33s2
+c1t0d0s6   c1t2d0s0   c1t3d0s3   c3t0d0s6   c3t0d30s0  c3t0d31s3  c3t0d32s6  c4t0d0s0   c4t0d29s3  c4t0d30s6  c4t0d32s0  c4t0d33s3
+c1t0d0s7   c1t2d0s1   c1t3d0s4   c3t0d0s7   c3t0d30s1  c3t0d31s4  c3t0d32s7  c4t0d0s1   c4t0d29s4  c4t0d30s7  c4t0d32s1  c4t0d33s4
+c1t1d0     c1t2d0s2   c1t3d0s5   c3t0d29    c3t0d30s2  c3t0d31s5  c3t0d33    c4t0d0s2   c4t0d29s5  c4t0d31    c4t0d32s2  c4t0d33s5
+c1t1d0s0   c1t2d0s3   c1t3d0s6   c3t0d29s0  c3t0d30s3  c3t0d31s6  c3t0d33s0  c4t0d0s3   c4t0d29s6  c4t0d31s0  c4t0d32s3  c4t0d33s6
+c1t1d0s1   c1t2d0s4   c1t3d0s7   c3t0d29s1  c3t0d30s4  c3t0d31s7  c3t0d33s1  c4t0d0s4   c4t0d29s7  c4t0d31s1  c4t0d32s4  c4t0d33s7
+(root_test303)@/dev/vx/rdmp # rm *
+(root_test303)@/dev/vx/rdmp # vxconfigd -k
+
+(root_test303)@/dev/vx/rdmp # vxdisk list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c1t0d0s2     auto:sliced     rootdisk     rootdg       online
+c1t1d0s2     auto:sliced     rootmirror   rootdg       online
+c1t2d0s2     auto:none       -            -            online invalid
+c1t3d0s2     auto:none       -            -            online invalid
+c3t0d0s2     auto            -            -            offline
+c3t0d29s2    auto:cdsdisk    -            -            online
+c3t0d30s2    auto:cdsdisk    -            -            online
+c3t0d31s2    auto:cdsdisk    -            -            online
+c3t0d32s2    auto:cdsdisk    -            -            online
+c3t0d33s2    auto:cdsdisk    -            -            online
+c4t0d0s2     auto            -            -            offline
+c4t0d29s2    auto            -            -            error
+c4t0d30s2    auto            -            -            error
+c4t0d31s2    auto            -            -            error
+c4t0d32s2    auto            -            -            error
+c4t0d33s2    auto            -            -            error
+
+
+(root_test303)@/dev/vx/rdmp # vxdg import appdg
+VxVM vxconfigd NOTICE V-5-1-9576 Split Brain. da id is 0.1, while dm id is 0.0 for dm appdg04
+VxVM vxdg ERROR V-5-1-587 Disk group appdg: import failed: Serial Split Brain detected. Run vxsplitlines
+
+(root_test303)@/dev/vx/rdmp # vxsplitlines -g appdg
+  VxVM vxsplitlines NOTICE V-5-2-2708 There are 1 pools.
+The Following are the disks in each pool. Each disk in the same pool
+has config copies that are similar.
+  VxVM vxsplitlines INFO V-5-2-2707 Pool 0.
+c3t0d29s2 appdg01
+To see the configuration copy from this disk issue
+/etc/vx/diag.d/vxprivutil dumpconfig /dev/vx/dmp/c3t0d29s2
+To import the diskgroup with config copy from this
+disk use the following command
+/usr/sbin/vxdg -o selectcp=1133513777.14.test303 import appdg
+The following are the disks whose ssb ids don't match in this config
+copy
+appdg04
+appdg05
+
+(root_test303)@/dev/vx/rdmp # /etc/vx/diag.d/vxprivutil dumpconfig /dev/vx/dmp/c3t0d29s2
+#Config copy 01
+
+#Header nblocks=5120 blksize=128 hdrsize=512
+#flags=0x100 (CLEAN)
+#version: 4/11
+#dgname: appdg  dgid: 1133513788.18.test303
+#config: tid=0.1091 nstpool=0 nrvg=0 nrlink=0 ncache=0 nvol=4 nplex=4 nsd=8 ndm=5 nda=0
+#pending: tid=0.1091 nstpool=0 nrvg=0 nrlink=0 ncache=0 nvol=4 nplex=4 nsd=8 ndm=5 nda=0
+#
+#Block    4: flag=0    ref=82   offset=0    frag_size=104
+#Block    5: flag=0    ref=52   offset=0    frag_size=82
+#Block    6: flag=0    ref=82   offset=104  frag_size=12
+#Block    8: flag=0    ref=83   offset=0    frag_size=73
+#Block   10: flag=0    ref=84   offset=0    frag_size=104
+#Block   11: flag=0    ref=84   offset=104  frag_size=5
+#Block   13: flag=0    ref=85   offset=0    frag_size=65
+#Block   15: flag=0    ref=87   offset=0    frag_size=104
+#Block   16: flag=0    ref=87   offset=104  frag_size=8
+#Block   18: flag=0    ref=88   offset=0    frag_size=69
+#Block   20: flag=0    ref=89   offset=0    frag_size=104
+#Block   21: flag=0    ref=89   offset=104  frag_size=12
+#Block   23: flag=0    ref=90   offset=0    frag_size=72
+#Block   50: flag=0    ref=86   offset=0    frag_size=75
+#Block   60: flag=0    ref=96   offset=0    frag_size=104
+#Block   61: flag=0    ref=96   offset=104  frag_size=6
+#Block   63: flag=0    ref=97   offset=0    frag_size=104
+#Block   64: flag=0    ref=97   offset=104  frag_size=6
+#Block   71: flag=0    ref=100  offset=0    frag_size=76
+#Block   73: flag=0    ref=101  offset=0    frag_size=76
+#Block   75: flag=0    ref=102  offset=0    frag_size=76
+#Block   85: flag=0    ref=120  offset=0    frag_size=104
+#Block   86: flag=0    ref=120  offset=104  frag_size=6
+#Block   93: flag=0    ref=123  offset=0    frag_size=75
+#Block   95: flag=0    ref=124  offset=0    frag_size=75
+#Block  108: flag=0    ref=139  offset=0    frag_size=104
+#Block  109: flag=0    ref=139  offset=104  frag_size=6
+#Block  111: flag=0    ref=140  offset=0    frag_size=104
+#Block  112: flag=0    ref=140  offset=104  frag_size=6
+#Block  119: flag=0    ref=143  offset=0    frag_size=76
+#Block  121: flag=0    ref=144  offset=0    frag_size=76
+#
+#Record   52: type=0x3f115 flags=0    gen_flags=0x4  size=82
+#Blocks: 5
+dg   appdg
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dgid=1133513788.18.test303
+  rid=0.1025
+  update_tid=0.1027
+  nconfig=default
+  nlog=default
+  base_minor=21000
+  version=110
+  cds=on
+  alignment=16
+  last_platform=SOLARIS
+  maxdev=32767
+#Record   82: type=0x1100121 flags=0    gen_flags=0x4  size=116
+#Blocks: 4 6
+vol  concordvol
+  use_type=fsgen
+  fstype="
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  state="ACTIVE
+  writeback=on
+  writecopy=off
+  specify_writecopy=off
+  pl_num=1
+  start_opts="
+  read_pol=SELECT
+  minor=21001
+  user=root
+  group=root
+  mode=0600
+  log_type=REGION
+  len=10485760
+  log_len=0
+  update_tid=0.1091
+  rid=0.1045
+  detach_tid=0.0
+  active=off
+  forceminor=off
+  badlog=off
+  recover_checkpoint=0
+  sd_num=0
+  sdnum=0
+  kdetach=off
+  storage=off
+  layered=off
+  apprecover=off
+  recover_seqno=0
+  recov_id=0
+  primary_datavol=
+  vvr_tag=0
+  morph=off
+  guid={a82d7fda-1dd1-11b2-9d91-0003ba9704c7}
+  inst_invalid=off
+  incomplete=off
+  instant=off
+  restore=off
+  snap_after_restore=off
+  iscachevol=off
+  oldlog=off
+  nostart=off
+  norecov=off
+  logmap_align=0
+  logmap_len=0
+  inst_src_guid={00000000-0000-0000-0000-000000000000}
+  cascaded=off
+#Record   83: type=0x4022 flags=0    gen_flags=0x4  size=73
+#Blocks: 8
+plex concordvol-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  layout=CONCAT
+  sd_num=1
+  state="ACTIVE
+  log_sd=
+  update_tid=0.1091
+  rid=0.1047
+  vol_rid=0.1045
+  detach_tid=0.0
+  log=off
+  noerror=off
+  kdetach=off
+  stale=off
+  ncolumn=0
+  raidlog=off
+  guid={a82da06e-1dd1-11b2-9d91-0003ba9704c7}
+  mapguid={00000000-0000-0000-0000-000000000000}
+#Record   84: type=0x1100121 flags=0    gen_flags=0x4  size=109
+#Blocks: 10 11
+vol  db
+  use_type=fsgen
+  fstype="
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  state="ACTIVE
+  writeback=on
+  writecopy=off
+  specify_writecopy=off
+  pl_num=1
+  start_opts="
+  read_pol=SELECT
+  minor=21002
+  user=root
+  group=root
+  mode=0600
+  log_type=REGION
+  len=197132288
+  log_len=0
+  update_tid=0.1091
+  rid=0.1052
+  detach_tid=0.0
+  active=off
+  forceminor=off
+  badlog=off
+  recover_checkpoint=0
+  sd_num=0
+  sdnum=0
+  kdetach=off
+  storage=off
+  layered=off
+  apprecover=off
+  recover_seqno=0
+  recov_id=0
+  primary_datavol=
+  vvr_tag=0
+  morph=off
+  guid={b1490bfc-1dd1-11b2-9d91-0003ba9704c7}
+  inst_invalid=off
+  incomplete=off
+  instant=off
+  restore=off
+  snap_after_restore=off
+  iscachevol=off
+  oldlog=off
+  nostart=off
+  norecov=off
+  logmap_align=0
+  logmap_len=0
+  inst_src_guid={00000000-0000-0000-0000-000000000000}
+  cascaded=off
+#Record   85: type=0x4022 flags=0    gen_flags=0x4  size=65
+#Blocks: 13
+plex db-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  layout=CONCAT
+  sd_num=3
+  state="ACTIVE
+  log_sd=
+  update_tid=0.1091
+  rid=0.1054
+  vol_rid=0.1052
+  detach_tid=0.0
+  log=off
+  noerror=off
+  kdetach=off
+  stale=off
+  ncolumn=0
+  raidlog=off
+  guid={b1492d08-1dd1-11b2-9d91-0003ba9704c7}
+  mapguid={00000000-0000-0000-0000-000000000000}
+#Record   86: type=0x20123 flags=0    gen_flags=0x4  size=75
+#Blocks: 50
+sd   appdg03-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=0
+  pl_offset=0
+  len=10485760
+  update_tid=0.1050
+  rid=0.1049
+  guid={a82dc0e4-1dd1-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1047
+  dm_rid=0.1030
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record   87: type=0x1100121 flags=0    gen_flags=0x4  size=112
+#Blocks: 15 16
+vol  oracle
+  use_type=fsgen
+  fstype="
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  state="ACTIVE
+  writeback=on
+  writecopy=off
+  specify_writecopy=off
+  pl_num=1
+  start_opts="
+  read_pol=SELECT
+  minor=21003
+  user=root
+  group=root
+  mode=0600
+  log_type=REGION
+  len=8388608
+  log_len=0
+  update_tid=0.1091
+  rid=0.1063
+  detach_tid=0.0
+  active=off
+  forceminor=off
+  badlog=off
+  recover_checkpoint=0
+  sd_num=0
+  sdnum=0
+  kdetach=off
+  storage=off
+  layered=off
+  apprecover=off
+  recover_seqno=0
+  recov_id=0
+  primary_datavol=
+  vvr_tag=0
+  morph=off
+  guid={b88cd196-1dd1-11b2-9d91-0003ba9704c7}
+  inst_invalid=off
+  incomplete=off
+  instant=off
+  restore=off
+  snap_after_restore=off
+  iscachevol=off
+  oldlog=off
+  nostart=off
+  norecov=off
+  logmap_align=0
+  logmap_len=0
+  inst_src_guid={00000000-0000-0000-0000-000000000000}
+  cascaded=off
+#Record   88: type=0x4022 flags=0    gen_flags=0x4  size=69
+#Blocks: 18
+plex oracle-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  layout=CONCAT
+  sd_num=2
+  state="ACTIVE
+  log_sd=
+  update_tid=0.1091
+  rid=0.1065
+  vol_rid=0.1063
+  detach_tid=0.0
+  log=off
+  noerror=off
+  kdetach=off
+  stale=off
+  ncolumn=0
+  raidlog=off
+  guid={b88cf2de-1dd1-11b2-9d91-0003ba9704c7}
+  mapguid={00000000-0000-0000-0000-000000000000}
+#Record   89: type=0x1100121 flags=0    gen_flags=0x4  size=116
+#Blocks: 20 21
+vol  backupvol
+  use_type=fsgen
+  fstype="
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  state="ACTIVE
+  writeback=on
+  writecopy=off
+  specify_writecopy=off
+  pl_num=1
+  start_opts="
+  read_pol=SELECT
+  minor=21000
+  user=root
+  group=root
+  mode=0600
+  log_type=REGION
+  len=136314880
+  log_len=0
+  update_tid=0.1091
+  rid=0.1073
+  detach_tid=0.0
+  active=off
+  forceminor=off
+  badlog=off
+  recover_checkpoint=0
+  sd_num=0
+  sdnum=0
+  kdetach=off
+  storage=off
+  layered=off
+  apprecover=off
+  recover_seqno=0
+  recov_id=0
+  primary_datavol=
+  vvr_tag=0
+  morph=off
+  guid={6af7406e-1dd2-11b2-9d91-0003ba9704c7}
+  inst_invalid=off
+  incomplete=off
+  instant=off
+  restore=off
+  snap_after_restore=off
+  iscachevol=off
+  oldlog=off
+  nostart=off
+  norecov=off
+  logmap_align=0
+  logmap_len=0
+  inst_src_guid={00000000-0000-0000-0000-000000000000}
+  cascaded=off
+#Record   90: type=0x4022 flags=0    gen_flags=0x4  size=72
+#Blocks: 23
+plex backupvol-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  layout=CONCAT
+  sd_num=2
+  state="ACTIVE
+  log_sd=
+  update_tid=0.1091
+  rid=0.1075
+  vol_rid=0.1073
+  detach_tid=0.0
+  log=off
+  noerror=off
+  kdetach=off
+  stale=off
+  ncolumn=0
+  raidlog=off
+  guid={6af761d4-1dd2-11b2-9d91-0003ba9704c7}
+  mapguid={00000000-0000-0000-0000-000000000000}
+#Record   96: type=0x33114 flags=0    gen_flags=0x4  size=110
+#Blocks: 60 61
+dm   appdg04
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  diskid=1133516758.30.test303
+  last_diskid=1133516758.30.test303
+  last_da_name=c3t0d32s2
+  rid=0.1032
+  guid={7382c984-1dd2-11b2-9d90-0003ba9704c7}
+  allocator_reserved=off
+  removed=off
+  spare=off
+  failing=off
+  update_tid=0.1061
+  last_da_dev=32/1040
+  last_disk_offset=2304
+  ssbid=0.0
+#Record   97: type=0x33114 flags=0    gen_flags=0x4  size=110
+#Blocks: 63 64
+dm   appdg05
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  diskid=1133516759.32.test303
+  last_diskid=1133516759.32.test303
+  last_da_name=c3t0d33s2
+  rid=0.1034
+  guid={73b40486-1dd2-11b2-9d90-0003ba9704c7}
+  allocator_reserved=off
+  removed=off
+  spare=off
+  failing=off
+  update_tid=0.1061
+  last_da_dev=32/1080
+  last_disk_offset=2304
+  ssbid=0.0
+#Record  100: type=0x20123 flags=0    gen_flags=0x4  size=76
+#Blocks: 71
+sd   appdg03-02
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=10485760
+  pl_offset=0
+  len=55725056
+  update_tid=0.1061
+  rid=0.1056
+  guid={b1494d9c-1dd1-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1054
+  dm_rid=0.1030
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record  101: type=0x20123 flags=0    gen_flags=0x4  size=76
+#Blocks: 73
+sd   appdg04-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=0
+  pl_offset=55725056
+  len=70703616
+  update_tid=0.1061
+  rid=0.1058
+  guid={b1497bf0-1dd1-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1054
+  dm_rid=0.1032
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record  102: type=0x20123 flags=0    gen_flags=0x4  size=76
+#Blocks: 75
+sd   appdg05-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=0
+  pl_offset=126428672
+  len=70703616
+  update_tid=0.1061
+  rid=0.1060
+  guid={b149a526-1dd1-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1054
+  dm_rid=0.1034
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record  120: type=0x33114 flags=0    gen_flags=0x4  size=110
+#Blocks: 85 86
+dm   appdg03
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  diskid=1133516757.28.test303
+  last_diskid=1133516757.28.test303
+  last_da_name=c3t0d31s2
+  rid=0.1030
+  guid={734caac0-1dd2-11b2-9d90-0003ba9704c7}
+  allocator_reserved=off
+  removed=off
+  spare=off
+  failing=off
+  update_tid=0.1070
+  last_da_dev=32/1032
+  last_disk_offset=2304
+  ssbid=0.0
+#Record  123: type=0x20123 flags=0    gen_flags=0x4  size=75
+#Blocks: 93
+sd   appdg02-02
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=65611264
+  pl_offset=0
+  len=5092352
+  update_tid=0.1070
+  rid=0.1067
+  guid={b88d1412-1dd1-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1065
+  dm_rid=0.1028
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record  124: type=0x20123 flags=0    gen_flags=0x4  size=75
+#Blocks: 95
+sd   appdg03-03
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=66210816
+  pl_offset=5092352
+  len=3296256
+  update_tid=0.1070
+  rid=0.1069
+  guid={b88d4072-1dd1-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1065
+  dm_rid=0.1030
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record  139: type=0x33114 flags=0    gen_flags=0x4  size=110
+#Blocks: 108 109
+dm   appdg01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  diskid=1133513777.14.test303
+  last_diskid=1133513777.14.test303
+  last_da_name=c3t0d29s2
+  rid=0.1026
+  guid={86b934fe-1dd2-11b2-9d8f-0003ba9704c7}
+  allocator_reserved=off
+  removed=off
+  spare=off
+  failing=off
+  update_tid=0.1080
+  last_da_dev=32/1016
+  last_disk_offset=2304
+  ssbid=0.0
+#Record  140: type=0x33114 flags=0    gen_flags=0x4  size=110
+#Blocks: 111 112
+dm   appdg02
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  diskid=1133516756.26.test303
+  last_diskid=1133516756.26.test303
+  last_da_name=c3t0d30s2
+  rid=0.1028
+  guid={731882ea-1dd2-11b2-9d90-0003ba9704c7}
+  allocator_reserved=off
+  removed=off
+  spare=off
+  failing=off
+  update_tid=0.1080
+  last_da_dev=32/1024
+  last_disk_offset=2304
+  ssbid=0.0
+#Record  143: type=0x20123 flags=0    gen_flags=0x4  size=76
+#Blocks: 119
+sd   appdg01-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=0
+  pl_offset=0
+  len=70703616
+  update_tid=0.1080
+  rid=0.1077
+  guid={6af783b2-1dd2-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1075
+  dm_rid=0.1026
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+#Record  144: type=0x20123 flags=0    gen_flags=0x4  size=76
+#Blocks: 121
+sd   appdg02-01
+  comment="
+  putil0="
+  putil1="
+  putil2="
+  dm_offset=0
+  pl_offset=70703616
+  len=65611264
+  update_tid=0.1080
+  rid=0.1079
+  guid={6af7af72-1dd2-11b2-9d91-0003ba9704c7}
+  plex_rid=0.1075
+  dm_rid=0.1028
+  minor=0
+  detach_tid=0.0
+  column=0
+  mkdevice=off
+  subvolume=off
+  subcache=off
+  stale=off
+  kdetach=off
+  relocate=off
+(root_test303)@/dev/vx/rdmp # /etc/vx/diag.d/vxprivutil dumpconfig /dev/vx/dmp/c3t0d29s2 > /var/tmp/c3t0d29s2.out
+(root_test303)@/dev/vx/rdmp # /etc/vx/diag.d/vxprivutil dumpconfig /dev/vx/dmp/c3t0d30s2 > /var/tmp/c3t0d30s2.out
+(root_test303)@/dev/vx/rdmp # cat /var/tmp/c3t0d29s2.out | vxprint -D - -ht
+Disk group: appdg
+
+DG NAME         NCONFIG      NLOG     MINORS   GROUP-ID
+ST NAME         STATE        DM_CNT   SPARE_CNT         APPVOL_CNT
+DM NAME         DEVICE       TYPE     PRIVLEN  PUBLEN   STATE
+RV NAME         RLINK_CNT    KSTATE   STATE    PRIMARY  DATAVOLS  SRL
+RL NAME         RVG          KSTATE   STATE    REM_HOST REM_DG    REM_RLNK
+CO NAME         CACHEVOL     KSTATE   STATE
+VT NAME         NVOLUME      KSTATE   STATE
+V  NAME         RVG/VSET/CO  KSTATE   STATE    LENGTH   READPOL   PREFPLEX UTYPE
+PL NAME         VOLUME       KSTATE   STATE    LENGTH   LAYOUT    NCOL/WID MODE
+SD NAME         PLEX         DISK     DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+SV NAME         PLEX         VOLNAME  NVOLLAYR LENGTH   [COL/]OFF AM/NM    MODE
+SC NAME         PLEX         CACHE    DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+DC NAME         PARENTVOL    LOGVOL
+SP NAME         SNAPVOL      DCO
+
+dg appdg        default      default  21000    1133513788.18.test303
+
+dm appdg01      -            -        -        -        -
+dm appdg02      -            -        -        -        -
+dm appdg03      -            -        -        -        -
+dm appdg04      -            -        -        -        -
+dm appdg05      -            -        -        -        -
+
+v  backupvol    -            DISABLED ACTIVE   136314880 SELECT   -        fsgen
+pl backupvol-01 backupvol    DISABLED ACTIVE   136314880 CONCAT   -        RW
+sd appdg01-01   backupvol-01 appdg01  0        70703616 0         -        DIS
+sd appdg02-01   backupvol-01 appdg02  0        65611264 70703616  -        DIS
+
+v  concordvol   -            DISABLED ACTIVE   10485760 SELECT    -        fsgen
+pl concordvol-01 concordvol  DISABLED ACTIVE   10485760 CONCAT    -        RW
+sd appdg03-01   concordvol-01 appdg03 0        10485760 0         -        DIS
+
+v  db           -            DISABLED ACTIVE   197132288 SELECT   -        fsgen
+pl db-01        db           DISABLED ACTIVE   197132288 CONCAT   -        RW
+sd appdg03-02   db-01        appdg03  10485760 55725056 0         -        DIS
+sd appdg04-01   db-01        appdg04  0        70703616 55725056  -        DIS
+sd appdg05-01   db-01        appdg05  0        70703616 126428672 -        DIS
+
+v  oracle       -            DISABLED ACTIVE   8388608  SELECT    -        fsgen
+pl oracle-01    oracle       DISABLED ACTIVE   8388608  CONCAT    -        RW
+sd appdg02-02   oracle-01    appdg02  65611264 5092352  0         -        DIS
+sd appdg03-03   oracle-01    appdg03  66210816 3296256  5092352   -        DIS
+(root_test303)@/dev/vx/rdmp # cat /var/tmp/c3t0d30s2.out | vxprint -D - -ht
+Disk group: appdg
+
+DG NAME         NCONFIG      NLOG     MINORS   GROUP-ID
+ST NAME         STATE        DM_CNT   SPARE_CNT         APPVOL_CNT
+DM NAME         DEVICE       TYPE     PRIVLEN  PUBLEN   STATE
+RV NAME         RLINK_CNT    KSTATE   STATE    PRIMARY  DATAVOLS  SRL
+RL NAME         RVG          KSTATE   STATE    REM_HOST REM_DG    REM_RLNK
+CO NAME         CACHEVOL     KSTATE   STATE
+VT NAME         NVOLUME      KSTATE   STATE
+V  NAME         RVG/VSET/CO  KSTATE   STATE    LENGTH   READPOL   PREFPLEX UTYPE
+PL NAME         VOLUME       KSTATE   STATE    LENGTH   LAYOUT    NCOL/WID MODE
+SD NAME         PLEX         DISK     DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+SV NAME         PLEX         VOLNAME  NVOLLAYR LENGTH   [COL/]OFF AM/NM    MODE
+SC NAME         PLEX         CACHE    DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+DC NAME         PARENTVOL    LOGVOL
+SP NAME         SNAPVOL      DCO
+
+dg appdg        default      default  21000    1133513788.18.test303
+
+dm appdg01      -            -        -        -        -
+dm appdg02      -            -        -        -        -
+dm appdg03      -            -        -        -        -
+dm appdg04      -            -        -        -        -
+dm appdg05      -            -        -        -        -
+
+v  backupvol    -            DISABLED ACTIVE   136314880 SELECT   -        fsgen
+pl backupvol-01 backupvol    DISABLED ACTIVE   136314880 CONCAT   -        RW
+sd appdg01-01   backupvol-01 appdg01  0        70703616 0         -        DIS
+sd appdg02-01   backupvol-01 appdg02  0        65611264 70703616  -        DIS
+
+v  concordvol   -            DISABLED ACTIVE   10485760 SELECT    -        fsgen
+pl concordvol-01 concordvol  DISABLED ACTIVE   10485760 CONCAT    -        RW
+sd appdg03-01   concordvol-01 appdg03 0        10485760 0         -        DIS
+
+v  db           -            DISABLED ACTIVE   197132288 SELECT   -        fsgen
+pl db-01        db           DISABLED ACTIVE   197132288 CONCAT   -        RW
+sd appdg03-02   db-01        appdg03  10485760 55725056 0         -        DIS
+sd appdg04-01   db-01        appdg04  0        70703616 55725056  -        DIS
+sd appdg05-01   db-01        appdg05  0        70703616 126428672 -        DIS
+
+v  oracle       -            DISABLED ACTIVE   8388608  SELECT    -        fsgen
+pl oracle-01    oracle       DISABLED ACTIVE   8388608  CONCAT    -        RW
+sd appdg02-02   oracle-01    appdg02  65611264 5092352  0         -        DIS
+sd appdg03-03   oracle-01    appdg03  66210816 3296256  5092352   -        DIS
+(root_test303)@/dev/vx/rdmp # cat /var/tmp/c3t0d30s2.out | vxprint -D - -ht | sum
+10764 5
+
+</pre>

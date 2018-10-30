@@ -1,0 +1,57 @@
+---++ Doc Log 1212156107_01
+
+	$ Date: Fri May 30 14:01:47 2008
+	$ Summary: rpc deamon not working
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+to check run rpcinfo
+
+if portmap is running it should look like this
+
+# rpcinfo -p
+   program vers proto   port
+    100000    2   tcp    111  portmapper
+    100000    2   udp    111  portmapper
+    100024    1   udp   1046  status
+    100021    1   udp   1046  nlockmgr
+    100021    3   udp   1046  nlockmgr
+    100021    4   udp   1046  nlockmgr
+    100024    1   tcp  61830  status
+    100021    1   tcp  61830  nlockmgr
+    100021    3   tcp  61830  nlockmgr
+    100021    4   tcp  61830  nlockmgr
+
+if portman is not running start /etc/init.d/portmap
+
+if nfsserver is started the /usr/sbin/rpc.mountd should be running and the rpcinfo should look like this
+
+# rpcinfo -p
+   program vers proto   port
+    100000    2   tcp    111  portmapper
+    100000    2   udp    111  portmapper
+    100024    1   udp   1046  status
+    100021    1   udp   1046  nlockmgr
+    100021    3   udp   1046  nlockmgr
+    100021    4   udp   1046  nlockmgr
+    100024    1   tcp  61830  status
+    100021    1   tcp  61830  nlockmgr
+    100021    3   tcp  61830  nlockmgr
+    100021    4   tcp  61830  nlockmgr
+    100003    2   udp   2049  nfs
+    100003    3   udp   2049  nfs
+    100227    3   udp   2049  nfs_acl
+    100003    2   tcp   2049  nfs
+    100003    3   tcp   2049  nfs
+    100227    3   tcp   2049  nfs_acl
+    100005    1   udp    669  mountd
+    100005    1   tcp    670  mountd
+    100005    2   udp    669  mountd
+    100005    2   tcp    670  mountd
+    100005    3   udp    669  mountd
+    100005    3   tcp    670  mountd
+#
+
+if not start /etc/init.d/nfsserver
+</pre>

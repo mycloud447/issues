@@ -1,0 +1,24 @@
+---++ Doc Log 1427172559_01
+        $ Date: Mar 24 10:19:19 2015
+        $ Summary: check_clone_disk.sh
+
+---++++ Details:
+<pre>
+#!/bin/sh
+#
+#       Written by Gunter Rogenmoser, IBM, Feb.2013
+#
+echo ""
+echo "Create list of disks and their status ..."
+echo ""
+#
+vxdisk -q list | cut -f1 -d' ' | xargs -i vxdisk -v list {} | egrep '^Device|^disk:|^group:|^udid:|udid_asl' | sed 's/^udid: *//' | sed 's/.*udid_asl=//' | uniq -c > /tmp/disks.txt
+#
+cat /tmp/disks.txt |awk '{if($2~/Device:/) printf("\n%s %s",$2,$3); if($2~/disk:/) printf("\t%s %s",$2,$3); if($2~/group:/) printf("\t%s %s",$2,$3); if($2~/^EMC/) printf("\tudid: %s %s",$1,$2)} END {print}' > /tmp/disks1.txt
+#
+echo "--------------------------------------------------"
+echo "Device name       status  Clone   udid   Diskgroup"
+echo "--------------------------------------------------"
+#cat /tmp/disks1.txt |nawk '/^Device/ {printf("\n%s",$2); if($3=="disk:") printf("\tonline"); else {printf("\tinvalid"); break} if(index($0,"udid:")==0) printf("\t--"); else if(substr($0,index($0,"udid:")+6,1)==1) printf("\tClone"); else printf("\tOK"); if($5=="group:") printf("\t%s",substr($6,6))} END {print ""}'
+cat /tmp/disks1.txt |nawk '/^Device/ {printf("\n%s",$2); if($3=="disk:") printf("\tonline"); else {printf("\tinvalid"); break} if(index($0,"udid:")==0) printf("\t--"); else if(substr($0,index($0,"udid:")+6,1)==1 || substr($0,index($0,"udid:")+6,1)==2) printf("\tClone"); else printf("\tOK"); if($7=="udid:") printf("\t%s",substr($7$8,0)); if($5=="group:") printf("\t%s",substr($6,6))} END {print ""}'
+</pre>

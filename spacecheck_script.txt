@@ -1,0 +1,226 @@
+---++ Doc Log 1383633634_01
+        $ Date: Tue Nov 05:: 12:10:34
+        $ Summary: spacecheck script
+
+---++++ Details:
+<pre>
+#!/usr/bin/perl
+
+use strict;
+my $metastat = '/usr/sbin/metastat';
+
+my $vgdisplay = '/usr/sbin/vgdisplay';
+
+my $osrev = `/usr/bin/uname -r`;
+
+my $osname = `/usr/bin/uname -s`;
+
+system("uname -a");
+
+chomp $osrev;
+
+chomp $osname;
+
+my $required = $ARGV[0];
+
+if ($required =~ /(\d+)GB/) {
+
+        $required = $1 * (1024*1024*1024);
+
+        $required = $required / 512;
+
+} elsif ($required =~ /(\d+)MB/) {
+
+        $required = $1 * (1024*1024);
+
+        $required = $required / 512;
+
+}
+
+my %softparts = ();
+
+my %partitions = ();
+
+
+
+if ($osname eq 'SunOS') {
+
+        if ($osrev eq '5.7') {
+
+                $metastat = '/usr/opt/SUNWmd/sbin/metastat';
+
+        }
+
+        die "Can't find metastat (looking in $metastat)\n" unless -f ($metastat);
+
+        my @metastat = `$metastat -p`;
+
+        foreach my $this (@metastat) {
+
+                if ($this =~ /-p/) {
+
+                        # Soft partition definition.
+
+                        my @line = split(" ", $this);
+
+                        $softparts{$line[0]} = { id => $line[0], base => $line[2] };
+
+                        my $size = 0;
+
+                        my $count = 0;
+
+                        my $mode = "none";
+
+                        while ($count <= $#line) {
+
+                                $size += $line[$count+1] if ($line[$count] eq '-b');
+
+                                $count++;
+
+                        }
+
+                        if (! $partitions{$line[2]}) {
+
+                                warn "Found soft partition block: $line[2]\n";
+
+                                my $blocks = 0;
+
+                                my @sizeof = `$metastat $line[2]`;
+
+                                foreach my $this (@sizeof) {
+
+                                        next unless ($this =~ /Size: (\d+) blocks/);
+
+                                        $blocks = $1;
+
+                                        last;
+
+                                }
+
+                                $partitions{$line[2]} = {
+
+                                        id => $line[2], size => $blocks, type => 'solvm',
+
+                                        free => $blocks };
+
+                        }
+
+                        $partitions{$line[2]}->{'free'} -= $size;
+
+                        warn "Free of $line[2] is $partitions{$line[2]}->{'free'}\n"
+
+                                if ($partitions{$line[2]}->{'free'} < 0);
+
+                }
+
+        }
+
+} elsif ($osname eq 'HP-UX') {
+
+        my @vgdisplay = `$vgdisplay`;
+
+        my $thisvg = '';
+
+        foreach my $line (@vgdisplay) {
+
+                chomp;
+
+                my @thisline = split(" ", $line);
+
+                if ($line =~ /^VG Name/) {
+
+                        $thisvg = $thisline[2];
+
+                        warn "Found HP Volume group: $thisvg\n";
+
+                        $partitions{$thisvg} = { id => $thisvg, type => 'hpux' };
+
+                } elsif ($line =~ /^PE Size/) {
+
+                        $partitions{$thisvg}->{'pesize'} = $thisline[3];
+
+                } elsif ($line =~ /^Free PE/) {
+
+                        $partitions{$thisvg}->{'freepe'} = $thisline[2];
+
+                }
+
+        }
+
+}
+
+if (-f "/usr/sbin/vxdg") {
+
+        if ($< == 0) {
+
+                my @vxdg = `/usr/sbin/vxdg list`;
+
+                my %dgs = ();
+
+                foreach my $line (@vxdg) {
+
+                        next if ($line =~ /NAME/);
+
+                        my @line = split(" ", $line);
+
+                        warn "Found Veritas diskgroup: $line[0]\n";
+
+                        my $vxassist = `/usr/sbin/vxassist -g $line[0] maxsize 2>&1`;
+
+                        my $free = 0;
+
+                        if ($vxassist =~ /size: (\d+)/) {
+
+                                $free = $1;
+
+                        }
+
+                        $partitions{$line[0]} = {id => $line[0], free => $free, type => 'veritas'};
+
+                }
+
+        } else {
+
+                warn "User is not root. Can't check Veritas!\n";
+
+        }
+
+} else {
+
+        warn "Veritas not installed.\n";
+
+}
+
+
+
+foreach my $thispart (sort keys %partitions) {
+
+        if ($partitions{$thispart}->{'type'} eq 'hpux') {
+
+                # Convert into blocks...
+
+                $partitions{$thispart}->{'free'} = ($partitions{$thispart}->{'freepe'} *
+
+                        $partitions{$thispart}->{'pesize'}) * 2048;
+
+        }
+
+        if ($partitions{$thispart}->{'free'} > $required or $required == 0) {
+
+                warn sprintf("Partition: %s. Free Blocks: %d (%2d Mb)\n", $thispart,
+
+                        $partitions{$thispart}->{'free'}, $partitions{$thispart}->{'free'} / 2048);
+
+        } else {
+
+                warn sprintf("Partition: %s. Free Blocks: %d (%2d Mb) (require %d more)\n", $thispart,
+
+                        $partitions{$thispart}->{'free'}, $partitions{$thispart}->{'free'} / 2048,
+
+                        ($required - $partitions{$thispart}->{'free'}));
+
+        }
+
+}
+
+</pre>

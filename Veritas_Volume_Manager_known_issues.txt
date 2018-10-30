@@ -1,0 +1,3701 @@
+---++ Doc Log 1386309151_01
+        $ Date: Dec 06 11:22:31 2013
+        $ Summary: Veritas Volume Manager known issues
+
+---++++ Details:
+<pre>
+Veritas Volume Manager known issues
+===================================
+
+See the following sections for information about known problems and issues in this release of VxVM.
+
+Installation and upgrade issues
+
+
+
+ASL support for Sun StorEdge T3 and T3+ arrays
+==============================================
+
+This release does not include the libvxpurple.so array support library (ASL) to support Sun StorEdge T3 and T3+ arrays. Any existing version of the libvxpurple.so ASL is removed when VxVM is upgraded to 5.0. Any T3 and T3+ arrays must be configured in autotrespass mode, and treated as JBODs of type A/P.
+
+
+
+If an array is of type A/A-A, A/P or A/PF, and a suitable ASL is not available, the array must be claimed as an JBOD of type A/P. This is to prevent path delays and I/O failures arising. As JBODs are assumed to be type A/A by default, and neither T3 nor T3+ arrays are of this type, you must create appropriate JBOD entries for such arrays.
+
+
+
+ To configure a Sun StorEdge T3 or T3+ array as a JBOD of type A/P
+======================================================================
+ Stop all applications, such as databases, from accessing VxVM volumes that are configured on the array, and unmount all VxFS file systems and checkpoints that are configured on the array.
+
+    Configure the T3 or T3+ array in autotrespass mode.
+
+    Add the array as a JBOD of type A/P:
+
+    # vxddladm addjbod vid=SUN pid=T300 policy=ap
+
+    If you have not already done so, upgrade the Storage Foundation or VxVM software to 5.0. Device discovery will be performed during the upgrade, and the array will be claimed as an A/P JBOD.
+
+    If you have already upgraded your system to 5.0, run the following command to perform device discovery:
+
+    # vxdctl enable
+
+    Verify that the array has been added with the policy set to APdisk:
+
+    # vxddladm listjbod
+
+
+    VID   PID     Opcode Page Code Page Offset SNO length Policy
+
+
+    ============================================================
+    SUN   T300    18     -1        36          12         APdisk
+
+    Check that the correct devices are listed for the array:
+
+    # vxdisk list
+
+    DEVICE     TYPE          DISK    GROUP    STATUS
+
+    APdisk_0   auto:cdsdisk  -       -        online invalid
+    APdisk_1   auto:cdsdisk  -       -        online invalid
+    APdisk_2   auto:cdsdisk  -       -        online invalid
+
+
+Initializing disks previously under VxVM control
+==================================================
+
+If you are planning to initialize disks, check to see if any of the disks were previously under VxVM control. If so, and if they were used on the same host system, the disk groups they represent are imported automatically during the installation process if the proper removal procedures were not followed. An attempt during installation to initialize or encapsulate disks that were previously under VxVM control fails. After installation, if you no longer want to use those disk groups, use the destroy option of the vxdg command to remove those disk groups. Alternately, you can use vxdiskunsetup to remove the disks from VxVM control. Be aware that these options can result in data loss if used incorrectly.
+
+
+Recognizing simple disks from earlier releases
+==================================================
+
+In earlier releases of VxVM, some users minimized the allocation of disks to the disk group, rootdg, by associating rootdg with a small disk partition that was characterized as a simple disk. This procedure would have been achieved by using the command, vxdctl add disk, which is no longer supported in VxVM 4.0 and later releases.
+
+If you created one of these simple disks, you will need to carry out a procedure similar to the one described in the following example.
+
+Assuming that the simple disk is defined to be on c1t21d0s7, you would see the following entry in /etc/vx/volboot:
+
+disk c1t21d0s7 simple privoffset=1
+
+After upgrading to VxVM 5.0, you must reboot the system. After rebooting, execute the command, vxdisk list, and you will see that c1t21d0s7 is not listed. This is because vxconfigd now ignores disk entries in /etc/vx/volboot.
+
+
+ To retain access to data on a simple disk
+==================================================
+
+    Define a disk access record that will be created in /etc/vx/darecs
+
+
+    # vxdisk define c1t21d0s7 type=simple
+    Request that vxconfigd should extract information from this disk:
+
+    # vxdctl enable
+    Discover the name of the disk's disk group:
+
+    # vxprint -th
+    Enable access to the disk's disk group; rootdg in this example:
+
+    # vxvol -g rootdg startall
+
+Interruption of an upgrade
+==========================
+
+If the installation software is interrupted on the local system during certain upgrade situations, Veritas Volume Manager configurations may be lost after a reboot. If this happens, the entire Veritas Volume Manager package must be reinstalled and a recover must be done manually by recreating the disks, disk groups, and volumes and restoring the data from backup. [13033]
+
+"SIGHUP caught" message on the console
+When running vxinstall on a system with a SENA array that is enabled with enclosure naming, you may see a message similar to the following:
+You can safely ignore this message. [Sun Bug ID 4955989, i138955]
+
+Misleading alerts generated on a system with the VAIL package installed
+=======================================================================
+
+An alert with the text message "SymCLI command line tools are not installed properly" will be generated in each of the following two cases when SYMCLI is either absent or not installed properly on the host on which a VAIL package is installed.
+
+Case 1. When host comes up after a reboot and SYMCLI is either absent or not installed properly.
+Case 2. When a rescan of Symmetrix provider is initiated and SYMCLI is either found to be absent or found to be not installed properly but SYMCLI installation was proper before rescan of Symmetrix provider was initiated.
+In either of Case 1 or Case 2 one should ignore the alert message on the host on which VAIL package is installed if there is no EMC Symmetrix array being managed on that host. [Sun Bug ID 6211778, 297830]
+
+No support for remote package and patch installation
+
+Veritas Volume Manager does not currently support remote package and patch installation across different architectures. For example, installation of a package from a SPARC system to a x86 system is not supported.
+
+
+LiveUpgrade
+===========
+
+LiveUpgrade does not currently work on a system that has its root disk encapsulated.
+Utility issues
+
+Reformatting a CDS disk can cause data corruption
+==================================================
+
+On disks that are initialized by VxVM as CDS disks (the default format), the CDS information occupies the first sector of that disk, and there is no fdisk partition information. Attempting to create an fdisk partition (for example, by using the fdisk or format commands) erases the CDS information, and can cause data corruption.
+
+Global Device Naming
+====================
+
+The Global Device Naming (GDN) option to the vxddladm command should only be used with the Storage Foundation Volume Server software. [608621]
+
+Current naming scheme
+=====================
+
+There is no option in the vxddladm command to display the current naming scheme. The naming scheme that is in operation can be deduced from the output to the vxdisk list command. [611320]
+
+vxdiskadm displays error V-5-1-9764 when excluding devices
+
+The vxdiskadm operation displays error V-5-1-9764 if a vendor and product ID combination are specified to exclude devices from multipathing. This error is harmless and can be ignored. The error is not seen if controller or device names are specified instead. [587435]
+
+
+Disk group is disabled if private region sizes differ
+
+A disk group is disabled if the vxdg init command is used to create it from a set of disks that have pre-existing private regions that differ in size. This may occur if the disks previously belonged to disk groups in older releases of VxVM.
+
+The workaround is to reinitialize the disks before creating the disk group (for example, by using the vxdisk -f init command), or to use the vxdg adddisk command to add the disks to the disk group after it has been created. [592180]
+
+Maximum size of a VxVM volume
+
+VxVM supports volume lengths up to 256TB. However, any 32-bit legacy applications that use system calls such as seek, lseek, read and write are limited to a maximum offset that is determined by the operating system. This value is usually 231-1 bytes (1 byte less than 2 terabytes).
+
+Resizing volumes with detached remote plexes
+
+If a volume in a Remote Mirror configuration has detached plexes at a remote site, you can use the following procedure to resize it:
+
+    Turn off the allsites attribute for the volume:
+
+    # vxvol -g diskgroup set allsites=off volume
+
+    Remove the detached plexes:
+
+    # vxassist -g diskgroup remove mirror volume \
+
+      plexnames=plex1,plex2,...
+
+    Use the vxresize command to resize the volume. 
+
+When the remote site comes back up:
+
+    Replace the removed plexes using storage at the remote site:
+
+    # vxassist -g diskgroup mirror volume nmirror=N \
+      site:remote_site_name
+
+    Turn on the allsites attribute for the volume:
+    # vxvol -g diskgroup set allsites=on volume
+
+Shrinking a swap volume
+
+vxassist has no built-in protection to prevent you from shrinking the swap volume without first shrinking what the system sees as available swap space. If it is necessary to shrink the swap volume, the operation must be done in single user mode and the system must be rebooted immediately. Failing to take these precautions can result in unknown system behavior or lock-up. [6154]
+
+Adding a log and mirror to a volume
+
+The vxassist command does not add a mirror and a log when processing a command such as the following:
+
+# vxassist mirror volume layout=log ...
+
+The mirror is added, but the log is silently omitted. To add a log and a mirror, add them in two separate vxassist invocations, as follows:
+
+# vxassist mirror volume ...
+# vxassist addlog volume ...
+
+Replacement of the old_layout attribute
+
+The old_layout attribute is no longer supported when the vxdisksetup command is used to make a disk into a VxVM controlled disk. Use the noreserve attribute instead. [121258]
+
+Using vxvol and vxmend with layered volumes
+
+The vxvol and vxmend commands do not handle layered volumes very well. When vxmend is executed on the top level volume to change the state of a volume, it is executed only on the top level volume; the change is not propagated to the lower level volumes. As a result, the volume states can become inconsistent and a subsequent vxvol init command might fail.
+
+The vxvol command exhibits the same problem. When a vxvol init command is executed on the top level volume, the change is not propagated to the volumes corresponding to its subvolumes.
+
+Workaround:
+-----------
+
+When executing the vxvol or vxmend command on a layered volume, first issue the command to the lower level volumes in a bottom-up fashion; then execute the command on the top-level volume.
+
+In this example, a volume, vol, has two subvolumes, vol-L01 and vol-L02. The state of the volumes is first set to empty, and then the initialization commands are executed:
+
+# vxmend -o force -g mydg fix empty vol
+# vxmend -o force -g mydg fix empty vol-L01
+# vxmend -o force -g mydg fix empty vol-L02
+# vxvol -g mydg init zero vol
+# vxvol -g mydg init zero vol-L01
+# vxvol -g mydg init zero vol-L02
+
+Growing or shrinking layered volumes
+
+Due to the current implementation of a resize of layered volumes, it is recommended that you do not grow or shrink layered volumes (for example; stripe-mirror, concat-mirror) while resynchronization is ongoing. Note that this limitation does not apply to ISP layered volumes.
+
+Internally, VxVM converts the layout of layered volumes and updates the configuration database before it does the actual resize. This causes any ongoing operation, such as a resynchronization, to fail.
+
+If the system reboots before the grow or shrink of a layered volume completes, the volume is left with an intermediate layout. In this case, you have to use vxassist convert to restore the volume to its original layout.
+
+After a layered volume is resized, the volume names, the plex names and the subdisk names associated with the subvolumes, are changed.
+
+Startup script messages not seen on the console
+
+With the introduction of SMF support in Solaris 10, startup script messages are no longer seen on the console.
+
+These messages can be viewed (cat or vi) in SMF log files found at:
+
+
+/var/svc/log
+/etc/svc/volatile
+
+The file names are based on the specific startup script: 
+
+#/var/svc/log: ls
+
+system-vxvm-vxvm-startup2:default.log
+system-vxvm-vxvm-sysboot:default.log
+
+5 Also, other startup messages can be found in:
+
+#/var/svc/log: ls
+milestone-multi-user-server:default.log
+milestone-multi-user:default.log
+milestone-name-services:default.log
+milestone-single-user:default.log
+
+#/etc/svc/volatile
+system-vxvm-vxvm-startup2:default.log
+system-vxvm-vxvm-sysboot:default.log
+
+
+Bad disk block warning
+
+When vxio detects a bad disk block on a disk, it will display a warning message indicating that an uncorrectable write error has been encountered. [272176]
+
+Do not specify a long device name in the /etc/vx/disks.exclude file
+
+It is recommended that you do not edit the /etc/vx/disks.exclude file directly. Some scripts like vxdiskadm fail with an error message if a long device name is specified in this file. You should instead use option 17 or 18 of the vxdiskadm command to suppress or unsuppress devices from VxVM's view. [Sun Bug ID 6228464, 311275]
+
+Unable to boot system without bootdg link to the boot disk group
+A system may fail to boot with the following errors:
+
+ERROR: svc:/system/filesystem/root:default failed to mount /usr (see 'svcs -x'for details)
+
+[ system/filesystem/root:default failed fatally (see 'svcs -x' for details) ]
+
+
+(See /lib/svc/share/README for more information.)
+
+Console login service(s) cannot run
+
+Root password for system maintenance (control-d to bypass):
+single-user privilege assigned to /dev/console.
+
+su: No shell /bin/ksh. Trying fallback shell /sbin/sh.
+
+One possible cause for the error that the symbolic link between bootdg and the boot disk group under /dev/vx/dsk or /dev/vx/rdsk is missing.
+
+ The workaround for this error is as follows
+
+    Make sure that your system does not have a link under /dev/vx/dsk and /dev/vx/rdsk
+
+    bootdg -> rootdg
+
+    Boot the system from an installation disk or from a network boot server.
+
+    Mount the root (/) file system on a suitable mount point. In this example c0t0d0s0 is the slice that corresponds to the root file system on the boot disk.
+
+    # mount -F ufs -o nologging /dev/dsk/c0t0d0s0 /mnt
+
+    Create the link. This example assumes that the boot disk group is called rootdg:
+
+
+    # cd /mnt/dev/vx/dsk
+    # ln -s rootdg bootdg
+    # cd /mnt/dev/vx/rdsk
+    # ln -s rootdg bootdg
+    # cd
+    # umount /mnt
+    # init 0
+
+    Reboot the system. 
+
+Disabling MPxIO in a SAN boot configuration can cause system to panic
+======================================================================
+Solaris 10 update 3 systems panic and fail to boot SAN boot device, when mpxio_disable is set to 'yes' in /kernel/drv/fp.conf. [Sun Bug ID CR 6525123]
+Sun cautions the user on disabling MPxIO on FC disks that have critical file systems needed for booting. Sun also recommends that you update to the following OS level and patches:
+
+    Solaris 10 update 3
+
+    Latest kernel level patch - 118855-36 or later
+
+    Latest qlc driver patch - 119131-33 or later
+
+    Patch 120993-01
+
+    Latest firmware array 
+
+Workaround: Follow these steps when disabling MPxIO
+
+    Disable mpxio. Refer to the Sun document available at http://docs.sun.com/source/819-0139/ch_4_config_multi_SW.html#pgfId-1000566.
+    Update the x86 boot archive:
+
+    # bootadm update-archive
+    Perform the reconfiguration reboot:
+
+    #touch /reconfigure
+    #shutdown -g0 -y -i6
+    Boot the failsafe OS.
+
+    Mount the boot disk's root fileystem on /a:
+    #mount <root device> /a
+    Edit /a/etc/vfstab to point to the correct root device
+    # vi /a/etc/vfstab
+    # /sbin/bootadm update-archive -R /a
+    # sync
+    # umount /a
+    Reboot the system:
+    # reboot
+
+Patch Issues
+============
+Patch removal causes vxconfigd to dump core
+If you use the patchrm command to remove the VxVM patch (122058-06), the vxconfigd daemon dumps core when it is restarted, and the following error message is displayed:
+VxVM vxconfigd ERROR V-5-1-0 Bus error - core dumped.
+
+The error can occur if:
+
+Any volume is open, such as if the root disk is encapsulated, or a file system on a VxVM volume is mounted.
+
+Any process is accessing VxVM drivers that cannot be unloaded. In this case, a workaround is to use the pkill vx and ps -ef | grep -i vx commands to make sure that all vx* processes other than vxconfigd are stopped before removing the VxVM patch. 
+The error is harmless, and the patch is removed correctly. VxVM functions normally if the system is rebooted. [796270]
+
+Device issues
+=============
+
+Converting a multipathed disk
+
+Under Solaris 10 when converting a multipathed disk that is smaller than 1TB from a VTOC label to an EFI label, you must issue a format -e command for each path. For example, if a node has two paths, c1t2d0s2 and c2tsd0s2, you need to apply the format -e command to each of the two paths. [269566]
+
+Adding disks to VxVM volume on a Solaris x64 system
+
+The default disk layout on the Solaris x64 platform differs from that on the Solaris SPARC platform as follows:
+
+    On a Solaris SPARC system, the start of the Solaris partition, which may contain a primary boot executable and boot block in addition to the VTOC and any disk slices, is located in cylinder 0. The whole disk is accessed using the device c#t#d#s2.
+
+    On a Solaris x64 system, an FDISK partition, which may contain a master boot record (MBR) is located in cylinder 0, and the start of the Solaris partition is located in cylinder 1. The device c#t#d#s2 references the entire Solaris partition, but not the FDISK partition. The whole disk may be accessed using the device c#t#d#p0. 
+
+Before a disk with a sun partition label from a Solaris SPARC system can be used on a Solaris x64 system, it is necessary to use the fdisk command to rewrite its partition layout and VTOC, so destroying any data on the disk. However, a CDS disk group can be imported on a Solaris x64 system without needing to run the fdisk command. The layout of the partition table for CDS disks is the same on all supported platforms, and does not include an FDISK partition, or a Solaris partition and VTOC.
+
+As on the Solaris SPARC platform, you can use the VERITAS Enterprise Administrator (VEA) GUI, the Web GUI, or the vxdiskadm, vxdiskadd or vxdisk commands to initialize a new disk with one of the following formats: auto:cdsdisk, auto:simple, auto:sliced, nopriv, simple or sliced.
+
+
+Removing a disk from VxVM control
+===================================
+After removing a disk from its disk group, you can use the vxdiskunsetup -C command to clear the VxVM configuration on the disk:
+
+# vxdiskunsetup -C daname
+
+where daname is the disk access name, such as c2t4d7.
+
+If the vxdisk list command shows that a disk is in the error state, use the following commands to reinitialize the disk with the default layout for a Solaris x64 system, and remove the disk from the VxVM configuration:
+
+# fdisk -B -n /dev/rdsk/danamep0
+# vxdisk rm danames2
+# vxdisk scandisks
+
+Note that the partition 0 device (for example, c2t4d7p0) is specified to the fdisk command, but the Solaris partition device (for example, c2t4d7s2) is specified to the vxdisk rm command.
+The vxdisk list command should now show the disk's type as auto:none and its state as online invalid. If the disk is still not shown as being in the online state, use the following command to clear the first 512 blocks on the disk before rerunning the fdisk and vxdisk commands:
+
+# dd if=/dev/zero of=/dev/rdsk/danamep0 count=512
+
+Encapsulation of disks with insufficient space for a private region
+===================================================================
+
+Disks with insufficient space for the allocation of an on-disk database copy cannot be encapsulated. The database requires at least the same space as is allocated for other disks in the same disk group. The default required size is 32MB. To work around this, relocate the data on the last partition of the disk to a volume on a different disk, and free the space by reducing the partition size to 0.
+
+The space for the database must be allocated from the beginning or the end of the disk, with the exception of the root disk. The root disk can be encapsulated by carving out space from the swap partition if there is no space at the beginning or at the end of the disk. This is done by creating a subdisk for the private partition in the space obtained from the swap partition.
+
+Workaround:
+==========
+
+The problem of insufficient space on a disk to store private VxVM information has no workaround. VxVM requires a small region of private storage for proper disk identification. The number of VxVM objects that can be configured in a disk group is almost directly proportional to the size of the private region. The default private region size is 32MB. If this size is overridden, it is recommended that it be made no smaller than 1MB.
+
+
+
+Extensible Firmware Interface support
+
+
+
+
+
+Stale device entries slow down Veritas Volume Manager
+======================================================
+
+Under Solaris 10, stale device entries in the /dev/[r]dsk directories can cause the VxVM configuration daemon, vxconfigd, to consume a large amount of CPU time. Remove the stale entries by entering the following sequence of commands:
+
+
+# devfsadm -C
+# touch /reconfigure
+# init 6
+
+Newly added disks should be labeled
+===================================
+
+When new disks are added to a Solaris configuration, these disks should be labeled before they are used with VxVM. VxVM can discover unlabeled disks, but it cannot read their disk geometry, nor can it initialize them. A console message similar to the following is displayed for each unlabeled disk:
+
+
+WARNING: /pci@1e,600000/SUNW,qlc@3,1/fp@0,0/ssd@w22110002ac000266,0 (ssd18): Corrupt label; wrong magic number
+
+
+When VxVM discovers unlabeled disks, the disk configuration information is added to DMP. If DMP attempts to open the unlabeled device, the open fails, and the paths are disabled. If the system is subsequently rebooted with the unlabeled disks, DMP disabled path messages are also displayed for the unlabeled disks.
+
+
+
+To prevent unnecessary delay occurring at boot time, it is recommended that you use the format command to label new disks before having VxVM discover and initialize them. [544797]
+
+
+
+vxddladm addsupport command limitations
+===================================
+
+
+The vxddladm addsupport command could cause your system to hang when using a Sun SCSI Enclosure Service (SES) Driver. This situation can be caused by stale entries in /dev/es. A stale entry is a device link in /dev/es, for which no corresponding device is connected to the system.
+
+
+
+In some circumstances, installing VxVM can cause a system to hang because the vxddladm addsupport command is also run.
+
+
+
+ If your system hangs, perform the following workaround
+========================================================
+
+    Reboot the system.
+
+    Remove all entries, both stale and valid, from /dev/es.
+
+    Run the devfsadm command to recreate /dev/es with valid entries:
+
+
+
+    # devfsadm -C
+
+    Reinstall the Veritas software. 
+
+
+
+[115323, 140441]
+
+
+
+Disk controller firmware upgrades
+==================================
+
+
+For a workaround to Sun Bug ID 4164338, use the procedure described in ''Upgrading disk controller firmware'' in the ''Administering Dynamic Multipathing (DMP)" chapter of the Veritas Volume Manager Administrator's Guide.
+
+
+
+Event source daemon dies
+==================================
+
+
+If the host-side switch port is disabled and enabled on a Brocade switch, the event source daemon (vxesd) dies if the latest Solaris patches for the SUNWfchba, SUNWfchbr and SUNWfchbx packages have not been applied to the system. Install the latest recommended Patch Cluster. [534392]
+
+
+
+Hitachi arrays in Active/Active mode
+==================================
+
+
+When Hitachi DF400, DF500, HDS9200, HDS9500 or HDS9700 arrays are configured as Active/Active mode arrays, performance is degraded. The correct ASL must be installed that allows these arrays to be claimed as A/PG-type arrays. [73154]
+
+
+
+Relayout of volumes on the root disk
+==================================
+
+
+Do not run the vxrelayout and vxassist commands to relayout a volume that is part of root disk. This action may corrupt the layout of the root disk so that you cannot boot from it. On an encapsulated root disk, a relayout can cause an upgrade to fail. [103991]
+
+
+
+Failure to add a disk from a T3 array
+==================================
+
+
+On a T3 array, VxVM may display the following failure when trying to add a disk (typically from vxinstall or vxdisksetup):
+
+
+
+vxvm:vxdisk: ERROR: Device XXXX: online failed
+
+
+
+Device path not valid
+==================================
+
+
+This can happen in cases where the T3 disk was re-partitioned (or re-formatted) prior to one or more disks being added. [105173]
+
+
+
+SFCFS with I/O fencing is not supported on HDS9200 arrays
+====================================================================
+
+
+If you attempt to boot a cluster with I/O fencing (PGR) enabled, HDS9200 disks will show up in error state on the slaves. This error does not appear if I/O fencing is disabled. [131926]
+
+
+
+Disks in V480 and V880 internal disk enclosures
+====================================================================
+
+
+Fujitsu and Hitachi disks in V480 and V880 internal disk enclosures may not be automatically recognized as JBOD disks. This could potentially cause data corruption if multipathing is not configured correctly. After installing any Sun-qualified FC disks as FRU replacements, use the procedure described in "Adding Unsupported Disk Arrays to the DISKS Category" in the "Administering Disks" chapter of the Veritas Volume Manager Administrator's Guide to add each such disk to the JBOD category. It is important that both the vendor ID and product ID are specified for each such disk to avoid conflicts with similar disks in other arrays. For Fujitsu disks, the number of characters in the serial number must also be specified. [Sun Bug ID 4900508, i133579]
+
+
+
+Errors when using JNI cards
+==================================
+
+
+If the model number of your JNI card is one of FCE-1063, FCE2-1063, FCE-6410, FCE2-6410, or FCE2-6412, you may experience error messages of the form:
+
+
+
+Oct 22 00:16:16 ds13un jnic: [ID 847178 kern.notice] jnic1: Memory port parity error detected
+
+
+
+Oct 22 00:16:16 ds13un jnic: [ID 229844 kern.notice] jnic1: Link Down
+
+
+
+Oct 22 00:16:16 ds13un jnic: [ID 744007 kern.notice] jnic1: Target0: Port
+
+0000EF (WWN 500060E802778702:500060E802778702) offline.
+
+
+
+Oct 22 00:16:18 ds13un jnic: [ID 709123 kern.notice] jnic1: Link Up
+
+
+
+Oct 22 00:16:18 ds13un jnic: [ID 236572 kern.notice] jnic1: Target0: Port
+
+0000EF (WWN 500060E802778702:500060E802778702) online.
+
+
+
+Oct 22 00:16:18 ds13un jnic: [ID 229844 kern.notice] jni
+
+
+
+Contact JNI support for more information.
+
+
+
+Workaround: Add the following parameter to the JNI configuration file (jnic.conf):
+
+
+
+FcEnableContextSwitch = 1;
+
+
+
+Sun StorEdge Traffic Manager
+==================================
+
+
+The Sun StorEdge Traffic Manager (SSTM) boot support feature that is available through SAN 4.3 or later is not supported. Booting from fabric devices under SSTM or boot encapsulation of fabric devices under SSTM is also not supported.
+
+[Sun Bug ID 4912232, 4909641, 4912667].
+
+
+
+Loss of disk space in 3510 arrays
+==================================
+
+
+If a 3510 array disk that is larger than 512GB is initialized to be a CDS disk, the value that is returned by a SCSI mode sense command for the number of sectors per track may be incorrect. This can cause the sector count to be miscalculated and some disk space to be lost. [272241]
+
+
+
+Hitachi 9990 Genesis array
+==================================
+
+
+After installing the Storage Foundation software, errors such as the following may be displayed on the console.
+
+
+
+d18b-root@[/usr/sbin]>d18b-root@[/usr/sbin]>get_geometry_info_common: solaris disk label adj. failed for /dev/vx/rdmp//GENESIS0_6 (err 22)get_geometry_info_common: solaris disk label adj. failed for /dev/vx/rdmp//GENESIS0_6 (err 22)get_geometry_info_common: solaris disk label adj. failed for /dev/vx/rdmp//GENESIS0_6 (err 22)get_geometry_info_common: solaris disk label adj. failed for /dev/vx/rdmp//GENESIS0_6 (err 22)get_geometry_info_common: solaris disk label adj. failed for /dev/vx/rdmp//GENESIS0_6 (err 22)get_geometry_info_common: solaris disk label adj. failed for dev/vx/rdmp//GENESIS0_6 (err 22)
+
+
+
+This failure has been observed on the Hitachi 9990 (Genesis) arrays where the disk geometry data is being handled incorrectly by vxconfigd, resulting in the indicated message during vxdctl enable or vxconfigd startup. This message does not affect VxVM's use of the array. [Sun Bug ID 6221005, 301931, 308975]
+
+
+
+S-VOL devices on HDS with TrueCopy enabled
+
+
+
+When using HDS with True Copy enabled, the primary devices (P-VOL) and their mirrors (S-VOL devices) are both seen in vxdisk list output. The P-VOL devices are available for import but the S-VOL devices are not available for import. Do not try to use S-VOL devices even though they appear in the vxdisk list output. [300979]
+
+
+
+USB devices not ignored.
+==================================
+
+
+Veritas Volume Manager does not ignore USB devices attached to your system, resulting in an error. When VxVM encounters an USB device, the status field for the device displays an error. View the device details to verify the error. This USB device should be ignored and cannot be used due to the error status.[803949]
+
+
+
+#vxdisk list
+
+
+
+DEVICE TYPE DISK GROUP STATUS
+
+
+
+c2t0d0s2 auto - - error
+
+
+
+# vxdisk list c2t0d0s2
+
+
+
+Device: c2t0d0s2
+
+
+
+devicetag: c2t0d0
+
+
+
+type: auto
+
+
+
+flags: online error private autoconfig
+
+
+
+pubpaths: block=/dev/vx/dmp/c2t0d0s2 char=/dev/vx/rdmp/c2t0d0s2
+
+
+
+guid: -
+
+
+
+udid:AMI%5FVirtual%20Floppy%5FOTHER%5FDISKS%5Fvmgalaxy13%5F%2Fdev%2Frdsk%2Fc2t0d0s2
+
+
+
+site: -
+
+
+
+Multipathing information:
+
+
+
+numpaths: 1
+
+
+
+c2t0d0s2 state=enabled
+
+Hot-relocation issues
+
+
+
+Impact of hot-relocation on performance
+
+
+
+Except for rootvol and swapvol, the hot-relocation feature does not guarantee the same layout of data or performance after relocation. It is therefore possible that a single subdisk that existed before relocation may be split into two or more subdisks on separate disks after relocation (if there is not enough contiguous space on a single disk to accommodate that subdisk). [14894]
+
+
+
+Disk information in notification messages
+====================================================================
+
+
+When a disk failure occurs, the hot-relocation feature notifies the system administrator of the failure and any relocation attempts through electronic mail messages. The messages typically include information about the device offset and disk access name affected by the failure. However, if a disk fails completely or a disk is turned off, the disk access name and device offset information is not included in the mail messages. This is because VxVM no longer has access to this information. [14895]
+
+DMP issues
+
+
+
+Fabric Monitoring
+==================================
+
+
+The new Fabric Monitoring feature controls whether the Event Source daemon (vxesd) uses the Storage Networking Industry Association (SNIA) HBA API. This API allows DMP to improve the performance of failover by collecting information about the SAN topology and by monitoring fabric events. Note that the vendor-provided ASL must also support the use of the SNIA HBA API.
+
+
+
+Fabric monitoring may be turned on or off by using the following vxddladm commands:
+
+
+
+# vxddladm settune monitor_fabric=on
+
+
+
+# vxddladm settune monitor_fabric=off
+
+
+
+The current setting of monitor_fabric can be displayed by using the following command:
+
+
+
+# vxddladm gettune monitor_fabric
+
+
+
+The default setting of monitor_fabric is on.
+
+
+
+[784343]
+
+
+
+Handling intermittently failing paths
+
+
+
+The dmp_health_time and dmp_path_age tunables control how DMP handles intermittently failing paths. The default values in VxVM 5.0 of dmp_health_time and dmp_path_age are 60 and 300 seconds respectively. The value of dmp_health_time represents the minimum time in seconds for which a path must stay healthy. If a path changes state between enabled and disabled on a shorter time scale than this, DMP marks the path as intermittently failing and disables I/O on the path. I/O is not re-enabled on an intermittently failing path until dmp_path_age seconds have elapsed without further outage.
+
+
+
+The minimum configurable value of dmp_path_age is 0, which prevents DMP from detecting intermittently failing paths.
+
+
+
+Disabling switch ports can cause I/O failures
+====================================================================
+
+
+Disabling the switch ports on the secondary paths to an A/P array can cause I/O failures on the primary path. This is because a fabric reconfiguration can take some time to stabilize depending on the complexity of the SAN fabric. Running the vxdisk scandisks command returns the primary paths to the enabled state. [607996]
+
+
+
+Failure of mirroring with A/PF arrays
+==================================
+
+
+Mirroring a volume by using option 6 to the vxdiskadm command fails if the device discovery layer chooses a secondary path to a device in an A/PF array. There is no known workaround for this issue. [603164]
+
+
+
+Default I/O policy
+==================================
+
+
+The default I/O policy for Active/Active (A/A) arrays has been changed from balanced to minimumq. The default I/O policy for Asymmetric Active/Active (A/A-A) and Active/Passive (A/P) arrays has been changed from singleactive to round-robin.
+
+
+
+Disabling MPxIO
+==================================
+
+
+MPxIO is enabled by default, which may prevent DMP from providing multipathing support. To ensure that multipathing through DMP is enabled, MPxIO must be disabled. See Enabling the DMP feature.
+
+Cluster functionality issues
+==================================
+
+
+Domain controller mode in CVM clusters
+==================================
+
+
+The slave nodes in a CVM cluster only have access to I/O objects. If non-I/O related information (for example, volume tags) are to be made available on a slave node, a command must to be shipped to the Storage Agent on the master node for execution. The results are then communicated back to the slave node.
+
+
+
+The domain controller mode of VEA allows all nodes of a CVM cluster to be placed in the same domain with a central authentication server. This allows commands to be executed on any node within the domain if the executing process has sufficient rights.
+
+
+
+Provided domain controller mode is configured, non-I/O related information is accessible via VEA on any node in a CVM cluster.
+
+
+
+However, even if domain controller mode is enabled in a CVM cluster, ISP commands must be run on the master node. ISP commands that are run on a slave node are not redirected to the Storage Agent on the master node. Such commands fail if they require access to non-I/O related information that is unavailable on a slave node. [603213]
+
+
+
+Delays in systems with DS4800 storage
+=====================================
+
+
+
+
+
+Failure to detach a bad plex
+=====================================
+
+
+If the cluster detach policy is set to global, and a non-mirrored volume experiences a disk media failure, the disk is not shown as failed and the volume is not disabled. However, I/O requests fail. [521182]
+
+
+
+Node rejoin causes I/O failures with A/PF arrays
+==========================================================================
+
+
+A cluster node should not be rejoined to a cluster if both the primary and secondary paths are enabled to an A/PF array, but all the other nodes are using only the secondary paths. This is because the joining node does not have any knowledge of the cluster configuration before the join takes place, and it attempts to use the primary path for I/O. As a result, the other cluster nodes can experience I/O failures and leave the cluster.
+
+
+
+ Workaround
+=====================================
+
+
+    Before joining the node to the cluster, disconnect the cable that corresponds to the primary path between the node and the A/PF array.
+
+    Check that the node has joined the cluster by using the following command: 
+
+
+
+# vxclustadm nidmap
+
+
+
+The output from this command should show an entry for the node.
+
+
+
+    Reconnect the cable that corresponds to the primary path between the node and the array.
+
+    Use the following command to trigger cluster-wide failback: 
+
+
+
+# vxdisk scandisks
+
+
+
+All the nodes should now be using the primary path.
+
+
+Volume persists in SYNC state
+
+
+
+If a node leaves the cluster while a plex is being attached to a volume, the volume can remain in the SYNC state indefinitely. To avoid this, after the plex attach completes, resynchronize the volume manually with the following command:
+
+
+
+# vxvol -f resync volume
+
+RAID-5 volumes
+
+
+
+VxVM does not support RAID-5 volumes in cluster-shareable disk groups.
+
+
+
+File systems supported in cluster-shareable disk groups
+
+
+
+
+
+
+Reliability of information about cluster-shareable disk groups
+
+
+
+If the vxconfigd program is stopped on both the master and slave nodes and then restarted on the slaves first, VxVM output and VEA displays are not reliable until the vxconfigd program is started on the master and the slave is reconnected (which can take about 30 seconds). In particular, shared disk groups are marked disabled and no information about them is available during this time. The vxconfigd program must therefore be started on the master first.
+
+
+
+Messages caused by open volume devices
+======================================
+
+
+When a node terminates from the cluster, open volume devices in shared disk groups on which I/O is not active are not removed until the volumes are closed. If this node later joins the cluster as the master while these volumes are still open, the presence of these volumes does not cause a problem. However, if the node tries to rejoin the cluster as a slave, this can fail with the following error message:
+
+
+
+cannot assign minor #
+
+
+
+This message is accompanied by the console message:
+
+
+
+WARNING:minor number ### disk group group in use
+
+Remote Mirror issues
+
+
+
+Handling intermittently failing paths in a Campus Cluster
+
+
+
+In remote mirror configurations, a site is reattached when its disks come back online. Recovery is then initiated for the plexes of a volume that are configured at that site. Depending on the configuration, recovery of the plexes can take a considerable time and consume considerable resources. To minimize the frequency of having to perform a site reattachment operation, it is recommended that you use the vxdmpadm settune command to configure a value smaller than 60 seconds for dmp_health_time, and a value larger than 300 seconds for dmp_path_age.
+
+
+
+Automatic site reattachment
+======================================
+
+
+A new automatic site reattachment daemon, vxsited, has been implemented to provide automatic reattachment of sites. vxsited uses the vxnotify mechanism to monitor storage coming back online on a site after a previous failure, and to restore redundancy of mirrors across sites.
+
+
+
+If the hot-relocation daemon, vxrelocd, is running, vxsited attempts to reattach the site, and allows vxrelocd to try to use the available disks in the disk group to relocate the failed subdisks. If vxrelocd succeeds in relocating the failed subdisks, it starts the recovery of the plexes at the site. When all the plexes have been recovered, the plexes are put into the ACTIVE state, and the state of the site is set to ACTIVE.
+
+
+
+If vxrelocd is not running, vxsited reattaches a site only when all the disks at that site become accessible. After reattachment succeeds, vxsited sets the site state to ACTIVE, and initiates recovery of the plexes. When all the plexes have been recovered, the plexes are put into the ACTIVE state.
+
+
+
+  Note   vxsited does not try to reattach a site that you have explicitly detached by using the vxdg detachsite command.
+
+
+
+The automatic site reattachment feature is enabled by default. The vxsited daemon uses email to notify root of any attempts to reattach sites and to initiate recovery of plexes at those sites. To send mail to other users, add the user name to the line that starts vxsited in the /lib/svc/method/vxvm-recover startup script and run the svcadm refresh vxvm/vxvm-recover command.
+
+
+
+If you do not want a site to be recovered automatically, kill the vxsited daemon, and prevent it from restarting. To kill the daemon, run the following command from the command line:
+
+
+
+# ps -afe
+
+
+
+Locate the process table entry for vxsited, and kill it by specifying its process ID:
+
+
+
+# kill -9 PID
+
+
+
+If there is no entry in the process table for vxsited, the automatic site reattachment feature is disabled.
+
+
+
+To prevent the automatic site reattachment feature from being restarted, comment out the line that starts vxsited in the /lib/svc/method/vxvm-recover startup script and run the svcadm refresh vxvm/vxvm-recover command.
+
+
+
+Setting site consistency on a volume
+======================================
+
+
+The vxvol command cannot be used to set site consistency on a volume unless sites and site consistency have first been set up for the disk group. [530484]
+
+
+
+Adding a remote mirror
+======================================
+
+
+Adding a remote mirror to a new site for a site-consistent volume does not also create a DRL log plex or a DCO plex at that site. The workaround is to use the vxassist addlog command to add a DRL log plex, or the vxsnap command to add a version 20 DCO plex at the specified site (site=sitename). [533208]
+
+
+
+Replacing a failed disk
+======================================
+
+
+It is not possible to replace a failed disk while its site is detached. You must first reattach the site and recover the disk group by running these commands:
+
+
+
+# vxdg -g diskgroup reattachsite sitename
+
+
+
+# vxrecover -g diskgroup
+
+
+
+The vxdiskadm command gives an error when replacing disk on which the site tag had been set. Before replacing such a failed disk, use the following commands to set the correct site name on the replacement disk:
+
+
+
+# vxdisk -f init disk
+
+
+
+# vxdisk settag disk site=sitename
+
+Snapshot and snapback issues
+
+Using snapshots as root disks
+
+It is recommended that you do not use snapshots of the root volume as a bootable volume. A snapshot can be taken to preserve the data of the root volume, but the snapshot will not be bootable. The data from the snapshot would have to be restored to the original root volume before the system could be booted with the preserved data.
+
+
+Warning message when taking a snapshot of a clustered file system
+===================================================================
+
+When taking a snapshot of a file system in an SFCFS cluster, the following warning message might appear:
+
+vxio: WARNING: vxvm:vxio: Plex plex detached from volume vol
+
+Workaround: No action is required. This behavior is normal and is not the result of an error condition.
+
+
+File system check of a snapshot
+================================
+
+Normally, a file system would have no work to do when a snapshot is taken. However, if a CFS file system is not mounted, it is likely that the fsck of the snapshot will take longer than is usually necessary, depending on the I/O activity at the time of the snapshot.
+
+
+Workaround:
+
+When taking a snapshot of a SFCFS file system, you should ensure that at least one of the volumes defined in the command line is mounted on the CVM master.
+Mount operation can cause inconsistencies in snapshots
+
+Inconsistencies can arise in point-in-time copies if a snapshot administration operation is performed on a volume while a file system in the volume is being mounted.
+
+Space-optimized snapshot creation fails
+
+Using the vxsnap make command to create a space-optimized snapshot of a volume can fail if a large amount of I/O is active on the volume. The following error is displayed:
+
+VxVM vxassist ERROR V-5-1-10127 getting associations of subdisk subdisk: Record not in disk group
+
+The command succeeds if I/O is suspended while the snapshot is created. [606613]
+
+Intelligent Storage Provisioning issues
+
+
+Creating application volumes
+============================
+
+
+To create application volumes successfully, the appropriate licenses must be present on your system. For example, you need a full Veritas Volume Manager license to use the instant snapshot feature. Vendors of disk arrays may also provide capabilities that require special licenses for certain features of their hardware. [Sun Bug ID 4948093, i137185]
+
+
+
+Number of columns in a RAID-5 ISP volume
+========================================================
+
+
+If an ISP volume is created with the RAID-5 capability, the parameters ncols and nmaxcols refer only to the number of data columns, and do not include the parity column. For this reason, the number of columns that are created in such a volume is always one more than the number specified. [Sun Bug ID 4976891]
+
+
+
+Error when using allocator type volumes
+========================================================
+
+
+Using allocator type volumes may cause the Storage Agent to terminate. Workaround: Restart the Storage Agent by executing the following command:
+
+
+
+/opt/VRTSobc/pal33/bin/vxpal -a StorageAgent -x
+
+Localization issues
+===================
+
+Upgrading language packages
+
+
+
+You must uninstall the old version of the language packages before installing the Storage Foundation 5.0 language packages, VRTSmulic and VRTSmuvmp. [625958]
+
+Miscellaneous issues
+
+
+
+Disks with write-back caches
+
+
+
+Disk drives configured to use a write-back cache, or disk arrays configured with volatile write-back cache, exhibit data integrity problems. The problems occur after a power failure, SCSI bus reset, or other event in which the disk has cached data, but has not yet written it to non-volatile storage. Contact your disk drive or disk array manufacturer to determine whether your system disk drives use a write-back cache, and if the configuration can be changed to disable write-back-caching.
+
+
+
+Auto-import of disk groups
+
+
+
+If a disk that failed while a disk group was imported returns to life after the group has been deported, the disk group is auto-imported the next time the system boots. This contradicts the normal rule that only disk groups that are (non-temporarily) imported at the time of a crash are auto-imported.
+
+
+
+If it is important that a disk group not be auto-imported when the system is rebooted, the disk group should be imported temporarily when the intention is to deport the disk group (for example, in HA configurations). Use the -t flag to vxdg import. [13741]
+
+
+
+Volumes not started following a reboot
+
+
+
+During very fast boots on a system with many volumes, vxconfigd may not be able to auto-import all of the disk groups by the time vxrecover -s is run to start the volumes. As a result, some volumes may not be started when an application starts after reboot.
+
+
+
+Workaround: Check the state of the volumes before starting the application, or place a sleep (sleep sec) before the last invocation of vxrecover. [14450]
+
+
+
+Forcibly starting a volume
+
+
+
+The vxrecover command starts a volume only if it has at least one plex that is in the ACTIVE or CLEAN state and is not marked STALE, IOFAIL, REMOVED, or NODAREC. If such a plex is not found, VxVM assumes that the volume no longer contains valid up-to-date data, so the volume is not started automatically. A plex can be marked STALE or IOFAIL as a result of a disk failure or an I/O failure. In such cases, to force the volume to start, use the following command:
+
+
+
+# vxvol -f start volume
+
+
+
+However, try to determine what caused the problem before you run this command. It is likely that the volume contents need to be restored from backup, and it is also possible that the disk needs to be replaced. [14915]
+
+
+
+Failure of memory allocation
+
+
+
+On machines with very small amounts of memory (32 megabytes or less), under heavy I/O stress conditions against high memory usage volumes (such as RAID-5 volumes), a situation occurs where the system can no longer allocate pages of physical memory.
+
+
+
+Using long device paths with Sun Online:Backup
+
+
+
+The Sun Online:BackupTM facility does not accept the long device path names for volumes. A limitation of Online: Backup is that it does not accept device paths longer than 24 characters.
+
+
+
+Workaround: Use symbolic links to the longer /dev/vx/dsk/volname paths from a shorter path name.
+
+
+
+Messages about Veritas Volume Replicator licenses
+
+
+
+The following messages may get displayed on the console during a system reboot or during VxVM initialization when you are running vxinstall:
+
+
+
+No VVR license installed on the system; vradmind not started
+
+
+
+No VVR license installed on the system; in.vxrsyncd not started
+
+
+
+These messages are informational only, and can be safely ignored if you are not a Veritas Volume Replicator user.
+
+Solaris Issues
+
+
+
+Dynamic Tracing Function Boundary Tracing probes
+
+
+
+Dynamic Tracing (DTrace) Function Boundary Tracing (FBT) probes are not supported with the vxio driver. This is because of a limitation in Solaris 10 that such probes cannot handle modules with a text size larger than 2MB. The following error message is generated on the console as a result of using DTrace FBT probes with the vxio driver:
+
+
+
+fbt: WARNING: couldn't allocate FBT table for module vxio
+
+
+
+These messages are harmless, and can be safely ignored.
+
+
+
+Number of inodes required in the root file system
+
+
+
+The default maximum number of inodes in a UFS file system depends on the size of the file system. Once a UFS file system has been created, you cannot change the number of inodes without re-creating the file system. On a system with a large number of LUNs, the root file system can run out of inodes. This causes errors to be seen both from the operating system and from Veritas Volume Manager. As a general rule, the number of inodes that DMP creates for every LUN is 16 times the number of separate paths to the device. For example, 8,000 LUNs connected over 2 paths would require 256,000 additional inodes. [538039]
+
+
+
+Compatibility of kernel drivers
+
+
+
+The versions of the kernel drivers for VxVM are incompatible with some versions of the Solaris operating system. Multiple kernel modules are installed and properly maintained by the installation and upgrade software. It is possible for a mismatch to occur (for example, if the administrator moves the kernel driver files). If a mismatch occurs, the VxVM kernel prints a warning message on the console similar to the following message:
+
+
+
+WARNING: vxio: incompatible kernel version (5.X), expecting 5.X
+
+
+
+If this message is displayed, the system must be booted for recovery (as explained in the Veritas Volume Manager Troubleshooting Guide) and the correct kernel modules installed. To install the correct kernel module versions, cd to the kernel/drv directory of the mounted root file system. To list the VxVM kernel modules, use the following command:
+
+
+
+# ls -l vxio* vxspec* vxdmp*
+
+
+
+The release-specific versions of the kernel modules are stored as module.OS_release, where OS and release are the result of running the uname -s and uname -r commands on the system, respectively.
+
+
+
+For example, on a misconfigured system running Solaris 2.6, the listing for vxio* may be similar to the following:
+
+
+
+-rw-r--r-- 1 root other 1682424 ... vxio
+
+
+
+-rw-r--r-- 1 root sys   1647664 ... vxio.SunOS_5.7
+
+
+
+-rw-r--r-- 1 root sys   1661340 ... vxio.SunOS_5.8
+
+
+
+-rw-r--r-- 1 root sys   1682424 ... vxio.SunOS_5.9
+
+
+
+The size of the vxio kernel module that is in use matches the vxio.SunOS_5.8 version. To correct the problem, copy the SunOS_5.6 versions to the in-use module name:
+
+
+
+# cp vxio.SunOS_5.6 vxio
+
+
+
+Finally reboot the system. [13312]
+
+
+
+Encapsulation of swap partitions
+
+
+
+During encapsulation, VxVM does not consider a partition to be a swap partition unless its partition tag (as shown by prtvtoc) is swap or 3. Any partition used as a swap partition but not tagged as such is encapsulated as a file system. In the vfstab file, a note is made that the partition has been encapsulated, but the vfstab entry is not translated, and thus, the partition is not added as a swap area as part of the boot process. All partitions that are to be used as swap devices must be marked with the swap tag to be properly encapsulated. [13388]
+
+
+
+Protection of block 0 on disks
+
+
+
+Since the disk label is stored in block 0 of the disk, block 0 must not be used (that is, no application should write any information in block 0). Special protection has been built into VxVM to protect block 0 from being overwritten.
+
+
+
+Definition of disk slice 2
+
+
+
+On Solaris, slice 2 of a non-EFI disk is the full disk by default. When finding connected disks, VxVM checks slice 2 of a disk. Slice 2 on a disk must always be defined as the full disk slice with a tag of 0x05.
+
+
+
+Messages caused by long swap volume names
+
+
+
+If multiple swap partitions are encapsulated on your disks, VxVM names them as swapvol, swapvol1, swapvol2, and so on. When the system is rebooted, the following error message is displayed:
+
+
+
+/dev/vx/dsk/swapvol2 : Overlapping swap files are not allowed
+
+
+
+However, the swap devices are correctly added with no ill effects on the system. To avoid seeing this message, shorten the names of swap volumes (other than swapvol) from swapvoln to swapn.
+
+Veritas Enterprise Administrator issues
+
+
+
+  Note   Refer to the Veritas Storage Foundation Installation Guide for information on how to set up and start the VEA server and client.
+
+
+
+Search does not return any objects for non-Administrator users
+
+
+
+A search that is performed by a user in a non-Administrator group should return an access-denied error and not an empty list of objects.
+
+
+
+The workaround is to add the user to the Administrator group. [840452]
+
+
+
+Volume tags not displayed
+
+
+
+On Microsoft Windows systems, existing volume tags are not displayed when adding a new volume tag. [602953]
+
+
+
+Storage Agent dumps core if there are many LUNs
+
+
+
+Configurations with more than 10240 LUNs can cause the Storage Agent to dump core in the directory /var/vx/isis. [584092]
+
+
+
+ Workaround
+
+
+
+    Rename the Device Discovery Layer (DDL) library file:
+
+
+
+      # mv /opt/VRTSddlpr/lib/ddl.so /opt/VRTSddlpr/lib/ddl.so.orig
+
+
+
+    This prevents the DDL provider from loading, but has the effect of making enclosure, path and controller objects no longer available in the VEA client GUI.
+
+    Restart the Storage Agent:
+
+
+
+      # /opt/VRTSobc/pal33/bin/vxpal -a StorageAgent
+
+
+
+
+
+Disk group creation failure with a duplicate disk ID
+
+
+
+VEA fails to create a disk group that contains a duplicate disk ID, and gives no other options.
+
+[Sun Bug ID 4923820]
+
+
+
+Printing errors from VEA on Windows 2000 Service Pack 2
+
+
+
+When a user tries to print the volume layout view from VEA, the print is not clear.
+
+
+
+Workaround: Upgrade the printer device driver to 0.3.1282.1 and install Service Pack 3. Upgrade to the latest version of VEA and print again. [286476]
+
+
+
+VEA fails to display localized messages after installing language packages
+
+
+
+If the VEA is started without rebooting after a language package installation, the VEA does not display localized messages and most of the GUI is displayed in English, regardless of the operating system locale setting. Additionally, the install_lp command does not prompt the user to reboot after installing a language package.
+
+
+
+Workaround: After installing a language package using the install_lp command, reboot the system. [993374]
+
+Veritas Volume Manager Web GUI issues
+
+
+
+Internal disks are shown as available to shared disk groups
+
+
+
+The Create Disk Group wizard shows internal disks as being available for the creation of a shared disk group. [574717]
+
+
+
+All Active Alerts view
+
+
+
+The All Active Alerts view shows an incorrect number of active alerts. [601167]
+
+
+
+Incorrect error message when importing a disk group
+
+
+
+An incorrect error message such as the following may be displayed when importing a disk group:
+
+
+
+<!--td align="center" height="287" valign="midd
+
+
+
+The workaround is to refresh the page. [607096]
+
+
+
+Error when creating a volume set
+
+
+
+An error such as the following may be seen when attempting to create a volume set that a includes a newly created volume:
+
+
+
+Error: 0xcfff0021 Facility: 0xfff Severity: 0x3 Error number: 0x21 Object Not Found.
+
+
+
+The workaround is to refresh the page. [615960]
+
+
+
+Maximum volume size
+
+
+
+The maximum size for a volume is shown as 0 gigabytes if less than 1 gigabyte of storage is available in the disk group. [573897]
+
+
+
+Operation result not displayed
+
+
+
+The add map operation for allocator volume does not return the operation result, due to which the Web GUI framework displays a no result message on the result page.
+
+
+
+Workaround: To check the status of the operation, look for text similar to the following in the log file /var/vx/isis/command.log.
+
+
+
+Description: Add Log
+
+
+
+Date: [Date of operation]
+
+
+
+Command: /usr/sbin/vxvoladm -g [name of disk group] add log [volume name] logtype=dco nlog=1
+
+
+
+Output:
+
+
+
+Exit Code:0
+
+
+
+Description: fmr3 prepare
+
+
+
+Date: [Date of operation]
+
+
+
+Command: /usr/sbin/vxsnap -g [name of disk group] prepare [volume name] regionsize=64k drl=yes
+
+
+
+ndcomirs=1
+
+
+
+Output:
+
+
+
+Exit Code:0
+
+
+
+The value associated with Exit Code: indicates the result of the operation. If it is zero then the operation was executed successfully. If it is a non-zero value, then the operation has failed. [971985]
+
+Upgrading disk group versions
+
+
+
+All disk groups have a version number associated with them. Each VxVM release supports a specific set of disk group versions and can import and perform tasks on disk groups with those versions. Some new features and tasks work only on disk groups with the current disk group version, so you need to upgrade existing disk groups before you can perform the tasks. The following table summarizes the disk group versions that correspond to each VxVM release from 2.0 forward:
+
+
+
+ 
+
+If you want to take advantage of the new features in this release, you must upgrade the Veritas Cluster Volume Manager (CVM) protocol Version (70), and upgrade to the latest disk group version (140).
+
+
+
+Use the following command to find the version of a disk group:
+
+
+
+# vxdg list diskgroup
+
+
+
+You can also determine the version by using the vxprint(1M) command with
+
+the -l option.
+
+
+
+To upgrade a disk group to Version 140, use the following command:
+
+
+
+# vxdg upgrade diskgroup
+
+
+
+For shared disk groups, the latest disk group version is only supported by the latest cluster protocol version. To see the current cluster protocol version, type:
+
+
+
+# vxdctl support
+
+
+
+To upgrade the protocol version for the entire cluster, enter the following command on the master node:
+
+
+
+# vxdctl upgrade
+
+
+
+See the "Administering Cluster Functionality" chapter of the Veritas Volume Manager Administrator's Guide.
+
+
+
+Available controllers not shown
+
+
+
+The Scan Disks By Controller View does not list the available controllers
+===================================
+
+See the following sections for information about known problems and issues in this release of VxVM.
+
+Installation and upgrade issues
+
+
+
+ASL support for Sun StorEdge T3 and T3+ arrays
+
+==============================================
+
+This release does not include the libvxpurple.so array support library (ASL) to support Sun StorEdge T3 and T3+ arrays. Any existing version of the libvxpurple.so ASL is removed when VxVM is upgraded to 5.0. Any T3 and T3+ arrays must be configured in autotrespass mode, and treated as JBODs of type A/P.
+
+
+
+If an array is of type A/A-A, A/P or A/PF, and a suitable ASL is not available, the array must be claimed as an JBOD of type A/P. This is to prevent path delays and I/O failures arising. As JBODs are assumed to be type A/A by default, and neither T3 nor T3+ arrays are of this type, you must create appropriate JBOD entries for such arrays.
+
+
+
+ To configure a Sun StorEdge T3 or T3+ array as a JBOD of type A/P
+
+
+
+    Stop all applications, such as databases, from accessing VxVM volumes that are configured on the array, and unmount all VxFS file systems and checkpoints that are configured on the array.
+
+    Configure the T3 or T3+ array in autotrespass mode.
+
+    Add the array as a JBOD of type A/P:
+
+
+
+    # vxddladm addjbod vid=SUN pid=T300 policy=ap
+
+    If you have not already done so, upgrade the Storage Foundation or VxVM software to 5.0. Device discovery will be performed during the upgrade, and the array will be claimed as an A/P JBOD.
+
+
+
+    If you have already upgraded your system to 5.0, run the following command to perform device discovery:
+
+
+
+    # vxdctl enable
+
+    Verify that the array has been added with the policy set to APdisk:
+
+
+
+    # vxddladm listjbod
+
+
+
+    VID   PID     Opcode Page Code Page Offset SNO length Policy
+
+
+
+    ============================================================
+
+
+
+    SUN   T300    18     -1        36          12         APdisk
+
+    Check that the correct devices are listed for the array:
+
+
+
+    # vxdisk list
+
+
+
+    DEVICE     TYPE          DISK    GROUP    STATUS
+
+
+
+    APdisk_0   auto:cdsdisk  -       -        online invalid
+
+
+
+    APdisk_1   auto:cdsdisk  -       -        online invalid
+
+
+
+    APdisk_2   auto:cdsdisk  -       -        online invalid
+
+
+
+    ...
+
+
+
+
+
+Initializing disks previously under VxVM control
+
+==================================================
+
+If you are planning to initialize disks, check to see if any of the disks were previously under VxVM control. If so, and if they were used on the same host system, the disk groups they represent are imported automatically during the installation process if the proper removal procedures were not followed. An attempt during installation to initialize or encapsulate disks that were previously under VxVM control fails. After installation, if you no longer want to use those disk groups, use the destroy option of the vxdg command to remove those disk groups. Alternately, you can use vxdiskunsetup to remove the disks from VxVM control. Be aware that these options can result in data loss if used incorrectly.
+
+
+
+Recognizing simple disks from earlier releases
+
+==================================================
+
+In earlier releases of VxVM, some users minimized the allocation of disks to the disk group, rootdg, by associating rootdg with a small disk partition that was characterized as a simple disk. This procedure would have been achieved by using the command, vxdctl add disk, which is no longer supported in VxVM 4.0 and later releases.
+
+
+
+If you created one of these simple disks, you will need to carry out a procedure similar to the one described in the following example.
+
+
+
+Assuming that the simple disk is defined to be on c1t21d0s7, you would see the following entry in /etc/vx/volboot:
+
+
+
+disk c1t21d0s7 simple privoffset=1
+
+
+
+After upgrading to VxVM 5.0, you must reboot the system. After rebooting, execute the command, vxdisk list, and you will see that c1t21d0s7 is not listed. This is because vxconfigd now ignores disk entries in /etc/vx/volboot.
+
+
+
+ To retain access to data on a simple disk
+
+==================================================
+
+    Define a disk access record that will be created in /etc/vx/darecs
+
+
+
+    # vxdisk define c1t21d0s7 type=simple
+
+    Request that vxconfigd should extract information from this disk:
+
+
+
+    # vxdctl enable
+
+    Discover the name of the disk's disk group:
+
+
+
+    # vxprint -th
+
+    Enable access to the disk's disk group; rootdg in this example:
+
+
+
+    # vxvol -g rootdg startall
+
+
+
+Interruption of an upgrade
+
+==========================
+
+If the installation software is interrupted on the local system during certain upgrade situations, Veritas Volume Manager configurations may be lost after a reboot. If this happens, the entire Veritas Volume Manager package must be reinstalled and a recover must be done manually by recreating the disks, disk groups, and volumes and restoring the data from backup. [13033]
+
+
+
+"SIGHUP caught" message on the console
+
+
+
+When running vxinstall on a system with a SENA array that is enabled with enclosure naming, you may see a message similar to the following:
+
+
+
+You can safely ignore this message. [Sun Bug ID 4955989, i138955]
+
+
+
+Misleading alerts generated on a system with the VAIL package installed
+
+=======================================================================
+
+An alert with the text message "SymCLI command line tools are not installed properly" will be generated in each of the following two cases when SYMCLI is either absent or not installed properly on the host on which a VAIL package is installed.
+
+
+
+Case 1. When host comes up after a reboot and SYMCLI is either absent or not installed properly.
+
+
+
+Case 2. When a rescan of Symmetrix provider is initiated and SYMCLI is either found to be absent or found to be not installed properly but SYMCLI installation was proper before rescan of Symmetrix provider was initiated.
+
+
+
+In either of Case 1 or Case 2 one should ignore the alert message on the host on which VAIL package is installed if there is no EMC Symmetrix array being managed on that host. [Sun Bug ID 6211778, 297830]
+
+
+
+No support for remote package and patch installation
+
+
+
+Veritas Volume Manager does not currently support remote package and patch installation across different architectures. For example, installation of a package from a SPARC system to a x86 system is not supported.
+
+
+
+LiveUpgrade
+
+===========
+
+LiveUpgrade does not currently work on a system that has its root disk encapsulated.
+
+Utility issues
+
+
+
+Reformatting a CDS disk can cause data corruption
+
+==================================================
+
+On disks that are initialized by VxVM as CDS disks (the default format), the CDS information occupies the first sector of that disk, and there is no fdisk partition information. Attempting to create an fdisk partition (for example, by using the fdisk or format commands) erases the CDS information, and can cause data corruption.
+
+
+
+Global Device Naming
+
+====================
+
+The Global Device Naming (GDN) option to the vxddladm command should only be used with the Storage Foundation Volume Server software. [608621]
+
+
+
+Current naming scheme
+
+=====================
+
+There is no option in the vxddladm command to display the current naming scheme. The naming scheme that is in operation can be deduced from the output to the vxdisk list command. [611320]
+
+
+
+vxdiskadm displays error V-5-1-9764 when excluding devices
+
+
+
+The vxdiskadm operation displays error V-5-1-9764 if a vendor and product ID combination are specified to exclude devices from multipathing. This error is harmless and can be ignored. The error is not seen if controller or device names are specified instead. [587435]
+
+
+
+Disk group is disabled if private region sizes differ
+
+
+
+A disk group is disabled if the vxdg init command is used to create it from a set of disks that have pre-existing private regions that differ in size. This may occur if the disks previously belonged to disk groups in older releases of VxVM.
+
+
+
+The workaround is to reinitialize the disks before creating the disk group (for example, by using the vxdisk -f init command), or to use the vxdg adddisk command to add the disks to the disk group after it has been created. [592180]
+
+
+
+Maximum size of a VxVM volume
+
+
+
+VxVM supports volume lengths up to 256TB. However, any 32-bit legacy applications that use system calls such as seek, lseek, read and write are limited to a maximum offset that is determined by the operating system. This value is usually 231-1 bytes (1 byte less than 2 terabytes).
+
+
+
+Resizing volumes with detached remote plexes
+
+
+
+If a volume in a Remote Mirror configuration has detached plexes at a remote site, you can use the following procedure to resize it:
+
+
+
+    Turn off the allsites attribute for the volume:
+
+
+
+    # vxvol -g diskgroup set allsites=off volume
+
+    Remove the detached plexes:
+
+
+
+    # vxassist -g diskgroup remove mirror volume \
+
+      plexnames=plex1,plex2,...
+
+    Use the vxresize command to resize the volume. 
+
+
+
+When the remote site comes back up:
+
+
+
+    Replace the removed plexes using storage at the remote site:
+
+
+
+    # vxassist -g diskgroup mirror volume nmirror=N \
+
+      site:remote_site_name
+
+    Turn on the allsites attribute for the volume:
+
+
+
+    # vxvol -g diskgroup set allsites=on volume
+
+
+
+
+
+Shrinking a swap volume
+
+
+
+vxassist has no built-in protection to prevent you from shrinking the swap volume without first shrinking what the system sees as available swap space. If it is necessary to shrink the swap volume, the operation must be done in single user mode and the system must be rebooted immediately. Failing to take these precautions can result in unknown system behavior or lock-up. [6154]
+
+
+
+Adding a log and mirror to a volume
+
+
+
+The vxassist command does not add a mirror and a log when processing a command such as the following:
+
+
+
+# vxassist mirror volume layout=log ...
+
+
+
+The mirror is added, but the log is silently omitted. To add a log and a mirror, add them in two separate vxassist invocations, as follows:
+
+
+
+# vxassist mirror volume ...
+
+
+
+# vxassist addlog volume ...
+
+
+
+[13488]
+
+
+
+Replacement of the old_layout attribute
+
+
+
+The old_layout attribute is no longer supported when the vxdisksetup command is used to make a disk into a VxVM controlled disk. Use the noreserve attribute instead. [121258]
+
+
+
+Using vxvol and vxmend with layered volumes
+
+
+
+The vxvol and vxmend commands do not handle layered volumes very well. When vxmend is executed on the top level volume to change the state of a volume, it is executed only on the top level volume; the change is not propagated to the lower level volumes. As a result, the volume states can become inconsistent and a subsequent vxvol init command might fail.
+
+
+
+The vxvol command exhibits the same problem. When a vxvol init command is executed on the top level volume, the change is not propagated to the volumes corresponding to its subvolumes.
+
+
+
+Workaround:
+
+
+
+When executing the vxvol or vxmend command on a layered volume, first issue the command to the lower level volumes in a bottom-up fashion; then execute the command on the top-level volume.
+
+
+
+In this example, a volume, vol, has two subvolumes, vol-L01 and vol-L02. The state of the volumes is first set to empty, and then the initialization commands are executed:
+
+
+
+# vxmend -o force -g mydg fix empty vol
+
+
+
+# vxmend -o force -g mydg fix empty vol-L01
+
+
+
+# vxmend -o force -g mydg fix empty vol-L02
+
+
+
+# vxvol -g mydg init zero vol
+
+
+
+# vxvol -g mydg init zero vol-L01
+
+
+
+# vxvol -g mydg init zero vol-L02
+
+
+
+[134932]
+
+
+
+Growing or shrinking layered volumes
+
+
+
+Due to the current implementation of a resize of layered volumes, it is recommended that you do not grow or shrink layered volumes (for example; stripe-mirror, concat-mirror) while resynchronization is ongoing. Note that this limitation does not apply to ISP layered volumes.
+
+
+
+Internally, VxVM converts the layout of layered volumes and updates the configuration database before it does the actual resize. This causes any ongoing operation, such as a resynchronization, to fail.
+
+
+
+If the system reboots before the grow or shrink of a layered volume completes, the volume is left with an intermediate layout. In this case, you have to use vxassist convert to restore the volume to its original layout.
+
+
+
+After a layered volume is resized, the volume names, the plex names and the subdisk names associated with the subvolumes, are changed.
+
+
+
+Startup script messages not seen on the console
+
+
+
+With the introduction of SMF support in Solaris 10, startup script messages are no longer seen on the console.
+
+
+
+These messages can be viewed (cat or vi) in SMF log files found at:
+
+
+
+/var/svc/log
+
+
+
+/etc/svc/volatile
+
+
+
+The file names are based on the specific startup script: 
+
+
+
+#/var/svc/log: ls
+
+
+
+system-vxvm-vxvm-startup2:default.log
+
+
+
+system-vxvm-vxvm-sysboot:default.log
+
+
+
+5 Also, other startup messages can be found in:
+
+
+
+#/var/svc/log: ls
+
+
+
+milestone-multi-user-server:default.log
+
+
+
+milestone-multi-user:default.log
+
+
+
+milestone-name-services:default.log
+
+
+
+milestone-single-user:default.log
+
+
+
+#/etc/svc/volatile
+
+
+
+system-vxvm-vxvm-startup2:default.log
+
+
+
+system-vxvm-vxvm-sysboot:default.log
+
+
+
+[269949]
+
+
+
+Bad disk block warning
+
+
+
+When vxio detects a bad disk block on a disk, it will display a warning message indicating that an uncorrectable write error has been encountered. [272176]
+
+
+
+Do not specify a long device name in the /etc/vx/disks.exclude file
+
+
+
+It is recommended that you do not edit the /etc/vx/disks.exclude file directly. Some scripts like vxdiskadm fail with an error message if a long device name is specified in this file. You should instead use option 17 or 18 of the vxdiskadm command to suppress or unsuppress devices from VxVM's view. [Sun Bug ID 6228464, 311275]
+
+
+
+Unable to boot system without bootdg link to the boot disk group
+
+
+
+A system may fail to boot with the following errors:
+
+
+
+ERROR: svc:/system/filesystem/root:default failed to mount /usr (see 'svcs -x'for details)
+
+
+
+[ system/filesystem/root:default failed fatally (see 'svcs -x' for details) ]
+
+
+
+
+
+
+(See /lib/svc/share/README for more information.)
+
+
+
+Console login service(s) cannot run
+
+
+
+Root password for system maintenance (control-d to bypass):
+
+
+
+single-user privilege assigned to /dev/console.
+
+
+
+
+
+
+Feb 14 23:41:26 su: 'su root' succeeded for root on /dev/console
+
+
+
+su: No shell /bin/ksh. Trying fallback shell /sbin/sh.
+
+
+
+-sh: /bin/i386: not found
+
+
+
+-sh: /usr/sbin/quota: not found
+
+
+
+-sh: /bin/cat: not found
+
+
+
+-sh: /bin/mail: not found
+
+
+
+-sh: -o: bad option(s)
+
+
+
+One possible cause for the error that the symbolic link between bootdg and the boot disk group under /dev/vx/dsk or /dev/vx/rdsk is missing.
+
+
+
+ The workaround for this error is as follows
+
+
+
+    Make sure that your system does not have a link under /dev/vx/dsk and /dev/vx/rdsk
+
+
+
+    bootdg -> rootdg
+
+    Boot the system from an installation disk or from a network boot server.
+
+    Mount the root (/) file system on a suitable mount point. In this example c0t0d0s0 is the slice that corresponds to the root file system on the boot disk.
+
+
+
+    # mount -F ufs -o nologging /dev/dsk/c0t0d0s0 /mnt
+
+    Create the link. This example assumes that the boot disk group is called rootdg:
+
+
+
+    # cd /mnt/dev/vx/dsk
+
+
+
+    # ln -s rootdg bootdg
+
+
+
+    # cd /mnt/dev/vx/rdsk
+
+
+
+    # ln -s rootdg bootdg
+
+
+
+    # cd
+
+
+
+    # umount /mnt
+
+
+
+    # init 0
+
+    Reboot the system. 
+
+
+
+[Sun Bug ID 6230224]
+
+
+
+Disabling MPxIO in a SAN boot configuration can cause system to panic
+
+
+
+Solaris 10 update 3 systems panic and fail to boot SAN boot device, when mpxio_disable is set to 'yes' in /kernel/drv/fp.conf. [Sun Bug ID CR 6525123]
+
+
+
+Sun cautions the user on disabling MPxIO on FC disks that have critical file systems needed for booting. Sun also recommends that you update to the following OS level and patches:
+
+
+
+    Solaris 10 update 3
+
+    Latest kernel level patch - 118855-36 or later
+
+    Latest qlc driver patch - 119131-33 or later
+
+    Patch 120993-01
+
+    Latest firmware array 
+
+
+
+Workaround: Follow these steps when disabling MPxIO
+
+
+
+    Disable mpxio. Refer to the Sun document available at http://docs.sun.com/source/819-0139/ch_4_config_multi_SW.html#pgfId-1000566.
+
+    Update the x86 boot archive:
+
+
+
+    # bootadm update-archive
+
+    Perform the reconfiguration reboot:
+
+
+
+    #touch /reconfigure
+
+
+
+    #shutdown -g0 -y -i6
+
+    Boot the failsafe OS.
+
+    Mount the boot disk's root fileystem on /a:
+
+
+
+    #mount <root device> /a
+
+    Edit /a/etc/vfstab to point to the correct root device
+
+
+
+    # vi /a/etc/vfstab
+
+
+
+    # /sbin/bootadm update-archive -R /a
+
+
+
+    # sync
+
+
+
+    # umount /a
+
+    Reboot the system:
+
+
+
+    # reboot
+
+
+
+Patch Issues
+
+
+
+Patch removal causes vxconfigd to dump core
+
+
+
+If you use the patchrm command to remove the VxVM patch (122058-06), the vxconfigd daemon dumps core when it is restarted, and the following error message is displayed:
+
+
+
+VxVM vxconfigd ERROR V-5-1-0 Bus error - core dumped.
+
+
+
+The error can occur if:
+
+
+
+    Any volume is open, such as if the root disk is encapsulated, or a file system on a VxVM volume is mounted.
+
+    Any process is accessing VxVM drivers that cannot be unloaded. In this case, a workaround is to use the pkill vx and ps -ef | grep -i vx commands to make sure that all vx* processes other than vxconfigd are stopped before removing the VxVM patch. 
+
+
+
+The error is harmless, and the patch is removed correctly. VxVM functions normally if the system is rebooted. [796270]
+
+Device issues
+
+
+
+Converting a multipathed disk
+
+
+
+Under Solaris 10 when converting a multipathed disk that is smaller than 1TB from a VTOC label to an EFI label, you must issue a format -e command for each path. For example, if a node has two paths, c1t2d0s2 and c2tsd0s2, you need to apply the format -e command to each of the two paths. [269566]
+
+
+
+Adding disks to VxVM volume on a Solaris x64 system
+
+
+
+The default disk layout on the Solaris x64 platform differs from that on the Solaris SPARC platform as follows:
+
+
+
+    On a Solaris SPARC system, the start of the Solaris partition, which may contain a primary boot executable and boot block in addition to the VTOC and any disk slices, is located in cylinder 0. The whole disk is accessed using the device c#t#d#s2.
+
+    On a Solaris x64 system, an FDISK partition, which may contain a master boot record (MBR) is located in cylinder 0, and the start of the Solaris partition is located in cylinder 1. The device c#t#d#s2 references the entire Solaris partition, but not the FDISK partition. The whole disk may be accessed using the device c#t#d#p0. 
+
+
+
+Before a disk with a sun partition label from a Solaris SPARC system can be used on a Solaris x64 system, it is necessary to use the fdisk command to rewrite its partition layout and VTOC, so destroying any data on the disk. However, a CDS disk group can be imported on a Solaris x64 system without needing to run the fdisk command. The layout of the partition table for CDS disks is the same on all supported platforms, and does not include an FDISK partition, or a Solaris partition and VTOC.
+
+
+
+As on the Solaris SPARC platform, you can use the VERITAS Enterprise Administrator (VEA) GUI, the Web GUI, or the vxdiskadm, vxdiskadd or vxdisk commands to initialize a new disk with one of the following formats: auto:cdsdisk, auto:simple, auto:sliced, nopriv, simple or sliced.
+
+
+
+Removing a disk from VxVM control
+
+
+
+After removing a disk from its disk group, you can use the vxdiskunsetup -C command to clear the VxVM configuration on the disk:
+
+
+
+# vxdiskunsetup -C daname
+
+
+
+where daname is the disk access name, such as c2t4d7.
+
+
+
+If the vxdisk list command shows that a disk is in the error state, use the following commands to reinitialize the disk with the default layout for a Solaris x64 system, and remove the disk from the VxVM configuration:
+
+
+
+# fdisk -B -n /dev/rdsk/danamep0
+
+
+
+# vxdisk rm danames2
+
+
+
+# vxdisk scandisks
+
+
+
+Note that the partition 0 device (for example, c2t4d7p0) is specified to the fdisk command, but the Solaris partition device (for example, c2t4d7s2) is specified to the vxdisk rm command.
+
+
+
+The vxdisk list command should now show the disk's type as auto:none and its state as online invalid. If the disk is still not shown as being in the online state, use the following command to clear the first 512 blocks on the disk before rerunning the fdisk and vxdisk commands:
+
+
+
+# dd if=/dev/zero of=/dev/rdsk/danamep0 count=512
+
+
+
+Encapsulation of disks with insufficient space for a private region
+
+
+
+Disks with insufficient space for the allocation of an on-disk database copy cannot be encapsulated. The database requires at least the same space as is allocated for other disks in the same disk group. The default required size is 32MB. To work around this, relocate the data on the last partition of the disk to a volume on a different disk, and free the space by reducing the partition size to 0.
+
+
+
+The space for the database must be allocated from the beginning or the end of the disk, with the exception of the root disk. The root disk can be encapsulated by carving out space from the swap partition if there is no space at the beginning or at the end of the disk. This is done by creating a subdisk for the private partition in the space obtained from the swap partition.
+
+
+
+Workaround:
+
+
+
+The problem of insufficient space on a disk to store private VxVM information has no workaround. VxVM requires a small region of private storage for proper disk identification. The number of VxVM objects that can be configured in a disk group is almost directly proportional to the size of the private region. The default private region size is 32MB. If this size is overridden, it is recommended that it be made no smaller than 1MB.
+
+
+
+Extensible Firmware Interface support
+
+
+
+
+
+
+[303294, 834313, Sun Bug ID 6226760]
+
+
+
+Stale device entries slow down Veritas Volume Manager
+
+
+
+Under Solaris 10, stale device entries in the /dev/[r]dsk directories can cause the VxVM configuration daemon, vxconfigd, to consume a large amount of CPU time. Remove the stale entries by entering the following sequence of commands:
+
+
+
+# devfsadm -C
+
+
+
+# touch /reconfigure
+
+
+
+# init 6
+
+
+
+Newly added disks should be labeled
+
+
+
+When new disks are added to a Solaris configuration, these disks should be labeled before they are used with VxVM. VxVM can discover unlabeled disks, but it cannot read their disk geometry, nor can it initialize them. A console message similar to the following is displayed for each unlabeled disk:
+
+
+
+WARNING: /pci@1e,600000/SUNW,qlc@3,1/fp@0,0/ssd@w22110002ac000266,0 (ssd18): Corrupt label; wrong magic number
+
+
+
+When VxVM discovers unlabeled disks, the disk configuration information is added to DMP. If DMP attempts to open the unlabeled device, the open fails, and the paths are disabled. If the system is subsequently rebooted with the unlabeled disks, DMP disabled path messages are also displayed for the unlabeled disks.
+
+
+
+To prevent unnecessary delay occurring at boot time, it is recommended that you use the format command to label new disks before having VxVM discover and initialize them. [544797]
+
+
+
+vxddladm addsupport command limitations
+
+
+
+The vxddladm addsupport command could cause your system to hang when using a Sun SCSI Enclosure Service (SES) Driver. This situation can be caused by stale entries in /dev/es. A stale entry is a device link in /dev/es, for which no corresponding device is connected to the system.
+
+
+
+In some circumstances, installing VxVM can cause a system to hang because the vxddladm addsupport command is also run.
+
+
+
+ If your system hangs, perform the following workaround
+
+
+
+    Reboot the system.
+
+    Remove all entries, both stale and valid, from /dev/es.
+
+    Run the devfsadm command to recreate /dev/es with valid entries:
+
+
+
+    # devfsadm -C
+
+    Reinstall the Veritas software. 
+
+
+
+[115323, 140441]
+
+
+
+Disk controller firmware upgrades
+
+
+
+For a workaround to Sun Bug ID 4164338, use the procedure described in ''Upgrading disk controller firmware'' in the ''Administering Dynamic Multipathing (DMP)" chapter of the Veritas Volume Manager Administrator's Guide.
+
+
+
+Event source daemon dies
+
+
+
+If the host-side switch port is disabled and enabled on a Brocade switch, the event source daemon (vxesd) dies if the latest Solaris patches for the SUNWfchba, SUNWfchbr and SUNWfchbx packages have not been applied to the system. Install the latest recommended Patch Cluster. [534392]
+
+
+
+Hitachi arrays in Active/Active mode
+
+
+
+When Hitachi DF400, DF500, HDS9200, HDS9500 or HDS9700 arrays are configured as Active/Active mode arrays, performance is degraded. The correct ASL must be installed that allows these arrays to be claimed as A/PG-type arrays. [73154]
+
+
+
+Relayout of volumes on the root disk
+
+
+
+Do not run the vxrelayout and vxassist commands to relayout a volume that is part of root disk. This action may corrupt the layout of the root disk so that you cannot boot from it. On an encapsulated root disk, a relayout can cause an upgrade to fail. [103991]
+
+
+
+Failure to add a disk from a T3 array
+
+
+
+On a T3 array, VxVM may display the following failure when trying to add a disk (typically from vxinstall or vxdisksetup):
+
+
+
+vxvm:vxdisk: ERROR: Device XXXX: online failed
+
+
+
+Device path not valid
+
+
+
+This can happen in cases where the T3 disk was re-partitioned (or re-formatted) prior to one or more disks being added. [105173]
+
+
+
+SFCFS with I/O fencing is not supported on HDS9200 arrays
+
+
+
+If you attempt to boot a cluster with I/O fencing (PGR) enabled, HDS9200 disks will show up in error state on the slaves. This error does not appear if I/O fencing is disabled. [131926]
+
+
+
+Disks in V480 and V880 internal disk enclosures
+
+
+
+Fujitsu and Hitachi disks in V480 and V880 internal disk enclosures may not be automatically recognized as JBOD disks. This could potentially cause data corruption if multipathing is not configured correctly. After installing any Sun-qualified FC disks as FRU replacements, use the procedure described in "Adding Unsupported Disk Arrays to the DISKS Category" in the "Administering Disks" chapter of the Veritas Volume Manager Administrator's Guide to add each such disk to the JBOD category. It is important that both the vendor ID and product ID are specified for each such disk to avoid conflicts with similar disks in other arrays. For Fujitsu disks, the number of characters in the serial number must also be specified. [Sun Bug ID 4900508, i133579]
+
+
+
+Errors when using JNI cards
+
+
+
+If the model number of your JNI card is one of FCE-1063, FCE2-1063, FCE-6410, FCE2-6410, or FCE2-6412, you may experience error messages of the form:
+
+
+
+Oct 22 00:16:16 ds13un jnic: [ID 847178 kern.notice] jnic1: Memory port parity error detected
+
+
+
+Oct 22 00:16:16 ds13un jnic: [ID 229844 kern.notice] jnic1: Link Down
+
+
+
+Oct 22 00:16:16 ds13un jnic: [ID 744007 kern.notice] jnic1: Target0: Port
+
+0000EF (WWN 500060E802778702:500060E802778702) offline.
+
+
+
+Oct 22 00:16:18 ds13un jnic: [ID 709123 kern.notice] jnic1: Link Up
+
+
+
+Oct 22 00:16:18 ds13un jnic: [ID 236572 kern.notice] jnic1: Target0: Port
+
+0000EF (WWN 500060E802778702:500060E802778702) online.
+
+
+
+Oct 22 00:16:18 ds13un jnic: [ID 229844 kern.notice] jni
+
+
+
+Contact JNI support for more information.
+
+
+
+Workaround: Add the following parameter to the JNI configuration file (jnic.conf):
+
+
+
+FcEnableContextSwitch = 1;
+
+
+
+Sun StorEdge Traffic Manager
+
+
+
+The Sun StorEdge Traffic Manager (SSTM) boot support feature that is available through SAN 4.3 or later is not supported. Booting from fabric devices under SSTM or boot encapsulation of fabric devices under SSTM is also not supported.
+
+[Sun Bug ID 4912232, 4909641, 4912667].
+
+
+
+Loss of disk space in 3510 arrays
+
+
+
+If a 3510 array disk that is larger than 512GB is initialized to be a CDS disk, the value that is returned by a SCSI mode sense command for the number of sectors per track may be incorrect. This can cause the sector count to be miscalculated and some disk space to be lost. [272241]
+
+
+
+Hitachi 9990 Genesis array
+
+
+
+After installing the Storage Foundation software, errors such as the following may be displayed on the console.
+
+
+
+d18b-root@[/usr/sbin]>d18b-root@[/usr/sbin]>get_geometry_info_common: solaris disk label adj. failed for /dev/vx/rdmp//GENESIS0_6 (err 22)get_geometry_info_common: solaris disk label adj. failed for /dev/vx/rdmp//GENESIS0_6 (err 22)get_geometry_info_common: solaris disk label adj. failed for /dev/vx/rdmp//GENESIS0_6 (err 22)get_geometry_info_common: solaris disk label adj. failed for /dev/vx/rdmp//GENESIS0_6 (err 22)get_geometry_info_common: solaris disk label adj. failed for /dev/vx/rdmp//GENESIS0_6 (err 22)get_geometry_info_common: solaris disk label adj. failed for dev/vx/rdmp//GENESIS0_6 (err 22)
+
+
+
+This failure has been observed on the Hitachi 9990 (Genesis) arrays where the disk geometry data is being handled incorrectly by vxconfigd, resulting in the indicated message during vxdctl enable or vxconfigd startup. This message does not affect VxVM's use of the array. [Sun Bug ID 6221005, 301931, 308975]
+
+
+
+S-VOL devices on HDS with TrueCopy enabled
+
+
+
+When using HDS with True Copy enabled, the primary devices (P-VOL) and their mirrors (S-VOL devices) are both seen in vxdisk list output. The P-VOL devices are available for import but the S-VOL devices are not available for import. Do not try to use S-VOL devices even though they appear in the vxdisk list output. [300979]
+
+
+
+USB devices not ignored.
+
+
+
+Veritas Volume Manager does not ignore USB devices attached to your system, resulting in an error. When VxVM encounters an USB device, the status field for the device displays an error. View the device details to verify the error. This USB device should be ignored and cannot be used due to the error status.[803949]
+
+
+
+#vxdisk list
+
+
+
+DEVICE TYPE DISK GROUP STATUS
+
+
+
+c2t0d0s2 auto - - error
+
+
+
+# vxdisk list c2t0d0s2
+
+
+
+Device: c2t0d0s2
+
+
+
+devicetag: c2t0d0
+
+
+
+type: auto
+
+
+
+flags: online error private autoconfig
+
+
+
+pubpaths: block=/dev/vx/dmp/c2t0d0s2 char=/dev/vx/rdmp/c2t0d0s2
+
+
+
+guid: -
+
+
+
+udid:AMI%5FVirtual%20Floppy%5FOTHER%5FDISKS%5Fvmgalaxy13%5F%2Fdev%2Frdsk%2Fc2t0d0s2
+
+
+
+site: -
+
+
+
+Multipathing information:
+
+
+
+numpaths: 1
+
+
+
+c2t0d0s2 state=enabled
+
+Hot-relocation issues
+
+
+
+Impact of hot-relocation on performance
+
+
+
+Except for rootvol and swapvol, the hot-relocation feature does not guarantee the same layout of data or performance after relocation. It is therefore possible that a single subdisk that existed before relocation may be split into two or more subdisks on separate disks after relocation (if there is not enough contiguous space on a single disk to accommodate that subdisk). [14894]
+
+
+
+Disk information in notification messages
+
+
+
+When a disk failure occurs, the hot-relocation feature notifies the system administrator of the failure and any relocation attempts through electronic mail messages. The messages typically include information about the device offset and disk access name affected by the failure. However, if a disk fails completely or a disk is turned off, the disk access name and device offset information is not included in the mail messages. This is because VxVM no longer has access to this information. [14895]
+
+DMP issues
+
+
+
+Fabric Monitoring
+
+
+
+The new Fabric Monitoring feature controls whether the Event Source daemon (vxesd) uses the Storage Networking Industry Association (SNIA) HBA API. This API allows DMP to improve the performance of failover by collecting information about the SAN topology and by monitoring fabric events. Note that the vendor-provided ASL must also support the use of the SNIA HBA API.
+
+
+
+Fabric monitoring may be turned on or off by using the following vxddladm commands:
+
+
+
+# vxddladm settune monitor_fabric=on
+
+
+
+# vxddladm settune monitor_fabric=off
+
+
+
+The current setting of monitor_fabric can be displayed by using the following command:
+
+
+
+# vxddladm gettune monitor_fabric
+
+
+
+The default setting of monitor_fabric is on.
+
+
+
+[784343]
+
+
+
+Handling intermittently failing paths
+
+
+
+The dmp_health_time and dmp_path_age tunables control how DMP handles intermittently failing paths. The default values in VxVM 5.0 of dmp_health_time and dmp_path_age are 60 and 300 seconds respectively. The value of dmp_health_time represents the minimum time in seconds for which a path must stay healthy. If a path changes state between enabled and disabled on a shorter time scale than this, DMP marks the path as intermittently failing and disables I/O on the path. I/O is not re-enabled on an intermittently failing path until dmp_path_age seconds have elapsed without further outage.
+
+
+
+The minimum configurable value of dmp_path_age is 0, which prevents DMP from detecting intermittently failing paths.
+
+
+
+Disabling switch ports can cause I/O failures
+
+
+
+Disabling the switch ports on the secondary paths to an A/P array can cause I/O failures on the primary path. This is because a fabric reconfiguration can take some time to stabilize depending on the complexity of the SAN fabric. Running the vxdisk scandisks command returns the primary paths to the enabled state. [607996]
+
+
+
+Failure of mirroring with A/PF arrays
+
+
+
+Mirroring a volume by using option 6 to the vxdiskadm command fails if the device discovery layer chooses a secondary path to a device in an A/PF array. There is no known workaround for this issue. [603164]
+
+
+
+Default I/O policy
+
+
+
+The default I/O policy for Active/Active (A/A) arrays has been changed from balanced to minimumq. The default I/O policy for Asymmetric Active/Active (A/A-A) and Active/Passive (A/P) arrays has been changed from singleactive to round-robin.
+
+
+
+Disabling MPxIO
+
+
+
+MPxIO is enabled by default, which may prevent DMP from providing multipathing support. To ensure that multipathing through DMP is enabled, MPxIO must be disabled. See Enabling the DMP feature.
+
+Cluster functionality issues
+
+
+
+Domain controller mode in CVM clusters
+
+
+
+The slave nodes in a CVM cluster only have access to I/O objects. If non-I/O related information (for example, volume tags) are to be made available on a slave node, a command must to be shipped to the Storage Agent on the master node for execution. The results are then communicated back to the slave node.
+
+
+
+The domain controller mode of VEA allows all nodes of a CVM cluster to be placed in the same domain with a central authentication server. This allows commands to be executed on any node within the domain if the executing process has sufficient rights.
+
+
+
+Provided domain controller mode is configured, non-I/O related information is accessible via VEA on any node in a CVM cluster.
+
+
+
+However, even if domain controller mode is enabled in a CVM cluster, ISP commands must be run on the master node. ISP commands that are run on a slave node are not redirected to the Storage Agent on the master node. Such commands fail if they require access to non-I/O related information that is unavailable on a slave node. [603213]
+
+
+
+Delays in systems with DS4800 storage
+
+
+
+
+
+
+Failure to detach a bad plex
+
+
+
+If the cluster detach policy is set to global, and a non-mirrored volume experiences a disk media failure, the disk is not shown as failed and the volume is not disabled. However, I/O requests fail. [521182]
+
+
+
+Node rejoin causes I/O failures with A/PF arrays
+
+
+
+A cluster node should not be rejoined to a cluster if both the primary and secondary paths are enabled to an A/PF array, but all the other nodes are using only the secondary paths. This is because the joining node does not have any knowledge of the cluster configuration before the join takes place, and it attempts to use the primary path for I/O. As a result, the other cluster nodes can experience I/O failures and leave the cluster.
+
+
+
+ Workaround
+
+
+
+    Before joining the node to the cluster, disconnect the cable that corresponds to the primary path between the node and the A/PF array.
+
+    Check that the node has joined the cluster by using the following command: 
+
+
+
+# vxclustadm nidmap
+
+
+
+The output from this command should show an entry for the node.
+
+
+
+    Reconnect the cable that corresponds to the primary path between the node and the array.
+
+    Use the following command to trigger cluster-wide failback: 
+
+
+
+# vxdisk scandisks
+
+
+
+All the nodes should now be using the primary path.
+
+
+
+[579536]
+
+
+
+Volume persists in SYNC state
+
+
+
+If a node leaves the cluster while a plex is being attached to a volume, the volume can remain in the SYNC state indefinitely. To avoid this, after the plex attach completes, resynchronize the volume manually with the following command:
+
+
+
+# vxvol -f resync volume
+
+
+
+[Sun Bug ID 4087612; 20448]
+
+
+
+RAID-5 volumes
+
+
+
+VxVM does not support RAID-5 volumes in cluster-shareable disk groups.
+
+
+
+File systems supported in cluster-shareable disk groups
+
+
+
+
+
+
+Reliability of information about cluster-shareable disk groups
+
+
+
+If the vxconfigd program is stopped on both the master and slave nodes and then restarted on the slaves first, VxVM output and VEA displays are not reliable until the vxconfigd program is started on the master and the slave is reconnected (which can take about 30 seconds). In particular, shared disk groups are marked disabled and no information about them is available during this time. The vxconfigd program must therefore be started on the master first.
+
+
+
+Messages caused by open volume devices
+
+
+
+When a node terminates from the cluster, open volume devices in shared disk groups on which I/O is not active are not removed until the volumes are closed. If this node later joins the cluster as the master while these volumes are still open, the presence of these volumes does not cause a problem. However, if the node tries to rejoin the cluster as a slave, this can fail with the following error message:
+
+
+
+cannot assign minor #
+
+
+
+This message is accompanied by the console message:
+
+
+
+WARNING:minor number ### disk group group in use
+
+Remote Mirror issues
+
+
+
+Handling intermittently failing paths in a Campus Cluster
+
+
+
+In remote mirror configurations, a site is reattached when its disks come back online. Recovery is then initiated for the plexes of a volume that are configured at that site. Depending on the configuration, recovery of the plexes can take a considerable time and consume considerable resources. To minimize the frequency of having to perform a site reattachment operation, it is recommended that you use the vxdmpadm settune command to configure a value smaller than 60 seconds for dmp_health_time, and a value larger than 300 seconds for dmp_path_age.
+
+
+
+Automatic site reattachment
+
+
+
+A new automatic site reattachment daemon, vxsited, has been implemented to provide automatic reattachment of sites. vxsited uses the vxnotify mechanism to monitor storage coming back online on a site after a previous failure, and to restore redundancy of mirrors across sites.
+
+
+
+If the hot-relocation daemon, vxrelocd, is running, vxsited attempts to reattach the site, and allows vxrelocd to try to use the available disks in the disk group to relocate the failed subdisks. If vxrelocd succeeds in relocating the failed subdisks, it starts the recovery of the plexes at the site. When all the plexes have been recovered, the plexes are put into the ACTIVE state, and the state of the site is set to ACTIVE.
+
+
+
+If vxrelocd is not running, vxsited reattaches a site only when all the disks at that site become accessible. After reattachment succeeds, vxsited sets the site state to ACTIVE, and initiates recovery of the plexes. When all the plexes have been recovered, the plexes are put into the ACTIVE state.
+
+
+
+  Note   vxsited does not try to reattach a site that you have explicitly detached by using the vxdg detachsite command.
+
+
+
+The automatic site reattachment feature is enabled by default. The vxsited daemon uses email to notify root of any attempts to reattach sites and to initiate recovery of plexes at those sites. To send mail to other users, add the user name to the line that starts vxsited in the /lib/svc/method/vxvm-recover startup script and run the svcadm refresh vxvm/vxvm-recover command.
+
+
+
+If you do not want a site to be recovered automatically, kill the vxsited daemon, and prevent it from restarting. To kill the daemon, run the following command from the command line:
+
+
+
+# ps -afe
+
+
+
+Locate the process table entry for vxsited, and kill it by specifying its process ID:
+
+
+
+# kill -9 PID
+
+
+
+If there is no entry in the process table for vxsited, the automatic site reattachment feature is disabled.
+
+
+
+To prevent the automatic site reattachment feature from being restarted, comment out the line that starts vxsited in the /lib/svc/method/vxvm-recover startup script and run the svcadm refresh vxvm/vxvm-recover command.
+
+
+
+Setting site consistency on a volume
+
+
+
+The vxvol command cannot be used to set site consistency on a volume unless sites and site consistency have first been set up for the disk group. [530484]
+
+
+
+Adding a remote mirror
+
+
+
+Adding a remote mirror to a new site for a site-consistent volume does not also create a DRL log plex or a DCO plex at that site. The workaround is to use the vxassist addlog command to add a DRL log plex, or the vxsnap command to add a version 20 DCO plex at the specified site (site=sitename). [533208]
+
+
+
+Replacing a failed disk
+
+
+
+It is not possible to replace a failed disk while its site is detached. You must first reattach the site and recover the disk group by running these commands:
+
+
+
+# vxdg -g diskgroup reattachsite sitename
+
+
+
+# vxrecover -g diskgroup
+
+
+
+The vxdiskadm command gives an error when replacing disk on which the site tag had been set. Before replacing such a failed disk, use the following commands to set the correct site name on the replacement disk:
+
+
+
+# vxdisk -f init disk
+
+
+
+# vxdisk settag disk site=sitename
+
+
+
+[536853, 536881]
+
+Snapshot and snapback issues
+
+
+
+Using snapshots as root disks
+
+
+
+It is recommended that you do not use snapshots of the root volume as a bootable volume. A snapshot can be taken to preserve the data of the root volume, but the snapshot will not be bootable. The data from the snapshot would have to be restored to the original root volume before the system could be booted with the preserved data.
+
+
+
+Warning message when taking a snapshot of a clustered file system
+
+
+
+When taking a snapshot of a file system in an SFCFS cluster, the following warning message might appear:
+
+
+
+vxio: WARNING: vxvm:vxio: Plex plex detached from volume vol
+
+
+
+Workaround: No action is required. This behavior is normal and is not the result of an error condition.
+
+
+
+File system check of a snapshot
+
+
+
+Normally, a file system would have no work to do when a snapshot is taken. However, if a CFS file system is not mounted, it is likely that the fsck of the snapshot will take longer than is usually necessary, depending on the I/O activity at the time of the snapshot.
+
+
+
+Workaround:
+
+
+
+When taking a snapshot of a SFCFS file system, you should ensure that at least one of the volumes defined in the command line is mounted on the CVM master.
+
+
+
+Mount operation can cause inconsistencies in snapshots
+
+
+
+Inconsistencies can arise in point-in-time copies if a snapshot administration operation is performed on a volume while a file system in the volume is being mounted.
+
+
+
+Space-optimized snapshot creation fails
+
+
+
+Using the vxsnap make command to create a space-optimized snapshot of a volume can fail if a large amount of I/O is active on the volume. The following error is displayed:
+
+
+
+VxVM vxassist ERROR V-5-1-10127 getting associations of subdisk subdisk: Record not in disk group
+
+
+
+The command succeeds if I/O is suspended while the snapshot is created. [606613]
+
+Intelligent Storage Provisioning issues
+
+
+
+Creating application volumes
+
+
+
+To create application volumes successfully, the appropriate licenses must be present on your system. For example, you need a full Veritas Volume Manager license to use the instant snapshot feature. Vendors of disk arrays may also provide capabilities that require special licenses for certain features of their hardware. [Sun Bug ID 4948093, i137185]
+
+
+
+Number of columns in a RAID-5 ISP volume
+
+
+
+If an ISP volume is created with the RAID-5 capability, the parameters ncols and nmaxcols refer only to the number of data columns, and do not include the parity column. For this reason, the number of columns that are created in such a volume is always one more than the number specified. [Sun Bug ID 4976891]
+
+
+
+Error when using allocator type volumes
+
+
+
+Using allocator type volumes may cause the Storage Agent to terminate. Workaround: Restart the Storage Agent by executing the following command:
+
+
+
+/opt/VRTSobc/pal33/bin/vxpal -a StorageAgent -x
+
+
+
+[930615]
+
+Localization issues
+
+
+
+Upgrading language packages
+
+
+
+You must uninstall the old version of the language packages before installing the Storage Foundation 5.0 language packages, VRTSmulic and VRTSmuvmp. [625958]
+
+Miscellaneous issues
+
+
+
+Disks with write-back caches
+
+
+
+Disk drives configured to use a write-back cache, or disk arrays configured with volatile write-back cache, exhibit data integrity problems. The problems occur after a power failure, SCSI bus reset, or other event in which the disk has cached data, but has not yet written it to non-volatile storage. Contact your disk drive or disk array manufacturer to determine whether your system disk drives use a write-back cache, and if the configuration can be changed to disable write-back-caching.
+
+
+
+Auto-import of disk groups
+
+
+
+If a disk that failed while a disk group was imported returns to life after the group has been deported, the disk group is auto-imported the next time the system boots. This contradicts the normal rule that only disk groups that are (non-temporarily) imported at the time of a crash are auto-imported.
+
+
+
+If it is important that a disk group not be auto-imported when the system is rebooted, the disk group should be imported temporarily when the intention is to deport the disk group (for example, in HA configurations). Use the -t flag to vxdg import. [13741]
+
+
+
+Volumes not started following a reboot
+
+
+
+During very fast boots on a system with many volumes, vxconfigd may not be able to auto-import all of the disk groups by the time vxrecover -s is run to start the volumes. As a result, some volumes may not be started when an application starts after reboot.
+
+
+
+Workaround: Check the state of the volumes before starting the application, or place a sleep (sleep sec) before the last invocation of vxrecover. [14450]
+
+
+
+Forcibly starting a volume
+
+
+
+The vxrecover command starts a volume only if it has at least one plex that is in the ACTIVE or CLEAN state and is not marked STALE, IOFAIL, REMOVED, or NODAREC. If such a plex is not found, VxVM assumes that the volume no longer contains valid up-to-date data, so the volume is not started automatically. A plex can be marked STALE or IOFAIL as a result of a disk failure or an I/O failure. In such cases, to force the volume to start, use the following command:
+
+
+
+# vxvol -f start volume
+
+
+
+However, try to determine what caused the problem before you run this command. It is likely that the volume contents need to be restored from backup, and it is also possible that the disk needs to be replaced. [14915]
+
+
+
+Failure of memory allocation
+
+
+
+On machines with very small amounts of memory (32 megabytes or less), under heavy I/O stress conditions against high memory usage volumes (such as RAID-5 volumes), a situation occurs where the system can no longer allocate pages of physical memory.
+
+
+
+Using long device paths with Sun Online:Backup
+
+
+
+The Sun Online:BackupTM facility does not accept the long device path names for volumes. A limitation of Online: Backup is that it does not accept device paths longer than 24 characters.
+
+
+
+Workaround: Use symbolic links to the longer /dev/vx/dsk/volname paths from a shorter path name.
+
+
+
+Messages about Veritas Volume Replicator licenses
+
+
+
+The following messages may get displayed on the console during a system reboot or during VxVM initialization when you are running vxinstall:
+
+
+
+No VVR license installed on the system; vradmind not started
+
+
+
+No VVR license installed on the system; in.vxrsyncd not started
+
+
+
+These messages are informational only, and can be safely ignored if you are not a Veritas Volume Replicator user.
+
+Solaris Issues
+
+
+
+Dynamic Tracing Function Boundary Tracing probes
+
+
+
+Dynamic Tracing (DTrace) Function Boundary Tracing (FBT) probes are not supported with the vxio driver. This is because of a limitation in Solaris 10 that such probes cannot handle modules with a text size larger than 2MB. The following error message is generated on the console as a result of using DTrace FBT probes with the vxio driver:
+
+
+
+fbt: WARNING: couldn't allocate FBT table for module vxio
+
+
+
+These messages are harmless, and can be safely ignored.
+
+
+
+Number of inodes required in the root file system
+
+
+
+The default maximum number of inodes in a UFS file system depends on the size of the file system. Once a UFS file system has been created, you cannot change the number of inodes without re-creating the file system. On a system with a large number of LUNs, the root file system can run out of inodes. This causes errors to be seen both from the operating system and from Veritas Volume Manager. As a general rule, the number of inodes that DMP creates for every LUN is 16 times the number of separate paths to the device. For example, 8,000 LUNs connected over 2 paths would require 256,000 additional inodes. [538039]
+
+
+
+Compatibility of kernel drivers
+
+
+
+The versions of the kernel drivers for VxVM are incompatible with some versions of the Solaris operating system. Multiple kernel modules are installed and properly maintained by the installation and upgrade software. It is possible for a mismatch to occur (for example, if the administrator moves the kernel driver files). If a mismatch occurs, the VxVM kernel prints a warning message on the console similar to the following message:
+
+
+
+WARNING: vxio: incompatible kernel version (5.X), expecting 5.X
+
+
+
+If this message is displayed, the system must be booted for recovery (as explained in the Veritas Volume Manager Troubleshooting Guide) and the correct kernel modules installed. To install the correct kernel module versions, cd to the kernel/drv directory of the mounted root file system. To list the VxVM kernel modules, use the following command:
+
+
+
+# ls -l vxio* vxspec* vxdmp*
+
+
+
+The release-specific versions of the kernel modules are stored as module.OS_release, where OS and release are the result of running the uname -s and uname -r commands on the system, respectively.
+
+
+
+For example, on a misconfigured system running Solaris 2.6, the listing for vxio* may be similar to the following:
+
+
+
+-rw-r--r-- 1 root other 1682424 ... vxio
+
+
+
+-rw-r--r-- 1 root sys   1647664 ... vxio.SunOS_5.7
+
+
+
+-rw-r--r-- 1 root sys   1661340 ... vxio.SunOS_5.8
+
+
+
+-rw-r--r-- 1 root sys   1682424 ... vxio.SunOS_5.9
+
+
+
+The size of the vxio kernel module that is in use matches the vxio.SunOS_5.8 version. To correct the problem, copy the SunOS_5.6 versions to the in-use module name:
+
+
+
+# cp vxio.SunOS_5.6 vxio
+
+
+
+Finally reboot the system. [13312]
+
+
+
+Encapsulation of swap partitions
+
+
+
+During encapsulation, VxVM does not consider a partition to be a swap partition unless its partition tag (as shown by prtvtoc) is swap or 3. Any partition used as a swap partition but not tagged as such is encapsulated as a file system. In the vfstab file, a note is made that the partition has been encapsulated, but the vfstab entry is not translated, and thus, the partition is not added as a swap area as part of the boot process. All partitions that are to be used as swap devices must be marked with the swap tag to be properly encapsulated. [13388]
+
+
+
+Protection of block 0 on disks
+
+
+
+Since the disk label is stored in block 0 of the disk, block 0 must not be used (that is, no application should write any information in block 0). Special protection has been built into VxVM to protect block 0 from being overwritten.
+
+
+
+Definition of disk slice 2
+
+
+
+On Solaris, slice 2 of a non-EFI disk is the full disk by default. When finding connected disks, VxVM checks slice 2 of a disk. Slice 2 on a disk must always be defined as the full disk slice with a tag of 0x05.
+
+
+
+Messages caused by long swap volume names
+
+
+
+If multiple swap partitions are encapsulated on your disks, VxVM names them as swapvol, swapvol1, swapvol2, and so on. When the system is rebooted, the following error message is displayed:
+
+
+
+/dev/vx/dsk/swapvol2 : Overlapping swap files are not allowed
+
+
+
+However, the swap devices are correctly added with no ill effects on the system. To avoid seeing this message, shorten the names of swap volumes (other than swapvol) from swapvoln to swapn.
+
+Veritas Enterprise Administrator issues
+
+
+
+  Note   Refer to the Veritas Storage Foundation Installation Guide for information on how to set up and start the VEA server and client.
+
+
+
+Search does not return any objects for non-Administrator users
+
+
+
+A search that is performed by a user in a non-Administrator group should return an access-denied error and not an empty list of objects.
+
+
+
+The workaround is to add the user to the Administrator group. [840452]
+
+
+
+Volume tags not displayed
+
+
+
+On Microsoft Windows systems, existing volume tags are not displayed when adding a new volume tag. [602953]
+
+
+
+Storage Agent dumps core if there are many LUNs
+
+
+
+Configurations with more than 10240 LUNs can cause the Storage Agent to dump core in the directory /var/vx/isis. [584092]
+
+
+
+ Workaround
+
+
+
+    Rename the Device Discovery Layer (DDL) library file:
+
+
+
+      # mv /opt/VRTSddlpr/lib/ddl.so /opt/VRTSddlpr/lib/ddl.so.orig
+
+
+
+    This prevents the DDL provider from loading, but has the effect of making enclosure, path and controller objects no longer available in the VEA client GUI.
+
+    Restart the Storage Agent:
+
+
+
+      # /opt/VRTSobc/pal33/bin/vxpal -a StorageAgent
+
+
+
+
+
+Disk group creation failure with a duplicate disk ID
+
+
+
+VEA fails to create a disk group that contains a duplicate disk ID, and gives no other options.
+
+[Sun Bug ID 4923820]
+
+
+
+Printing errors from VEA on Windows 2000 Service Pack 2
+
+
+
+When a user tries to print the volume layout view from VEA, the print is not clear.
+
+
+
+Workaround: Upgrade the printer device driver to 0.3.1282.1 and install Service Pack 3. Upgrade to the latest version of VEA and print again. [286476]
+
+
+
+VEA fails to display localized messages after installing language packages
+
+
+
+If the VEA is started without rebooting after a language package installation, the VEA does not display localized messages and most of the GUI is displayed in English, regardless of the operating system locale setting. Additionally, the install_lp command does not prompt the user to reboot after installing a language package.
+
+
+
+Workaround: After installing a language package using the install_lp command, reboot the system. [993374]
+
+Veritas Volume Manager Web GUI issues
+
+
+
+Internal disks are shown as available to shared disk groups
+
+
+
+The Create Disk Group wizard shows internal disks as being available for the creation of a shared disk group. [574717]
+
+
+
+All Active Alerts view
+
+
+
+The All Active Alerts view shows an incorrect number of active alerts. [601167]
+
+
+
+Incorrect error message when importing a disk group
+
+
+
+An incorrect error message such as the following may be displayed when importing a disk group:
+
+
+
+<!--td align="center" height="287" valign="midd
+
+
+
+The workaround is to refresh the page. [607096]
+
+
+
+Error when creating a volume set
+
+
+
+An error such as the following may be seen when attempting to create a volume set that a includes a newly created volume:
+
+
+
+Error: 0xcfff0021 Facility: 0xfff Severity: 0x3 Error number: 0x21 Object Not Found.
+
+
+
+The workaround is to refresh the page. [615960]
+
+
+
+Maximum volume size
+
+
+
+The maximum size for a volume is shown as 0 gigabytes if less than 1 gigabyte of storage is available in the disk group. [573897]
+
+
+
+Operation result not displayed
+
+
+
+The add map operation for allocator volume does not return the operation result, due to which the Web GUI framework displays a no result message on the result page.
+
+
+
+Workaround: To check the status of the operation, look for text similar to the following in the log file /var/vx/isis/command.log.
+
+
+
+Description: Add Log
+
+
+
+Date: [Date of operation]
+
+
+
+Command: /usr/sbin/vxvoladm -g [name of disk group] add log [volume name] logtype=dco nlog=1
+
+
+
+Output:
+
+
+
+Exit Code:0
+
+
+
+Description: fmr3 prepare
+
+
+
+Date: [Date of operation]
+
+
+
+Command: /usr/sbin/vxsnap -g [name of disk group] prepare [volume name] regionsize=64k drl=yes
+
+
+
+ndcomirs=1
+
+
+
+Output:
+
+
+
+Exit Code:0
+
+
+
+The value associated with Exit Code: indicates the result of the operation. If it is zero then the operation was executed successfully. If it is a non-zero value, then the operation has failed. [971985]
+
+Upgrading disk group versions
+
+
+
+All disk groups have a version number associated with them. Each VxVM release supports a specific set of disk group versions and can import and perform tasks on disk groups with those versions. Some new features and tasks work only on disk groups with the current disk group version, so you need to upgrade existing disk groups before you can perform the tasks. The following table summarizes the disk group versions that correspond to each VxVM release from 2.0 forward:
+
+
+
+ 
+
+If you want to take advantage of the new features in this release, you must upgrade the Veritas Cluster Volume Manager (CVM) protocol Version (70), and upgrade to the latest disk group version (140).
+
+
+
+Use the following command to find the version of a disk group:
+
+
+
+# vxdg list diskgroup
+
+
+
+You can also determine the version by using the vxprint(1M) command with
+
+the -l option.
+
+
+
+To upgrade a disk group to Version 140, use the following command:
+
+
+
+# vxdg upgrade diskgroup
+
+
+
+For shared disk groups, the latest disk group version is only supported by the latest cluster protocol version. To see the current cluster protocol version, type:
+
+
+
+# vxdctl support
+
+
+
+To upgrade the protocol version for the entire cluster, enter the following command on the master node:
+
+
+
+# vxdctl upgrade
+
+
+
+See the "Administering Cluster Functionality" chapter of the Veritas Volume Manager Administrator's Guide.
+
+
+
+Available controllers not shown
+
+
+
+The Scan Disks By Controller View does not list the available controllers
+</pre>

@@ -1,0 +1,69 @@
+---++ Doc Log 1146829534_01
+
+	$ Date: Fri May 05 11:45:34 2006
+	$ Summary: IPMP failure detection time errors
+
+---++++ Details:
+<pre>
+RC RAISED AS REQUESTED
+
+Please open a priority 4 root cause to resolve the issue below;
+Mar  2 15:35:01 nwopc073 in.mpathd[47]: [ID 122137 daemon.error] Improved failure detection time 11046 ms
+Mar  2 15:35:03 nwopc073 in.mpathd[47]: [ID 122137 daemon.error] Improved failure detection time 10000 ms
+Mar  2 15:44:06 nwopc073 in.mpathd[47]: [ID 398532 daemon.error] Cannot meet requested failure detection time of 10000
+
+
+As advised by Sun I changed the failure detection time as we seem to have excess latency on our switches.  in.mpathd now reads
+
+FAILURE_DETECTION_TIME=20000 
+# 
+# Failback is enabled by default. To disable failback turn off this option 
+# 
+FAILBACK=yes 
+
+It was set to 10000 and failback was set to NO (not quite sure why)
+
+I sent a HUP to the in.mpathd process and no more errors were seen in /var/adm/messages.
+
+May  3 06:46:12 nwopc073 in.mpathd[47]: [ID 122137 daemon.error] Improved failure detection time 10045 ms 
+May  3 06:46:12 nwopc073 in.mpathd[47]: [ID 122137 daemon.error] Improved failure detection time 10000 ms 
+May  3 06:53:08 nwopc073 in.mpathd[47]: [ID 398532 daemon.error] Cannot meet requested failure detection time of 10000 ms on (inet  ce1) new failure detection time is 21112 ms 
+May  3 06:54:09 nwopc073 in.mpathd[47]: [ID 122137 daemon.error] Improved failure detection time 10556 ms 
+May  3 06:54:09 nwopc073 in.mpathd[47]: [ID 122137 daemon.error] Improved failure detection time 10000 ms 
+May  3 07:07:37 nwopc073 last message repeated 2 times 
+May  3 07:19:31 nwopc073 in.mpathd[47]: [ID 111610 daemon.error] SIGHUP: restart and reread config file 
+
+
+All interfaces are up and operating OK
+
+lo0: flags=1000849<UP,LOOPBACK,RUNNING,MULTICAST,IPv4> mtu 8232 index 1 
+        inet 127.0.0.1 netmask ff000000 
+ce1: flags=9040843<UP,BROADCAST,RUNNING,MULTICAST,DEPRECATED,IPv4,NOFAILOVER> mtu 1500 index 2 
+        inet 128.8.15.173 netmask ffffff00 broadcast 128.8.15.255 
+        groupname database-net 
+        ether 0:3:ba:6c:73:3a 
+ce1:1: flags=1000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4> mtu 1500 index 2 
+        inet 128.8.15.73 netmask ffffff00 broadcast 128.8.15.255 
+ce2: flags=9040843<UP,BROADCAST,RUNNING,MULTICAST,DEPRECATED,IPv4,NOFAILOVER> mtu 1500 index 3 
+        inet 128.8.16.169 netmask ffffff00 broadcast 128.8.16.255 
+        groupname public-net 
+        ether 0:3:ba:6c:73:3b 
+ce3: flags=9040843<UP,BROADCAST,RUNNING,MULTICAST,DEPRECATED,IPv4,NOFAILOVER> mtu 1500 index 4 
+        inet 128.8.16.170 netmask ffffff00 broadcast 128.8.16.255 
+        groupname public-net 
+        ether 0:3:ba:6c:73:3c 
+ce3:1: flags=1000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4> mtu 1500 index 4 
+        inet 128.8.16.73 netmask ffffff00 broadcast 128.8.16.255 
+ce4: flags=9040843<UP,BROADCAST,RUNNING,MULTICAST,DEPRECATED,IPv4,NOFAILOVER> mtu 1500 index 5 
+        inet 128.8.15.174 netmask ffffff00 broadcast 128.8.15.255 
+        groupname database-net 
+        ether 0:3:ba:6c:73:3d 
+eri0: flags=1000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4> mtu 1500 index 6 
+        inet 128.8.14.73 netmask ffffff00 broadcast 128.8.14.255 
+        ether 0:3:ba:8:d5:c0 
+ge0: flags=1000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4> mtu 1500 index 7 
+        inet 128.8.12.73 netmask ffffff00 broadcast 128.8.12.255 
+        ether 0:3:ba:8:d5:c1 
+
+closing RC
+</pre>

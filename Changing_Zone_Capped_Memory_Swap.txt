@@ -1,0 +1,51 @@
+---++ Doc Log 1383885718_01
+        $ Date: Nov 08 10:11:58 2013
+        $ Summary: Changing Zone Capped Memory/Swap
+
+---++++ Details:
+<pre>
+The below command will attempt to list configured settings of capped-memory (physical, swap, locked)
+
+for i in `zoneadm list | grep -v global` ; do echo -n "$i " ; zonecfg -z $i info capped-memory ; done
+
+Change physical memory on the fly, from the global zone;
+BUT, it will not persist across a reboot.
+
+sudo rcapadm -z zone018 -m 24G
+
+Save all zone's *.xml configurations (sub-directory zonecfg-orig must be created first):
+
+global009:/etc/zones % for i in zone01* ; do cp -p $i /var/tmp/zonecfg-orig/ ; done
+
+Open the configuration file for changes:
+
+global009:/etc/zones % sudo zonecfg -z zone018
+
+zonecfg:zone018> info
+
+<cut all output>
+
+zonecfg:zone018> info capped-memory
+
+capped-memory:
+
+physical: 16G
+
+[swap: 16G]
+
+zonecfg:zone018> remove capped-memory
+
+zonecfg:zone018> add capped-memory
+
+zonecfg:zone018:capped-memory> set physical=24G
+
+zonecfg:zone018:capped-memory> set swap=24G
+
+zonecfg:zone018:capped-memory> end
+
+zonecfg:zone018> verify
+
+zonecfg:zone018> exit
+
+(A reboot of the Zone is required for changes to take affect.)
+</pre>

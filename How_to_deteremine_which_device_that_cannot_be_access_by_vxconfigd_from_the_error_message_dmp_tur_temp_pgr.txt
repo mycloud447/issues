@@ -1,0 +1,102 @@
+---++ Doc Log 1259753383_01
+
+	$ Date: Wed Dec 02 11:29:43 2009
+	$ Summary: How to deteremine which device that cannot be access by vxconfigd from the error message dmp_tur_temp_pgr
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+
+How to deteremine which device that cannot be access by vxconfigd from the error message: dmp_tur_temp_pgr: open failed: error = 6 
+--------------------------------------------------------------------------------
+Details:
+How to deteremine which device that cannot be access by vxconfigd from the error message: dmp_tur_temp_pgr: open failed: error = 6 
+
+
+
+hat does the error message "VxVM vxdmp 0 dmp_tur_temp_pgr: open failed: error = 6 dev=0x110/0x42" mean and how to identify which device is causing the error message 
+
+
+
+* What does it mean: 
+
+The function dmp_tur_temp_pgr is used by vxconfigd to place temporary reservation keys to enable the system in question in order to access the device. 
+
+You will see this type of messages where in the device is not accessible or the environment does not support(SCSI3 not used). 
+
+
+dmp = dynamic multipathing 
+tur = test unit ready 
+temp = temporary 
+pgr = persistent group reservations 
+
+
+
+* How to deteremine which device cannot be access by vxconfigd 
+
+
+Example: 
+--------------------------- 
+Mar 10 07:06:46 iedadu002 vxdmp: [ID 238993 kern.notice] NOTICE: VxVM vxdmp 0 dmp_tur_temp_pgr: open failed: error = 6 dev=0x110/0x42 
+Mar 10 07:06:46 iedadu002 vxdmp: [ID 238993 kern.notice] NOTICE: VxVM vxdmp 0 dmp_tur_temp_pgr: open failed: error = 6 dev=0x110/0x42 
+Mar 10 07:06:46 iedadu002 vxdmp: [ID 238993 kern.notice] NOTICE: VxVM vxdmp 0 dmp_tur_temp_pgr: open failed: error = 6 dev=0x110/0x42 
+--------------------------- 
+
+
+Device is in hexadecimal value: dev=0x110/0x42 
+
+covert to decimal: 
+
+0x110 = 272 (major number) 
+0x42 = 66 (minor number) 
+
+
+Let us have a look at the /dev/vx/dmp folder which device owns this major and minor number: 
+--------------------------- 
+root@test002 -> ls -la /dev/vx/dmp 
+brw------- 1 root other 272, 66 Jan 29 19:55 c3t0d57 
+--------------------------- 
+- It belongs to device c3t0d57 
+
+
+vxdisk list output: shows the device is in error status meaning VM cannot access the device 
+
+------------------ 
+root@test002 -> vxdisk -o alldgs list 
+c3t0d57s2 auto - - error 
+------------------ 
+
+- Which confirms that VM was not able to access the device which causes the error message. 
+
+
+Possible cause of device in error status? 
+- hardware device defect 
+- probably the device is not yet labeled or no partition table. 
+- partition 2 does not represent the entire device (prtvtoc /dev/dsk/c3t0d57s2) 
+- there is no read/write permission on the device (check the permission on the storage) 
+- SCSI3 not used 
+
+
+Related technote: 285886 
+
+
+
+--------------------------------------------------------------------------------
+Products Applied: 
+ Volume Manager for UNIX/Linux 4.1 MP1 (Solaris)
+
+Last Updated: April 20 2009 04:32 PM GMT 
+Expires on: 365 days from publish date 
+Subscribe to receive critical updates about this document 
+
+Subjects: 
+ Solaris 
+   Publishing Status: Kcs
+Volume Manager for UNIX/Linux 
+   Publishing Status: Kcs 
+Languages: 
+ English (US) 
+Solaris
+9.0
+
+</pre>

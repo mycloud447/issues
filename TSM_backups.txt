@@ -1,0 +1,43 @@
+---++ Doc Log 1383809030_01
+        $ Date: Thu Nov 07:: 12:53:50
+        $ Summary: TSM backups
+
+---++++ Details:
+<pre>
+dsmc Query Backup -FROMDate=11/01/11 -TODate=11/10/11 -INActive "*" 
+
+dsmc incr -ver <file>            ///take a file backup and verify
+
+dsmc q b <whole path to file>    //check the backup file time and date
+
+dsmc q b -ina -fromdate=10/12/2009 -todate=10/12/2009 "/opt/mesh/domains/mesh0024/PROD/domain/mesh0024-prod/application/logs/*"
+
+dsmc res "/was/*" /tmp/was/ -virtualnodename=aixsrv -ina -pick -fromdate=MM/DD/YY
+
+dsmc res -ina "/export/pub/ds/applications/ds_scripts/log-archive/log-archive.sh" "/tmp/rk/" -pick -fromdate=01/11/2011
+
+dsmc q b /data/sybase/lon_cinq_sql_prd/dump/tran/cinq_case/cinq_case.20100302.121508.ctrn -errorlogn=/tmp/dsmc_errorlog.12549 
+
+dsmc res -subdir=yes -ina -pitd=07/30/2011 -pitt=21:00:00 / /mnt/
+
+dsmc incr /data -server=CTRONP1-APP -subdir=yes
+
+Restoration:-
+
+-------------
+
+tsm> q ba "/opt/mesh/domains/me0029/prod/domain/mesh0029-prod/application/logs/*" -fromdate=01/11/11 -todate=15/11/11 
+
+q ba "/usr/jdk/jdk1.5.0_18/*" -fromdate=01/11/11 -todate=12/13/11
+
+/usr/bin/dsmc i -ve "/data/oracle/FROOC2U/backup/export/*" -su=yes -date=2 -time=1 -errorlogn=/data/oracle/FROOC2U/backup/logs/export_err.log 2>&1
+
+dsmc q b -ina -fromdate=03/02/12 -todate=03/10/12 "/applications/cq/*"
+
+dsmc rest -pitd=08/16/2011 -ina -subdir=yes "/arina/archive/20110815235500/*" "/path-to-restore/" -tapeprompt=no -verbose
+
+dsmc rest -fromdate=03/02/11 -todate=03/10/12 -ina -subdir=yes "/applications/cq/*" "/applications/cq" -tapeprompt=no -verbose
+
+dsmc res -pitd=03/10/2012 /applications/cq/ -subdir=yes -replace=yes
+
+</pre>

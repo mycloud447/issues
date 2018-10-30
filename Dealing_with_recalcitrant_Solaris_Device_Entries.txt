@@ -1,0 +1,47 @@
+<pre>
+
+Dealing with recalcitrant Solaris Device Entries
+I recently had some EMC Clariion LUNs presented to a Solaris 10 host, and the host was having nothing but trouble. This host also had VxVM running, and Veritas kept creating phantom entries even when the LUNs were removed from the host (masked out). Here are some things I had to do in order to try to get these LUNs removed from the Solaris device tree.
+
+Always make sure the disks are not in use by an device seen by Veritas. That includes the phantom entries.
+
+First check out the paths it thinks it has in use.
+vxdisk list emc_clariion0_65535
+I had to do this:
+vxdisk rm emc_clariion0_65535
+To ensure the device wasn't tied up somewhere in the kernel. Then I had to identify the WWNN of the LUN in question.
+
+# ls -l /dev/rdsk/c1t5006016246E00BCDd1s2
+lrwxrwxrwx   1 root     root          76 Jan 26 09:45 /dev/rdsk/c1t5006016246E00BCDd1s2 -> ../../devices/pci@1,700000/SUNW,emlxs@0/fp@0,0/ssd@w5006016246e00bcd,1:c,raw
+Here 5006016246E00BCD is what I'm looking for in the output of cfgadm.
+# cfgadm -al -o show_FCP_dev | egrep 5006016246e00bcd c1::5006016246e00bcd,0         disk         connected    configured   unknown c1::5006016246e00bcd,1         disk         connected    configured   failing c3::5006016246e00bcd,0         disk         connected    configured   unknown c3::5006016246e00bcd,1         disk         connected    configured   failing 
+Now I can try to remove the devices.
+# cfgadm -o unusable_FCP_dev -c unconfigure c1::5006016246e00bcd
+# cfgadm -c unconfigure c1::5006016246e00bcd
+cfgadm: Library error: failed to offline: /devices/pci@1,700000/SUNW,emlxs@0/fp@0,0/ssd@w5006016246e00bcd,1
+Resource                     Information
+--------------------------------  -------------------------
+/dev/dsk/c1t5006016246E00BCDd1s2  Device being used by VxVM
+Grrr. The device shouldn't be in use anywhere, but it thinks Veritas has it tied up. Is it really a disk in use?
+# prtvtoc /dev/rdsk/c1t5006016246E00BCDd1s2
+prtvtoc: /dev/rdsk/c1t5006016246E00BCDd1s2: Unable to read Disk geometry errno = 0x5
+Nope. The disk doesn't really exist. To double check, I also ran:
+format c1t5006016246E00BCDd1
+And choose "type" "auto", and sure enough, it's not a real LUN. So now we have to figure out whether this is Veritas interfering, or whether Solaris is just confused. This seems to work:
+[prodgzdb05:~] root# luxadm -e offline /dev/rdsk/c1t5006016246E00BCDd1s2
+[prodgzdb05:~] root# cfgadm -c unconfigure c1::5006016246e00bcd
+Now it's cleared out. Wash, rinse, and repeat with the other devices associated with the phantom VxVM entries. Then do devfsadm -Cv to see the bad devices removed.
+
+In some cases, I had to also incorporate this:
+luxadm -e forcelip /dev/cfg/c1
+This sometimes help clear out bad entries. You can also use the "-f" flag with cfgadm, but do so with caution since you're forcing the system to unconfigure something it thinks it shouldn't. Another useful command:
+luxadm -e dump_map /devices/pci@1,700000/SUNW,emlxs@0/fp@0,0:devctl
+    
+----------------------><------------------
+The disk is in by Veritas because DMP is still holding on to it, you need to disable it's DMP paths before you can unconfigure using cfgadm.
+
+# vxdisk rm disk_0
+# vxdmpadm getsubpaths dmpnodename=disk_0
+# vxdmpadm -f disable path=c0t0d0s0 
+
+</pre>

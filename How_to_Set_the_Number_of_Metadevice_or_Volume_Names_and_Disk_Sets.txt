@@ -1,0 +1,29 @@
+---++ Doc Log 1383884877_01
+        $ Date: Nov 08 09:57:57 2013
+        $ Summary: How to Set the Number of Metadevice or Volume Names and Disk Sets
+
+---++++ Details:
+<pre>
+With the Solaris 10 release, Solaris Volume Manager has been enhanced to configure volumes dynamically. You no longer need to edit the nmd and the md_nsets parameters in the /kernel/drv/md.conf file. New volumes are dynamically created, as needed.
+
+Tip :– 
+
+The default number of metadevice or volume names per disk set is 128, but many configurations need more than the default. Increase this number before you implement a configuration, to save administration time later.
+
+At the same time, keep the value of the nmdfield and the md_nsets field as low as possible. Memory structures exist for all possible devices as determined by nmdand md_nsets, even if you have not created those devices. For optimal performance, keep the value of nmd and md_nsets only slightly higher than the number of metadevices or volumes you plan to use.
+
+Steps :-
+
+1.	Calculate the total number of disk sets that you expect to need in the cluster, then add one more disk set for private disk management.
+
+The cluster can have a maximum of 32 disk sets, 31 disk sets for general use plus one disk set for private disk management. The default number of disk sets is 4. You supply this value for the md_nsets 
+
+2.	Calculate the largest metadevice or volume name that you expect to need for any disk set in the cluster.
+
+Each disk set can have a maximum of 8192 metadevice or volume names. You supply this value for the nmd 
+
+a.	Determine the quantity of metadevice or volume names that you expect to need for each disk set.
+
+If you use local metadevices or volumes, ensure that each local metadevice or volume name on which a global-devices file system, /global/.devices/node@ nodeid, is mounted is unique throughout the cluster and does not use the same name as any device-ID name in the cluster.
+
+</pre>

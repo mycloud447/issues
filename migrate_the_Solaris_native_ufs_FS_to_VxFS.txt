@@ -1,0 +1,262 @@
+---++ Doc Log 1383609779_01
+        $ Date: Tue Nov 05:: 05:32:59
+        $ Summary: migrate the Solaris native ufs FS to VxFS
+
+---++++ Details:
+<pre>
+The fsmigadm utility performs online migrations of a local mount native file system to the VxFS file system. During migration, a background copy process copies the files from the source file system to the target file system. While the migration is in progress, any operations done by the application are reflected on both the target file system and the source file system.
+
+If the background copy operation is unable to copy any file due to errors, then the list of such files is kept in a file on the VxFS file system. The fsmigadm command displays the name of this file after the migration completes, and the VxFS file system is mounted again
+
+During online migration the application remains online and the native file system data is copied over to the VxFS file system. It takes minimum amounts of clearly bounded, easy to schedule downtime.
+
+Pre-requisites
+Requires a separate storage.
+Storage Foundation 5.1
+****************************************
+
+Steps to migrate the Solaris native FS to vxfs
+$ df -h /var/abm/log /apps/admdbsrv1 /opt/weblogic /apps/clarify /ora
+Filesystem             size   used  avail capacity  Mounted on
+/dev/md/dsk/d85         32G   6.0G    26G    19%    /var/abm/log
+/dev/md/dsk/d84        9.8G    10M   9.7G     1%    /apps/admdbsrv1
+/dev/md/dsk/d83        9.8G   6.2G   3.5G    64%    /opt/weblogic
+/dev/md/dsk/d82         43G    35G   8.0G    82%    /apps/clarify
+/dev/md/dsk/d81        9.8G   1.1G   8.6G    12%    /ora
+
+Add new storage to the physical host on which you will configure Veritas Volume Manager
+$ vxdisk list
+DEVICE       TYPE            DISK         GROUP        STATUS
+disk_0       auto:SVM        -            -            SVM
+disk_1       auto:SVM        -            -            SVM
+disk_2       auto:SVM        -            -            SVM
+disk_3       auto:SVM        -            -            SVM
+emc0_128d    auto:SVM        -            -            SVM
+emc0_143a    auto:SVM        -            -            SVM
+emc0_143b    auto:SVM        -            -            SVM
+emc0_1281    auto:SVM        -            -            SVM
+emc0_1285    auto:SVM        -            -            SVM
+emc0_1289    auto:SVM        -            -            SVM
+****************************************
+$ cfgadm -c configure c4 c6
+$ devfsadm -C
+$ vxdctl -f enable
+$ vxdisk -e list
+DEVICE       TYPE           DISK        GROUP        STATUS               OS_NATIVE_NAME   ATTR        
+disk_0       auto:SVM       -            -           SVM                  c3t11d0s2        -            
+disk_1       auto:SVM       -            -           SVM                  c0t8d0s2         -            
+disk_2       auto:SVM       -            -           SVM                  c1t10d0s2        -            
+disk_3       auto:SVM       -            -           SVM                  c0t9d0s2         -            
+disk_4       auto:SVM       -            -           SVM                  c3t10d0s2        -            
+disk_5       auto:SVM       -            -           SVM                  c1t11d0s2        -            
+disk_6       auto:none      -            -           online invalid       c2t8d0s2         -            
+disk_7       auto:none      -            -           online invalid       c2t9d0s2         -            
+emc0_1291    auto:SVM       -            -           SVM                  c4t5006048452A70EFDd628s2 std          
+emc0_1295    auto:SVM       -            -           SVM                  c4t5006048452A70EF3d629s2 std          
+emc1_1e94    auto           -            -           nolabel              c4t500009720846592Dd1s2 tprclm    ---> New Lun
+
+Create a VxVM volume according to the your requirement on the newly added storage. The volume size cannot be less than source file system size.
+
+$ /etc/vx/bin/vxdisksetup -i emc1_1e94
+$ vxdisk list
+DEVICE       TYPE            DISK         GROUP        STATUS
+disk_0       auto:SVM        -            -            SVM
+disk_1       auto:SVM        -            -            SVM
+disk_2       auto:SVM        -            -            SVM
+disk_3       auto:SVM        -            -            SVM
+disk_4       auto:SVM        -            -            SVM
+disk_5       auto:SVM        -            -            SVM
+disk_6       auto:none       -            -            online invalid
+disk_7       auto:none       -            -            online invalid
+emc0_1291    auto:SVM        -            -            SVM
+emc0_1295    auto:SVM        -            -            SVM
+emc1_1e94    auto:cdsdisk    -            -            online thinrclm
+$ /usr/sbin/vxdg init DG1 new001_dm=emc1_1e94
+$ vxdg list
+NAME        STATE           ID
+DG1         enabled,cds          1368019612.16.testbox
+
+$ df -h /var/abm/log /apps/admdbsrv1 /opt/weblogic /apps/clarify /ora
+Filesystem             size   used  avail capacity  Mounted on
+/dev/md/dsk/d85         32G   6.0G    26G    19%    /var/abm/log
+/dev/md/dsk/d84        9.8G    10M   9.7G     1%    /apps/admdbsrv1
+/dev/md/dsk/d83        9.8G   6.2G   3.5G    64%    /opt/weblogic
+/dev/md/dsk/d82         43G    35G   8.0G    82%    /apps/clarify
+/dev/md/dsk/d81        9.8G   1.1G   8.6G    12%    /ora
+$ vxassist -g DG1 make var_abm_log 33g layout=concat alloc=new001_dm
+$ vxassist -g DG1 make apps_admdbsrv1 10g layout=concat alloc=new001_dm
+$ vxassist -g DG1 make opt_weblogic 10322m layout=concat alloc=new001_dm
+$ vxassist -g DG1 make apps_clarify 45425m layout=concat alloc=new001_dm
+$ vxassist -g DG1 make ora 10322m layout=concat alloc=new001_dm
+$ vxprint -vtu
+Disk group: DG1
+
+V  NAME         RVG/VSET/CO  KSTATE   STATE    LENGTH   READPOL   PREFPLEX UTYPE
+
+v  apps_admdbsrv1 -          ENABLED  ACTIVE   10g      SELECT    -        fsgen
+v  apps_clarify -            ENABLED  ACTIVE   44g      SELECT    -        fsgen
+v  opt_weblogic -            ENABLED  ACTIVE   10g      SELECT    -        fsgen
+v  ora          -            ENABLED  ACTIVE   10g      SELECT    -        fsgen
+v  var_abm_log  -            ENABLED  ACTIVE   33g      SELECT    -        fsgen
+
+Mount the source file system if the file system is not mounted already.
+Run the fsmigadm analyze command and ensure that all checks pass.
+
+$ /opt/VRTS/bin/fsmigadm analyze /dev/vx/dsk/DG1/var_abm_log /var/abm/log
+UX:vxfs fsmigadm: INFO: V-3-26817:  Source Device is: /dev/md/dsk/d85 -- Target Device is: /dev/vx/dsk/DG1/var_abm_log
+UX:vxfs fsmigadm: INFO: V-3-26819:  The Migration Analysis Report is generated in: /var/log/Analyze_var_abm_log file
+$ cat /var/log/Analyze_var_abm_log
+Target device size: 35433480192 bytes
+check1: passed
+
+Report Summary
+All checks passed, Migration can be started
+$ /opt/VRTS/bin/fsmigadm analyze /dev/vx/dsk/DG1/apps_admdbsrv1 /apps/admdbsrv1
+UX:vxfs fsmigadm: INFO: V-3-26817:  Source Device is: /dev/md/dsk/d84 -- Target Device is: /dev/vx/dsk/DG1/apps_admdbsrv1
+UX:vxfs fsmigadm: INFO: V-3-26819:  The Migration Analysis Report is generated in: /var/log/Analyze_apps_admdbsrv1 file
+$ cat /var/log/Analyze_apps_admdbsrv1
+Target device size: 10737418240 bytes
+check1: passed
+
+Report Summary
+All checks passed, Migration can be started
+$  /opt/VRTS/bin/fsmigadm analyze /dev/vx/dsk/DG1/opt_weblogic /opt/weblogic
+UX:vxfs fsmigadm: INFO: V-3-26817:  Source Device is: /dev/md/dsk/d83 -- Target Device is: /dev/vx/dsk/DG1/opt_weblogic
+UX:vxfs fsmigadm: INFO: V-3-26819:  The Migration Analysis Report is generated in: /var/log/Analyze_opt_weblogic file
+
+$ cat /var/log/Analyze_opt_weblogic
+Target device size: 10823401472 bytes
+check1: passed
+
+Report Summary
+All checks passed, Migration can be started
+$ /opt/VRTS/bin/fsmigadm analyze /dev/vx/dsk/DG1/apps_clarify /apps/clarify
+UX:vxfs fsmigadm: INFO: V-3-26817:  Source Device is: /dev/md/dsk/d82 -- Target Device is: /dev/vx/dsk/DG1/apps_clarify
+UX:vxfs fsmigadm: INFO: V-3-26819:  The Migration Analysis Report is generated in: /var/log/Analyze_apps_clarify file
+$ cat /var/log/Analyze_apps_clarify
+Target device size: 47631564800 bytes
+check1: passed
+
+Report Summary
+All checks passed, Migration can be started
+$ /opt/VRTS/bin/fsmigadm analyze /dev/vx/dsk/DG1/ora /ora
+UX:vxfs fsmigadm: INFO: V-3-26817:  Source Device is: /dev/md/dsk/d81 -- Target Device is: /dev/vx/dsk/DG1/ora
+UX:vxfs fsmigadm: INFO: V-3-26819:  The Migration Analysis Report is generated in: /var/log/Analyze_ora file
+$ cat /var/log/Analyze_ora
+Target device size: 10823401472 bytes
+check1: passed
+
+Report Summary
+All checks passed, Migration can be started
+
+$ /opt/VRTS/bin/fsmigadm start /dev/vx/dsk/DG1/var_abm_log /var/abm/log
+UX:vxfs fsmigadm: INFO: V-3-27018:  Source Device: /dev/md/dsk/d85      Target Device: /dev/vx/dsk/DG1/var_abm_log
+Continue with file system Migration (y/Y/n/N)? Y
+Continue with mkfs on target device (y/Y/n/N)? Y
+    version 8 layout
+    69206016 sectors, 34603008 blocks of size 1024, log size 65536 blocks
+    rcq size 4096 blocks
+    largefiles supported
+
+
+
+mount: /dev/md/dsk/d85 on /var/abm/log/lost+found/srcfs - WARNING unknown options "xattr"
+
+$ /opt/VRTS/bin/fsmigadm start /dev/vx/dsk/DG1/apps_admdbsrv1 /apps/admdbsrv1
+UX:vxfs fsmigadm: INFO: V-3-27018:  Source Device: /dev/md/dsk/d84      Target Device: /dev/vx/dsk/DG1/apps_admdbsrv1
+Continue with file system Migration (y/Y/n/N)? Y
+Continue with mkfs on target device (y/Y/n/N)? Y
+    version 8 layout
+    20971520 sectors, 10485760 blocks of size 1024, log size 16384 blocks
+    rcq size 1024 blocks
+    largefiles supported
+
+
+
+mount: /dev/md/dsk/d84 on /apps/admdbsrv1/lost+found/srcfs - WARNING unknown options "xattr"
+
+$  /opt/VRTS/bin/fsmigadm start /dev/vx/dsk/DG1/apps_clarify /apps/clarify
+UX:vxfs fsmigadm: INFO: V-3-27018:  Source Device: /dev/md/dsk/d82      Target Device: /dev/vx/dsk/DG1/apps_clarify
+Continue with file system Migration (y/Y/n/N)? Y
+Continue with mkfs on target device (y/Y/n/N)? Y
+    version 8 layout
+    93030400 sectors, 46515200 blocks of size 1024, log size 65536 blocks
+    rcq size 4096 blocks
+    largefiles supported
+
+
+
+mount: /dev/md/dsk/d82 on /apps/clarify/lost+found/srcfs - WARNING unknown options "xattr"
+
+$  /opt/VRTS/bin/fsmigadm start /dev/vx/dsk/DG1/opt_weblogic /opt/weblogic
+UX:vxfs fsmigadm: INFO: V-3-27018:  Source Device: /dev/md/dsk/d83      Target Device: /dev/vx/dsk/DG1/opt_weblogic
+Continue with file system Migration (y/Y/n/N)? Y
+Continue with mkfs on target device (y/Y/n/N)? Y
+    version 8 layout
+    21139456 sectors, 10569728 blocks of size 1024, log size 16384 blocks
+    rcq size 1024 blocks
+    largefiles supported
+
+
+
+mount: /dev/md/dsk/d83 on /opt/weblogic/lost+found/srcfs - WARNING unknown options "xattr"
+
+$ /opt/VRTS/bin/fsmigadm start /dev/vx/dsk/DG1/ora /ora
+UX:vxfs fsmigadm: INFO: V-3-27018:  Source Device: /dev/md/dsk/d81      Target Device: /dev/vx/dsk/DG1/ora
+Continue with file system Migration (y/Y/n/N)? Y
+Continue with mkfs on target device (y/Y/n/N)? Y
+    version 8 layout
+    21139456 sectors, 10569728 blocks of size 1024, log size 16384 blocks
+    rcq size 1024 blocks
+    largefiles supported
+
+
+
+mount: /dev/md/dsk/d81 on /ora/lost+found/srcfs - WARNING unknown options "xattr"
+$ /opt/VRTS/bin/fsmigadm list
+        Mount Point     Source Device   Target Device   Migration Status
+      ---------------  --------------- --------------- ------------------
+        /opt/weblogic   /dev/md/dsk/d83 /dev/vx/dsk/DG1/opt_weblogic     Migration in progress
+        /ora    /dev/md/dsk/d81 /dev/vx/dsk/DG1/ora      Migration in progress
+        /apps/clarify   /dev/md/dsk/d82 /dev/vx/dsk/DG1/apps_clarify     Migration in progress
+        /var/abm/log    /dev/md/dsk/d85 /dev/vx/dsk/DG1/var_abm_log      Migration in progress
+        /apps/admdbsrv1 /dev/md/dsk/d84 /dev/vx/dsk/DG1/apps_admdbsrv1   Migration completed
+        
+$  /opt/VRTS/bin/fsmigadm status /opt/weblogic
+
+/opt/weblogic:
+        Source Device:                  /dev/md/dsk/d83
+        Target Device:                  /dev/vx/dsk/DG1/opt_weblogic
+        Throttle rate:                  0 MB/s
+        Copy rate:                      34.87 MB/s
+        Total files copied:             2169
+        Total data copied:              620.22 MB
+        Migration Status:               Migration in progress
+
+$ /opt/VRTS/bin/fsmigadm commit /var/abm/log
+$ /opt/VRTS/bin/fsmigadm commit /apps/admdbsrv1
+$ /opt/VRTS/bin/fsmigadm commit /opt/weblogic
+$ /opt/VRTS/bin/fsmigadm commit /apps/clarify
+$ /opt/VRTS/bin/fsmigadm commit /ora
+
+$ cp -p /etc/vfstab /etc/vfstab.preCRQxxxxxx
+$ cat /etc/vfstab | grep vxfs
+/dev/vx/dsk/DG1/var_abm_log    /dev/vx/rdsk/DG1/var_abm_log    /var/abm/log     vxfs  2      yes     -
+/dev/vx/dsk/DG1/apps_admdbsrv1 /dev/vx/rdsk/DG1/apps_admdbsrv1 /apps/admdbsrv1  vxfs  2      yes     -
+/dev/vx/dsk/DG1/opt_weblogic   /dev/vx/rdsk/DG1/opt_weblogic   /opt/weblogic    vxfs  2      yes     -
+/dev/vx/dsk/DG1/apps_clarify   /dev/vx/rdsk/DG1/apps_clarify   /apps/clarify    vxfs  2      yes     -
+/dev/vx/dsk/DG1/ora            /dev/vx/rdsk/DG1/ora            /ora             vxfs  2      yes     -    
+
+$ df -hF vxfs
+Filesystem             size   used  avail capacity  Mounted on
+/dev/vx/dsk/DG1/var_abm_log
+                        33G   6.0G    25G    20%    /var/abm/log
+/dev/vx/dsk/DG1/apps_admdbsrv1
+                        10G    21M   9.4G     1%    /apps/admdbsrv1
+/dev/vx/dsk/DG1/opt_weblogic
+                        10G   6.2G   3.7G    63%    /opt/weblogic
+/dev/vx/dsk/DG1/apps_clarify
+                        44G    35G   8.9G    80%    /apps/clarify
+/dev/vx/dsk/DG1/ora
+                        10G   1.1G   8.4G    12%    /ora   
+</pre>

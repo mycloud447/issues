@@ -1,0 +1,328 @@
+<pre>
+#!/usr/bin/bash
+PATH="/sbin:/bin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/opt/sfw/bin:/usr/ucb:\
+/usr/local/soe/sbin:/usr/local/soe/bin:/usr/local/Utility/bin:/usr/sfw/sbin:\
+/usr/sfw/bin:/opt/OV/contrib:/usr/contrib/bin:/usr/cluster/bin:/opt/VRTS/bin"
+
+# VERSION="1.0"
+# Collecting host CPU information:
+# Writen by MyCloud Tue Sep 27 15:22:27 EST 2016
+#
+if [ `uname -s` == "SunOS" ]; then
+  if [ `whoami` == root ];then
+	if [ `uname -r` == "5.10" ] || [ `uname -r` == "5.11" ] ; then
+    ps -ef |grep -i ldmd|grep -v grep > /dev/null 2>&1
+    if [ $? == 0 ] ; then
+            /usr/bin/kstat -m cpu_info | egrep "chip_id|core_id|module: cpu_info" > /var/tmp/T7_cpuinfo.log
+            nproc=`(grep chip_id /var/tmp/T7_cpuinfo.log | awk '{ print $2 }' | sort -u | wc -l | tr -d ' ')`
+            ncore=`(grep core_id /var/tmp/T7_cpuinfo.log | awk '{ print $2 }' | sort -u | wc -l | tr -d ' ')`
+            vproc=`(grep 'module: cpu_info' /var/tmp/T7_cpuinfo.log | awk '{ print $4 }' | sort -u | wc -l | tr -d ' ')`
+
+			if [ $ncore -eq 0 ] ; then
+					nstrandspercore=0
+					else
+					nstrandspercore=$(($vproc/$ncore))
+			fi
+			if [ $nproc -eq 0 ] ; then
+					ncoresperproc=0
+					else
+					ncoresperproc=$(($ncore/$nproc))
+			fi
+
+            speedinmhz=`(/usr/bin/kstat -m cpu_info | grep clock_MHz | awk '{ print $2 }' | sort -u)`
+            speedinghz=`echo "scale=2; $speedinmhz/1000" | bc`
+
+            T_Cores=`/usr/sbin/ldm list-devices -a core|awk '{print $1}'|sort -nr|head -1`
+            Total_Cores=`echo "scale=2; $T_Cores+1"|bc`
+            Total_Threads=`echo "scale=2; $Total_Cores*8"|bc`
+            echo "Server Model : `/usr/bin/kstat -m cpu_info |grep implementation |  sed 's/implementation//g' |awk '{print $1}' |sort -u`"
+            echo "Total number of cores : $Total_Cores"
+            echo -e "Total number of Threads : $Total_Threads \n\n"
+			HOSTNAME=`/usr/bin/hostname`
+            echo "----------------------- $HOSTNAME ---------------------"
+            echo "Total number of physical processors assigned to $HOSTNAME : $nproc"
+            echo "Number of virtual processors assigned to $HOSTNAME: $vproc"
+            echo "Total number of cores assigned to $HOSTNAME: $ncore"
+            echo "Number of cores per physical processor assigned to $HOSTNAME: $ncoresperproc"
+            echo "Number of hardware threads (strands or vCPUs) per core: $nstrandspercore"
+            echo "Processor speed: $speedinmhz MHz ($speedinghz GHz)"
+
+            # now derive the vcpu-to-core mapping based on above information #
+
+            echo -e "\n** Socket-Core-vCPU mapping **"
+            let linenum=2
+			if grep "core_id" /var/tmp/T7_cpuinfo.log > /dev/null; then
+			i=1
+			while [ $i -le ${nproc} ]
+			do
+						chipid=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $2 }'`
+						echo -e "\nPhysical Processor $i (chip id: $chipid):"
+				i=$[$i+1]
+			j=1
+			while [ $j -le ${ncoresperproc} ]
+			do
+				let linenum=($linenum + 1)
+				coreid=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $2 }'`
+				echo -e "\tCore $j (core id: $coreid):"
+		
+				let linenum=($linenum - 2)
+				vcpustart=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $4 }'`
+		
+				let linenum=(3 * $nstrandspercore + $linenum - 3)
+				vcpuend=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $4 }'`
+		
+				echo -e "\t\tvCPU ids: $vcpustart - $vcpuend"
+				let linenum=($linenum + 4)
+			j=$[$j+1]
+			done
+		done
+		else
+			i=1
+			while [ $i -le ${nproc} ]
+			do
+						chipid=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $2 }'`
+						echo -e "\nPhysical Processor $i (chip id: $chipid):"
+				i=$[$i+1]
+				linenum=$[$linenum+2]
+		
+			done
+		fi
+                    echo -e "\n\nCDOM's, LDOM's Memorey and cores used and their core id's"
+                    echo "---------------------------------------------------------"
+                    /usr/sbin/ldm list -l -o core,memory
+                    echo -e "\n\nFree cores details"
+                    echo "------------------"
+                    echo "Free cores available :`/usr/sbin/ldm list-devices -a core |awk '{print $2}'|grep 100|wc -l`"
+                    /usr/sbin/ldm list-devices -S core
+                    echo -e "\n\nHost information :"
+                    echo "------------------"
+                    /usr/sbin/virtinfo -a
+                    echo -e "\n\nProcessor information with psrinfo command"
+                    echo "-------------------------------------------" 
+                    /usr/sbin/psrinfo -pv 2> /var/tmp/T7_error.log
+                    echo
+                            ps -ef |grep -i zsched |grep -v grep > /dev/null 2>&1
+                                    if [ $? == 0 ] ; then
+                                            echo -e "\n\n--------- zones information ----------"
+                                                    /usr/sbin/zoneadm list -cv
+                                    fi
+					rm /var/tmp/T7_cpuinfo.log
+					rm /var/tmp/T7_error.log
+					
+            elif [[ `uname -i` -eq "SUNW,Sun-Fire-15000" ]] || [[ `uname -i` -eq "SUNW,Sun-Fire-10000" ]]  ; then
+                /usr/bin/kstat -m cpu_info | egrep "chip_id|core_id|module: cpu_info" > /var/tmp/T7_cpuinfo.log
+                nproc=`(grep chip_id /var/tmp/T7_cpuinfo.log | awk '{ print $2 }' | sort -u | wc -l | tr -d ' ')`
+                ncore=`(grep core_id /var/tmp/T7_cpuinfo.log | awk '{ print $2 }' | sort -u | wc -l | tr -d ' ')`
+                vproc=`(grep 'module: cpu_info' /var/tmp/T7_cpuinfo.log | awk '{ print $4 }' | sort -u | wc -l | tr -d ' ')`
+			if [ $ncore -eq 0 ] ; then
+					nstrandspercore=0
+					else
+					nstrandspercore=$(($vproc/$ncore))
+			fi
+			if [ $nproc -eq 0 ] ; then
+					ncoresperproc=0
+					else
+					ncoresperproc=$(($ncore/$nproc))
+			fi
+                speedinmhz=`(/usr/bin/kstat -m cpu_info | grep clock_MHz | awk '{ print $2 }' | sort -u)`
+                speedinghz=`echo "scale=2; $speedinmhz/1000" | bc`
+				HOSTNAME=`/usr/bin/hostname`			
+				echo "----------------------- $HOSTNAME ---------------------"		
+				echo "Server Model : `/usr/bin/kstat -m cpu_info |grep implementation |  sed 's/implementation//g'|awk '{print $1}' |sort -u`"				
+				echo "Total number of physical processors assigned to $HOSTNAME : $nproc"			
+				echo "Number of virtual processors assigned to $HOSTNAME: $vproc"			
+				echo "Total number of cores assigned to $HOSTNAME: $ncore"			
+				echo "Number of cores per physical processor assigned to $HOSTNAME: $ncoresperproc"			
+				echo "Number of hardware threads (strands or vCPUs) per core: $nstrandspercore"			
+				echo "Processor speed: $speedinmhz MHz ($speedinghz GHz)"			
+                echo -e "\n** Socket-Core mapping **\n"
+                psrinfo -pv|grep physical > /var/tmp/T7_psrinfo.log 2> /var/tmp/T7_error.log
+                i=1
+                while read line
+                do [ -z "$line" ] && continue ;
+                echo "Processor ($i) : $line"
+                let i=i+1
+                done < /var/tmp/T7_psrinfo.log
+				rm /var/tmp/T7_error.log
+                ps -ef |grep -i zsched |grep -v grep > /dev/null 2>&1
+                if [ $? == 0 ] ; then
+					echo -e "\n--------- zones information ----------"
+                     /usr/sbin/zoneadm list -cv
+                fi
+
+                rm /var/tmp/T7_cpuinfo.log
+                rm /var/tmp/T7_psrinfo.log
+
+        else
+                    /usr/bin/kstat -m cpu_info | egrep "chip_id|core_id|module: cpu_info" > /var/tmp/T7_cpuinfo.log
+                    nproc=`(grep chip_id /var/tmp/T7_cpuinfo.log | awk '{ print $2 }' | sort -u | wc -l | tr -d ' ')`
+                    ncore=`(grep core_id /var/tmp/T7_cpuinfo.log | awk '{ print $2 }' | sort -u | wc -l | tr -d ' ')`
+                    vproc=`(grep 'module: cpu_info' /var/tmp/T7_cpuinfo.log | awk '{ print $4 }' | sort -u | wc -l | tr -d ' ')`
+
+					if [ $ncore -eq 0 ] ; then
+							nstrandspercore=0
+							else
+							nstrandspercore=$(($vproc/$ncore))
+					fi
+					if [ $nproc -eq 0 ] ; then
+							ncoresperproc=0
+							else
+							ncoresperproc=$(($ncore/$nproc))
+					fi
+
+                    speedinmhz=`(/usr/bin/kstat -m cpu_info | grep clock_MHz | awk '{ print $2 }' | sort -u)`
+                    speedinghz=`echo "scale=2; $speedinmhz/1000" | bc`
+					HOSTNAME=`/usr/bin/hostname`			
+					echo "----------------------- $HOSTNAME ---------------------"		
+					echo "Server Model : `/usr/bin/kstat -m cpu_info |grep implementation |  sed 's/implementation//g'|awk '{print $1}' |sort -u`"				
+					echo "Total number of physical processors assigned to $HOSTNAME : $nproc"			
+					echo "Number of virtual processors assigned to $HOSTNAME: $vproc"			
+					echo "Total number of cores assigned to $HOSTNAME: $ncore"			
+					echo "Number of cores per physical processor assigned to $HOSTNAME: $ncoresperproc"			
+					echo "Number of hardware threads (strands or vCPUs) per core: $nstrandspercore"			
+					echo "Processor speed: $speedinmhz MHz ($speedinghz GHz)"	
+
+                    # now derive the vcpu-to-core mapping based on above information #
+
+                    echo -e "\n** Socket-Core-vCPU mapping **"
+                    let linenum=2
+			if grep "core_id" /var/tmp/T7_cpuinfo.log > /dev/null; then
+						i=1
+						while [ $i -le ${nproc} ]
+						do
+									chipid=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $2 }'`
+									echo -e "\nPhysical Processor $i (chip id: $chipid):"
+							i=$[$i+1]
+						j=1
+						while [ $j -le ${ncoresperproc} ]
+						do
+							let linenum=($linenum + 1)
+							coreid=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $2 }'`
+							echo -e "\tCore $j (core id: $coreid):"
+					
+							let linenum=($linenum - 2)
+							vcpustart=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $4 }'`
+					
+							let linenum=(3 * $nstrandspercore + $linenum - 3)
+							vcpuend=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $4 }'`
+					
+							echo -e "\t\tvCPU ids: $vcpustart - $vcpuend"
+							let linenum=($linenum + 4)
+						j=$[$j+1]
+						done
+					done
+					else
+						i=1
+						while [ $i -le ${nproc} ]
+						do
+									chipid=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $2 }'`
+									echo -e "\nPhysical Processor $i (chip id: $chipid):"
+							i=$[$i+1]
+							linenum=$[$linenum+2]
+					
+						done
+					fi
+			
+                    rm /var/tmp/T7_cpuinfo.log
+                                                    echo
+                                    echo -e "\npsrinfo"
+                                    echo "-------"
+                                    echo
+                                    /usr/sbin/psrinfo -pv 2> /var/tmp/T7_error.log
+									rm /var/tmp/T7_error.log
+                                    ps -ef |grep -i zsched |grep -v grep > /dev/null 2>&1
+                                    if [ $? == 0 ] ; then
+                                            echo "--------- zones information ----------"
+                                                    /usr/sbin/zoneadm list -cv
+                                    fi
+            fi
+    else
+                    /usr/bin/kstat -m cpu_info | egrep "chip_id|core_id|module: cpu_info" > /var/tmp/T7_cpuinfo.log
+                    nproc=`(grep chip_id /var/tmp/T7_cpuinfo.log | awk '{ print $2 }' | sort -u | wc -l | tr -d ' ')`
+                    ncore=`(grep core_id /var/tmp/T7_cpuinfo.log | awk '{ print $2 }' | sort -u | wc -l | tr -d ' ')`
+                    vproc=`(grep 'module: cpu_info' /var/tmp/T7_cpuinfo.log | awk '{ print $4 }' | sort -u | wc -l | tr -d ' ')`
+
+					if [ $ncore -eq 0 ] ; then
+							nstrandspercore=0
+							else
+							nstrandspercore=$(($vproc/$ncore))
+					fi
+					if [ $nproc -eq 0 ] ; then
+							ncoresperproc=0
+							else
+							ncoresperproc=$(($ncore/$nproc))
+					fi
+
+                    speedinmhz=`(/usr/bin/kstat -m cpu_info | grep clock_MHz | awk '{ print $2 }' | sort -u)`
+                    speedinghz=`echo "scale=2; $speedinmhz/1000" | bc`
+					
+					HOSTNAME=`/usr/bin/hostname`			
+					echo "----------------------- $HOSTNAME ---------------------"		
+					echo "Server Model : `/usr/bin/kstat -m cpu_info |grep implementation |  sed 's/implementation//g'|awk '{print $1}' |sort -u`"				
+					echo "Total number of physical processors assigned to $HOSTNAME : $nproc"			
+					echo "Number of virtual processors assigned to $HOSTNAME: $vproc"			
+					echo "Total number of cores assigned to $HOSTNAME: $ncore"			
+					echo "Number of cores per physical processor assigned to $HOSTNAME: $ncoresperproc"			
+					echo "Number of hardware threads (strands or vCPUs) per core: $nstrandspercore"			
+					echo "Processor speed: $speedinmhz MHz ($speedinghz GHz)"	
+
+                    # now derive the vcpu-to-core mapping based on above information #
+
+                    echo -e "\n** Socket-Core-vCPU mapping **"
+                    let linenum=2
+					if grep "core_id" /var/tmp/T7_cpuinfo.log > /dev/null; then
+								i=1
+								while [ $i -le ${nproc} ]
+								do
+											chipid=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $2 }'`
+											echo -e "\nPhysical Processor $i (chip id: $chipid):"
+									i=$[$i+1]
+								j=1
+								while [ $j -le ${ncoresperproc} ]
+								do
+									let linenum=($linenum + 1)
+									coreid=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $2 }'`
+									echo -e "\tCore $j (core id: $coreid):"
+							
+									let linenum=($linenum - 2)
+									vcpustart=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $4 }'`
+							
+									let linenum=(3 * $nstrandspercore + $linenum - 3)
+									vcpuend=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $4 }'`
+							
+									echo -e "\t\tvCPU ids: $vcpustart - $vcpuend"
+									let linenum=($linenum + 4)
+								j=$[$j+1]
+								done
+							done
+							else
+								i=1
+								while [ $i -le ${nproc} ]
+								do
+											chipid=`sed -n ${linenum}p /var/tmp/T7_cpuinfo.log | awk '{ print $2 }'`
+											echo -e "\nPhysical Processor $i (chip id: $chipid):"
+									i=$[$i+1]
+									linenum=$[$linenum+2]
+							
+								done
+							fi
+                            rm /var/tmp/T7_cpuinfo.log
+                                    echo -e "\npsrinfo"
+                                    echo "-------"
+                                    echo
+                                    /usr/sbin/psrinfo -pv 2> /var/tmp/T7_error.log
+									rm /var/tmp/T7_error.log
+                                    echo
+                                    ps -ef |grep -i zsched |grep -v grep > /dev/null 2>&1
+                                    if [ $? == 0 ] ; then
+                                            echo "--------- zones information ----------"
+                                                    /usr/sbin/zoneadm list -cv
+                                    fi
+    fi
+        else
+			echo -e "\nYou are not root user\n"
+			fi
+		else	
+                echo "This script is compatible for Solaris OS, it seems not Oracle OS."
+        fi
+</pre>

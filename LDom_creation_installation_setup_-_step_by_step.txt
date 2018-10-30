@@ -1,0 +1,215 @@
+---++ Doc Log 1383808847_01
+        $ Date: Thu Nov 07:: 12:50:47
+        $ Summary: LDom creation/installation setup - step by step
+
+---++++ Details:
+<pre>
+LDom creation/installation setup - step by step 
+
+Virtualization - Using logical domains (LDom)
+
+You have heard about this word  "virtualization" now days in the  IT world. Logical domains (LDOM) is one of the para virtualization available with the Sun Sparc T1 and T 2 systems(Sun4v).   You can follow these simple steps to create your logical domains on your T1 and T2 systems. If you want to try it on x86 boxes , please use XEN
+
+Before going to the install, understand the  key components in LDOM's.
+
+Hypervisor
+
+Software piece works on the top of the hardware. Responsible for maintaining the isolation of domains. Interacts between the hardware  and the OS.
+
+Control Domain
+
+ Creats and manages the other logical domains ans service and services
+
+Service, I/O domains
+
+Provides the virtual network switch or virtual disk
+
+Guest Domain
+
+Uses the services from the services and I/O domains and is managed by the control domain. In broad term , can be  considered as the additional OS which will get  installed on the machine
+
+Virtual devices
+
+.All the guest domains will be accessing the virtual devices. Like CPU,memory MAU,NIC,Disks,Consoles. 
+
+Ldom manager
+
+Controls hypervisor and all domains. It can run in any domain, but only 1 domain at a time. its a Cli utilty exposes to the administrator. maps logical domains to physical resources.
+
+Now its ready for action:---
+
+Get a T1000 or T2000 box
+
+Install Solaris 10 U3 or higher
+
+Connect to Service processor or SC to check the firmware version
+
+sc> show host
+
+
+Host flash versions:
+
+Hypervisor 1.4.1 2007/04/02 16:37
+
+OBP 4.26.1 2007/04/02 16:26
+
+POST 4.26.0 2007/03/26 16:45
+
+Upgrade  your system firmware  if its below 6.4.2. If its below 6.4.2 , please follow the instruction mention at the bottom of this page or refer the firmware upgrade docs.
+
+Check the OS verison and patch level
+
+# uname -a 
+
+SunOS 5.10 Generic_118833-36 sun4v sparc SUNW,Sun-Fire-T200
+
+# pkginfo -x | grep jass
+
+upgrade the OS level or add the patches/packages
+
+-bash-3.00# patchadd 124921-xx
+
+-bash-3.00# patchadd 125043-xx
+
+-bash-3.00# pkgadd -d SUNWldm
+
+-bash-3.00# pkgadd -d SUNWjass
+
+Ensure that the install packages and services are running
+
+-bas>h-3.00# svcadm enable ldmd
+
+-bash-3.00# svcadm enable vntsd
+
+-bash-3.00# /opt/SUNWldm/bin/ldm list
+
+Name State Flags Cons VCPU Memory Util Uptime
+
+primary active -n-cv SP 32 32G 0.5% 6d 3h 29m
+
+-bash-3.00# psrinfo -vp
+
+The physical processor has 32 virtual processors (0-31)
+
+UltraSPARC-T1 (cpuid 0 clock 1200 MHz)
+
+-bash-3.00# ldm add-vdiskserver primary-vds0 primary
+
+-bash-3.00# ldm add-vconscon port-range=5000-5100 \\
+
+primary-vcc0 primary
+
+-bash-3.00# ldm add-vswitch net-dev=e1000g0 primary-vsw0 primary
+
+-bash-3.00# ldm set-vcpu 4 primary
+
+-bash-3.00# ldm set-memory 1g primary
+
+-bash-3.00# ldm add-config initial
+
+-bash-3.00# ldm list-config
+
+factory-default [current]
+
+initial [next]
+
+-bash-3.00# shutdown -y -g0 -i6
+
+-bash-3.00# ldm add-domain myldom1
+
+-bash-3.00# ldm set-vcpu 4 myldom1
+
+-bash-3.00# ldm set-mau 1 myldom1
+
+-bash-3.00# ldm set-memory 1g myldom1
+
+-bash-3.00# ldm add-vnet vnet1 primary-vsw0 myldom1
+
+-bash-3.00# ldm add-vdiskserverdevice /images/ldom1.disk vol1@primary-vds0
+
+-bash-3.00# ldm add-vdisk vdisk1 vol1@primary-vds0 myldom1
+
+-bash-3.00# ldm set-variable autoboot\\?=false myldom1
+
+-bash-3.00# ldm set-variable boot-device=/virtual-devices@100/channel-devices@200/disk@0 myldom1
+
+-bash-3.00# ldm bind-domain myldom1
+
+-bash-3.00# ldm start-domain myldom1
+
+Now  your ldom is ready .You can follow the below steps to get your virtualized console 
+
+>-bash-3.00# telnet localhost 5000
+
+Trying 127.0.0.1...
+
+Connected to localhost....
+
+Escape character is '\^}'.
+
+Connecting to console “myldom1” in group “myldom1” ....
+
+Press ~? for control options ..
+
+{0} ok
+
+>{0} ok show-disks
+
+a) /virtual-devices@100/channel-devices@200/disk@0
+
+q) NO SELECTION
+
+Enter Selection, q to quit:q
+
+{0} ok show-nets
+
+a) /virtual-devices@100/channel-devices@200/network@0
+
+q) NO SELECTION
+
+Enter Selection, q to quit:q
+
+{0} ok banner
+
+Sun Fire T200, No Keyboard
+
+Copyright 2007 Sun Microsystems, Inc. All rights reserved.
+
+OpenBoot 4.26.1, 1024 MB memory available, Serial #66588434.
+
+Ethernet address 0:14:4f:f8:f:12, Host ID: 83f80f12.
+
+To Install Solaris OS using Jumpstart
+
+{0} ok show-nets
+
+a) /virtual-devices@100/channel-devices@200/network@0
+
+q) NO SELECTION
+
+Enter Selection, q to quit: a
+
+/virtual-devices@100/channel-devices@200/network@0 has been selected.
+
+Type \^Y ( Control-Y ) to insert it in the command line.
+
+e.g. ok nvalias mydev \^Y
+
+         for creating devalias mydev for /virtual-devices@100/channel-devices@200/network@0
+
+{0} ok  nvalias vnet0 /virtual-devices@100/channel-devices@200/network@0
+
+{0} ok boot vnet0 
+
+This will start the installation of Solaris from the jumpstart server in the network. Make sure you have added  this mac id generated for ldom in the /etc/ethers file of your jumpstart server to start it.
+
+To use file as virtual disk to install  Solaris on Guest domain
+
+#/usr/sbin/mkdir -p /ldoms/disk-images
+
+# /usr/sbin/mkfile 5G /ldoms/disk-images/s10-5g.img
+
+# ldm add-vdsdev /ldoms/disk-images/s10-5g.img vol2@primary-vds0
+
+#ldm add-vdisk vdisk2 vol2@primary-vds0 myldom1
+</pre>

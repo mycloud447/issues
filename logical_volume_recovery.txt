@@ -1,0 +1,30 @@
+---++ Doc Log 1161454083_01
+
+	$ Date: Sat Oct 21 18:08:03 2006
+	$ Summary: logical volume recovery
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+The procedure varies a bit depending upon whether or not it is a boot disk. In either case, it is NOT necessary (or desired) to do a pvcreate. These are the two procedures but this does assume that all LVOL's on the disk ARE MIRRORED.
+
+Assume the disk is c2t5d0 in vg01.
+
+If NOT a boot disk:
+
+vgcfgrestore -n /dev/vg01 /dev/rdsk/c2t5d0
+vgchange -a y /dev/vg01
+vgsync /dev/vg01
+
+Assume the disk is c2t5d0 in vg00 and IS a mirrored boot disk:
+
+vgcfgrestore -n /dev/vg00 /dev/rdsk/c2t5d0
+vgchange -a y /dev/vg00
+mkboot /dev/rdsk/c2t5d0
+mkboot -a "hpux -lq (;0)/stand/vmunix" /dev/rdsk/c2t5d0
+lvlnboot -R
+vgsync /dev/vg00
+
+Note that if you always use hot-plug disks there is absolutely no reason to shutdown.
+
+</pre>

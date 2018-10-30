@@ -1,0 +1,70 @@
+---++ Doc Log 1423833817_01
+        $ Date: Feb 13 18:53:37 2015
+        $ Summary: lofiadm issue
+
+---++++ Details:
+<pre>
+This was what i did on an E450 with Solaris 8:
+
+# mkfile 35m /opt/testfile
+# lofiadm -a /opt/testfile
+(Now i have to wait for quite a while... )
+lofiadm: /dev/lofi/1 was not created: No such file or directory
+# lofiadm
+Block Device             File
+/dev/lofi/1              /opt/testfile
+# ls -l /dev/lofi/1
+/dev/lofi/1: No such file or directory
+# mknod /dev/lofi/1 b 147 1
+# mknod /dev/rlofi/1 c 147 1
+# newfs /dev/rlofi/1
+newfs: /dev/rlofi/1 last mounted as /mnt
+newfs: construct a new file system /dev/rlofi/1: (y/n)? y
+/dev/rlofi/1:   71638 sectors in 119 cylinders of 1 tracks, 602
+sectors
+        35.0MB in 8 cyl groups (16 c/g, 4.70MB/g, 2240 i/g)
+super-block backups (for fsck -F ufs -o b=#) at:
+ 32, 9664, 19296, 28928, 38560, 48192, 57824, 67456,
+# mount /dev/lofi/1 /mnt
+# df -k
+Filesystem            kbytes    used   avail capacity  Mounted on
+/dev/dsk/c0t0d0s0    1219939  868346  314995    74%    /
+/proc                      0       0       0     0%    /proc
+fd                         0       0       0     0%    /dev/fd
+mnttab                     0       0       0     0%    /etc/mnttab
+/dev/dsk/c0t0d0s1    1523455   23581 1454171     2%    /var
+swap                 3806664       8 3806656     1%    /var/run
+swap                  716800      32  716768     1%    /tmp
+/dev/dsk/c0t0d0s4    2053605   87075 1904922     5%    /opt
+/dev/dsk/c0t0d0s5    1016122       9  985630     1%    /export/home
+/dev/lofi/1            33434       9   30082     1%    /mnt
+#
+
+I was wondering why i needed to manually create the nodes in order to
+use the loopback file device. Hopefully Mike see this.
+
+Note: this machine is hardened by turning off a lot of services and
+inetd. The following the a list of processes:
+
+# ps -ef
+     UID   PID  PPID  C    STIME TTY      TIME CMD
+    root     0     0  0 17:45:05 ?        0:26 sched
+    root     1     0  0 17:45:05 ?        0:00 /etc/init -
+    root     2     0  0 17:45:05 ?        0:00 pageout
+    root     3     0  0 17:45:05 ?        2:56 fsflush
+    root   322   286  0                   0:00 <defunct>
+    root   323     1  0 17:45:46 ?        0:01 /opt/local/sbin/sshd
+    root   562   318  0 18:32:58 console  0:00 bash
+    root   123     1  0 17:45:39 ?        0:01 /usr/lib/picl/picld
+    root   661   562  0 09:55:05 console  0:00 sh
+    root   201     1  0 17:45:43 ?        0:00 /usr/sbin/cron
+    root   371     1  0 17:45:47 ?        0:00 /opt/SUNWhwrdg/dpteng
+    root   671   661  0 10:01:32 console  0:00 ps -ef
+    root   276     1  0 17:45:45 ?        0:00
+/usr/lib/efcode/sparcv9/efdaemon
+    root   286     1  0 17:45:45 ?        0:00 /opt/SUNWhwrdg/dptelog
+    root   318     1  0 17:45:46 console  0:00 -sh
+    root   642     1  0 23:58:06 ?        0:00 /usr/sbin/syslogd -t
+
+Could anyone point out what was wrong.
+</pre>

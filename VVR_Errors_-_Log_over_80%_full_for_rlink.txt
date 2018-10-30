@@ -1,0 +1,37 @@
+---++ Doc Log 1148327328_01
+	$ Date: Mon May 22 19:48:48 2006
+	$ Summary: PSONCALL - VVR Errors - Log over 80% full for rlink to_syrep203
+
+---++++ Details:
+<pre>
+
+Monitored the status for a while and it looks like the replication is working albeit a 
+little slow.
+
+# vradmin -l repstatus sybdg01_203_rvg |grep srl
+  SRL name:			  srl_log
+# vradmin -l repstatus sybdg01_203_rvg |grep SRL
+  SRL name:			  srl_log
+  SRL size:			  33.71 G
+  SRL protection:	  autodcm
+  Logging to:			SRL (28769096 KBytes behind, 81% full)
+# vradmin -l repstatus sybdg01_203_rvg |grep SRL
+  SRL name:			  srl_log
+  SRL size:			  33.71 G
+  SRL protection:	  autodcm
+  Logging to:			SRL (28759420 KBytes behind, 81% full)
+# vradmin -l repstatus sybdg01_203_rvg |grep SRL
+  SRL name:			  srl_log
+  SRL size:			  33.71 G
+  SRL protection:	  autodcm
+  Logging to:			SRL (27932557 KBytes behind, 79% full)
+# vradmin -l repstatus sybdg01_203_rvg |grep SRL
+  SRL name:			  srl_log
+  SRL size:			  33.71 G
+  SRL protection:	  autodcm
+  Logging to:			SRL (27552500 KBytes behind, 77% full)
+
+There has been some network issues which seem to be resolved now.
+
+</pre>
+

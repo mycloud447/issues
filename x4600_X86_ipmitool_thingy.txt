@@ -1,0 +1,51 @@
+---++ Doc Log 1251239394_01
+
+	$ Date: Tue Aug 25 22:29:54 2009
+	$ Summary: x4600 X86 ipmitool thingy..
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+
+The tool is just a binary, and is available for most common operating systems from our download site. You need to run it on another machine that is able to contact the IP address of the service processor. Where exactly this machine can reside on any given network is dependent on the network configuration.
+
+For the most part the commands needed are:
+
+# ipmitool -I lan -H <ILOM IP address> -U <ILOM Username> fru
+# ipmitool -I lan -H <ILOM IP address> -U <ILOM Username> sel elist
+# ipmitool -I lan -H <ILOM IP address> -U <ILOM Username> sensor
+# ipmitool -I lan -H <ILOM IP address> -U <ILOM Username> sunoem led get all
+
+If above command won't work please send output from following one:
+# ipmitool -I lan -H <ILOM IP address> -U <ILOM Username> sunoem sbled get all
+
+But please also send following command (in some cases this command aren't pickup up by IPMItool but are stricly informational):
+
+# ipmitool -I lan -H <ILOM IP address> -U <ILOM Username> -v sel elist
+# ipmitool -I lan -H <ILOM IP address> -U <ILOM Username> sdr elist
+# ipmitool -I lan -H <ILOM IP address> -U <ILOM Username> -v sdr
+
+After each command you're prompted for a password. The output from different commands varies in length, but as a quick overview of what's what:
+
+"fru": Gives us the part numbers of the parts that make up your server so that if we need to replace anything, we can replace the right bit.
+
+"sel elist": The biggest of the lot, the system event log.
+
+"sensor": Reads from a number of different sensors including voltage, temperature and fan rotation speed.
+
+"sunoem led get all": The system has a fair few LEDs that light up to let you know of a fault.  This gives us a textual representation of which ones are lit.
+
+Ideally we quite like to get the output from these commands in separate text files; the inclusion of the text in an e-mail tends to mess with the formatting.
+
+from OS level in the host:
+
+# ipmitool sel elist
+# ipmitool -v sel elist
+# ipmitool fru
+# ipmitool sensor
+# ipmitool sunoem led get all or # ipmitool sunoem sbled get all (if first one will fail)
+# ipmitool sdr elist
+# ipmitool -v sdr
+
+
+</pre>

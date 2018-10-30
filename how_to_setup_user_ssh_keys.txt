@@ -1,0 +1,45 @@
+---++ Doc Log 1236157450_01
+
+	$ Date: Wed Mar 04 09:04:10 2009
+	$ Summary: how to setup user ssh keys
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+1) Create a public and private key pair for the protocol you want to use (should allways be SSH2). 
+To create a key pair for use by SSH2, enter: 
+
+  /opt/ssh/bin/ssh-keygen -t rsa -b 1024
+
+Note: For security reasons, strongly recommends using SSH2 when available instead of SSH.
+
+You will be prompted to supply a file in which to save the key and a passphrase (use the default unless your already
+using ssh keys). 
+Press Enter through each of these prompts. If you do so, the key generation program will assume that you wish to use the default file name of id_dsa and your private key will not be protected by a password.
+
+Note: UITS strongly recommends that you enter a password when generating a public and private key pair. If you choose not to use a password, anyone who gains access to your private key can authenticate to your account without a password.
+The key generation program will create a private key in a file with the name you specified and a public key with the same name, plus a .pub extension.
+
+2) Copy your public key to the remote host by entering: 
+  scp ~/.ssh/filename.pub hostname: 
+Replace hostname with the name of the remote host and filename.pub with the name of file containing your public key (this will end in the .pub extension).
+
+3) Connect to the remote host using your password for authentication. If the authorized_keys file doesn't exist, create it with the following commands: 
+  mkdir -p ~/.ssh
+  touch ~/.ssh/authorized_keys 
+If the directory and file do exist, running these commands will not damage them.
+
+4) On the remote host, add your public key to the authorized_keys file, with the following command: 
+  cat ~/filename.pub >> ~/.ssh/authorized_keys 
+Replace filename.pub with the name of the file containing your public key (this will end in the .pub extension).
+
+5) If you want, you can now delete the public key file from your account on the remote host by entering the following: 
+  rm ~/filename.pub 
+If you would prefer to keep a copy of this file in your account, you can move it to the .ssh subdirectory by entering:
+
+6) mv filename.pub ~/.ssh/ 
+In both cases, replace filename.pub with the name of the file containing your public key.
+
+Note: Follow steps 2-5 for each remote host you want to log into using public key authentication.
+
+</pre>

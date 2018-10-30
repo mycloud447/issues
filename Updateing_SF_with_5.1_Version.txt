@@ -1,0 +1,67 @@
+---++ Doc Log 1383809267_01
+        $ Date: Thu Nov 07:: 12:57:47
+        $ Summary: Updateing SF with 5.1 Version
+
+---++++ Details:
+<pre>
+Take a clean reboot so... to ensure evry thing is ok before proceed.  
+
+ eeprom | grep -i boot 
+
+ls -l /dev/dsk/c0t0d0s0 ls -l /dev/dsk/c1t0d0s0 eeprom auto-boot?=fales --see command manual  
+
+Break mirror:  metadetach d0 d11 all secondry meta i.e. submirror  mount /dev/dsk/c1t1d0s0 /mnt   cp -p /mnt/etc/vfstab /mnt/etc/vfstab_bkp  cp -p /mnt/etc/system  /mnt/etc/system_bkp  cp -p /mnt/kernel/drv/md.conf /mnt/kernel/drv/md.conf_bkp  
+
+modify /mnt/etc/vfstab , /mnt/etc/system , /mnt/kernel/drv/md.conf  for /mnt/etc/vfstab  md is replaced with  
+
+/dev/dsk/c1t1d0s0 /dev/rdsk/c1t1d0s0 --- same for all silces..  
+
+/mnt/kerneldrv/md.conf  for /mnt/etc/md.conf  #md.db_boot --- commnet  
+
+for /mnt/etc/system  *rootdev  use*.... also just below that set is there...comment it by *  *set  
+
+umount /mnt  do not fsck on c1t1d0s1 ---swap FS  do fsck on below siles  fsck /dev/rdsk/c1t1d0s0  fsck /dev/rdsk/c1t1d0s3  fsck /dev/rdsk/c1t1d0s4  fsck /dev/rdsk/c1t1d0s5  
+
+init 0  boot disk1  check system is booting from mirror  if yes  then  init 0  boot disk0  ---- system will boot from root disk  
+
+take all erlier version bkp like ....  hba -- scli -i  or pkginfo -l | grep qla  pkginfo -l ql...  
+
+uname -a -------------------------- for isd patch level  pkginfo -l VRTSvcs  --------------- For Veritas  pkginfo -l VRTSvxvm  Pkginfo -l EMCpower  ---------------power pathlect  
+
+go to the opsware and find server by hostname  select and install it by  
+
+task-bytamplets-SOL-maintance-ISD1001-sol9-next....for sol9version..  
+
+once this is done copy the result ....patches in excelsheet...before and after.  
+
+init 6  
+
+take bkp of veritas license.  
+
+vxlicrep  
+
+install SF5.1... see wiki for veritas storage foundation 5.1  
+
+before this unmount all mount points deport the DG  
+
+and ./installer  
+
+uninstall the SF then
+
+ ./installer  option I 2  init 6  
+
+NOTE:  
+
+boot -s ----IMP do this in singel user modeand follow the EMC install doc that is wiki.  
+
+take the backup of regestartion file ...see wiki doc for powerpath installtion.  
+
+pkgrm EMCpower  
+
+then install EMCpowerpath:  
+
+task-bytamplets-sol9Packeges-EMC5.2MP2  
+
+init 6  
+
+</pre>

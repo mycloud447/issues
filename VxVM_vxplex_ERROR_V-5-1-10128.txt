@@ -1,0 +1,96 @@
+<pre>
+Unexpected kernel error in configuration update
+-----------------------------------------------
+test $ /usr/sbin/vxplex -g testdg dis bfwrd02vl-01
+VxVM vxplex ERROR V-5-1-10128  Unexpected kernel error in configuration update
+
+Note: please check any snapvolumes
+-----------------------------------
+test $ vxprint -htv bfwrd02vl
+Disk group: testdg
+
+V  NAME         RVG/VSET/CO  KSTATE   STATE    LENGTH   READPOL   PREFPLEX UTYPE
+PL NAME         VOLUME       KSTATE   STATE    LENGTH   LAYOUT    NCOL/WID MODE
+SD NAME         PLEX         DISK     DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+SV NAME         PLEX         VOLNAME  NVOLLAYR LENGTH   [COL/]OFF AM/NM    MODE
+SC NAME         PLEX         CACHE    DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+DC NAME         PARENTVOL    LOGVOL
+SP NAME         SNAPVOL      DCO
+EX NAME         ASSOC        VC                       PERMS    MODE     STATE
+
+v  bfwrd02vl    -            ENABLED  ACTIVE   8388608  PREFER    bfwrd02vl-02 fsgen
+pl bfwrd02vl-01 bfwrd02vl    ENABLED  ACTIVE   8388608  STRIPE    4/256    RW
+sd 006testdn-02 bfwrd02vl-01 006testdn 2097152 2097152 0/0 emc10_00cf ENA
+sd 007testdn-02 bfwrd02vl-01 007testdn 2097152 2097152 1/0 emc10_00cb ENA
+sd 013testdn-02 bfwrd02vl-01 013testdn 2097152 2097152 2/0 emc11_00cb ENA
+sd 014testdn-02 bfwrd02vl-01 014testdn 2097152 2097152 3/0 emc11_00cf ENA
+pl bfwrd02vl-02 bfwrd02vl    ENABLED  ACTIVE   8388608  CONCAT    -        RW
+sd pri0032_test_dm-01 bfwrd02vl-02 pri0032_test_dm 0 8388608 0 emc15_12bb ENA
+dc bfwrd02vl_dco bfwrd02vl   bfwrd02vl_dcl
+v  bfwrd02vl_dcl -           ENABLED  ACTIVE   1120     SELECT    -        gen
+pl bfwrd02vl_dcl-01 bfwrd02vl_dcl ENABLED ACTIVE 1120   CONCAT    -        RW
+sd 007testdn-05 bfwrd02vl_dcl-01 007testdn 8388608 1120 0 emc10_00cb ENA
+test $
+
+=================================================================================================
+same process thoug, vxvm devices in online invlid status. 
+unamsk
+host scan - vxvm devices in error status
+ports failing status
+cleanup on the host
+unzone
+
+Only thing I can think of this is due to unmask done before unzone
+test2 $ cfgadm -f -c unconfigure c8::5006048452a79b88
+cfgadm: Library error: remove operation failed: /devices/pci@11c,600000/SUNW,emlxs@1/fp@0,0/ssd@w5006048452a79b88,84: I/O error
+test2
+
+test2 $ cat /etc/vx/vxvm.exclude
+exclude_all 0
+paths
+c4t5006048452A6C2C7d76s2 /pci@1c,600000/SUNW,emlxs@1/fp@0,0/ssd@w5006048452a6c2c7,4c c4t5006048452A6C2C7d76s2
+c4t5006048452A6C2C9d76s2 /pci@1c,600000/SUNW,emlxs@1/fp@0,0/ssd@w5006048452a6c2c9,4c c4t5006048452A6C2C7d76s2
+c8t5006048452A6C2C8d76s2 /pci@11c,600000/SUNW,emlxs@1/fp@0,0/ssd@w5006048452a6c2c8,4c c4t5006048452A6C2C7d76s2
+c8t5006048452A6C2C6d76s2 /pci@11c,600000/SUNW,emlxs@1/fp@0,0/ssd@w5006048452a6c2c6,4c c4t5006048452A6C2C7d76s2
+#
+controllers
+#
+product
+#
+pathgroups
+#
+
+Symptom:
+-------
+Excluding a TPD device with "vxdmpadm exclude" command does not work. The excluded device is still shown in "vxdisk list" outout.
+
+
+Example:
+-------
+# vxdmpadm exclude vxvm dmpnodename=emcpower22s2
+
+
+# cat /etc/vx/vxvm.exclude
+exclude_all 0
+paths
+emcpower22c /pseudo/emcp@22 emcpower22s2
+#
+controllers
+#
+product
+#
+pathgroups
+#
+
+# vxdisk scandisks
+# vxdisk list | grep emcpower22s2
+emcpower22s2 auto:sliced     -            -            online
+
+Description:
+------------
+Because of a bug in the logic of path name comparison, DMP ends up including the disks in device discovery which are part of the exclude list.
+
+Resolution:
+-------------
+The code in DMP is corrected to handle path name comparison appropriately.
+</pre>

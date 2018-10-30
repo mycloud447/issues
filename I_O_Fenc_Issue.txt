@@ -1,0 +1,142 @@
+---++ Doc Log 1383633296_01
+        $ Date: Tue Nov 05:: 12:04:56
+        $ Summary: I/O Fenc Issue
+
+---++++ Details:
+<pre>
+$ /etc/init.d/odm stop
+
+Stopping ODM...
+
+$
+
+
+
+$ gabconfig -a
+
+GAB Port Memberships
+
+===============================================================
+
+Port a gen  11fb904 membership 01
+
+Port o gen  11fb906 membership 01
+
+
+
+$ /sbin/vcsmmconfig -U
+
+$
+
+$ gabconfig -a
+
+GAB Port Memberships
+
+===============================================================
+
+Port a gen  11fb904 membership 01
+
+$
+
+$ gabconfig -U
+
+$
+
+$ gabconfig -a
+
+GAB Port Memberships
+
+===============================================================
+
+$
+
+$ lltconfig -U
+
+lltconfig: this will attempt to stop and reset LLT. Confirm (y/n)? y
+
+$
+
+$  lltconfig -c
+
+$
+
+$ gabconfig -a
+
+GAB Port Memberships
+
+===============================================================
+
+$
+
+$ gabconfig -c
+
+$
+
+$ gabconfig -a
+
+GAB Port Memberships
+
+===============================================================
+
+Port a gen  11fb906 membership 01
+
+$
+
+$
+
+$ cat /etc/vxfendg
+
+vmaxolbsvtcfs_fencdg
+
+$
+
+$ cat /etc/vxfentab
+
+/dev/vx/rdmp/emc6_0ebfs2
+
+/dev/vx/rdmp/emc6_0ec0s2
+
+/dev/vx/rdmp/emc6_0ec1s2
+
+$
+
+$ /etc/init.d/vxfen start
+
+Starting vxfen..
+
+Checking for /etc/vxfendg
+
+Starting vxfen.. Done
+
+$ awk: syntax error near line 4
+
+awk: illegal statement near line 4
+
+
+
+$
+
+$ gabconfig -a
+
+GAB Port Memberships
+
+===============================================================
+
+Port a gen  11fb906 membership 01
+
+Port b gen  11fb92b membership 01
+
+$
+
+$  /sbin/vcsmmconfig -c
+
+$
+
+$  /etc/init.d/odm start
+
+Starting ODM...
+
+$
+
+$ hastart
+</pre>

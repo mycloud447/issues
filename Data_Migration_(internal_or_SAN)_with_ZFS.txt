@@ -1,0 +1,420 @@
+---++ Doc Log 1383638972_01
+        $ Date: Tue Nov 05:: 13:39:32
+        $ Summary: Data  Migration (internal or SAN)  with  ZFS
+
+---++++ Details:
+<pre>
+[root@testserver ~]# zpool create sanpool c2t17d0 c2t18d0 c2t19d0
+[root@testserver ~]# zpool status -v sanpool
+
+  pool: sanpool
+
+ state: ONLINE
+
+ scrub: none requested
+
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+
+        sanpool     ONLINE       0     0     0
+
+          c2t17d0   ONLINE       0     0     0
+
+          c2t18d0   ONLINE       0     0     0
+
+          c2t19d0   ONLINE       0     0     0
+
+errors: No known data errors
+
+
+[root@testserver ~]# df -h /sanpool
+
+Filesystem             size   used  avail capacity  Mounted on
+
+sanpool                821G     1K   821G     1%    /sanpool
+
+[root@testserver ~]# cd /sanpool
+
+[root@testserver sanpool]# touch aaa
+
+[root@testserver sanpool]# cat > bbb
+
+khflfd
+
+dflkdffdsfds
+
+dflkfdshldfs
+
+dflkdsfhlkdsfjlfsd
+
+[root@testserver sanpool]# mkdir ccc
+
+[root@testserver sanpool]# ls
+
+aaa  bbb  ccc
+
+[root@testserver sanpool]# ls -la
+
+total 8
+
+drwxr-xr-x   3 root     root           5 Oct 25 13:16 .
+
+drwxr-xr-x  34 root     root        1024 Oct 25 13:15 ..
+
+-rw-r--r--   1 root     root           0 Oct 25 13:15 aaa
+
+-rw-r--r--   1 root     root          52 Oct 25 13:15 bbb
+
+drwxr-xr-x   2 root     root           2 Oct 25 13:16 ccc
+
+[root@testserver sanpool]# pwd
+
+/sanpool
+
+[root@testserver sanpool]# cd
+
+
+[root@testserver ~]# zpool attach sanpool c2t17d0  c2t14d0
+
+[root@testserver ~]#  zpool status -v sanpool
+
+  pool: sanpool
+
+ state: ONLINE
+
+ scrub: resilver completed after 0h0m with 0 errors on Mon Oct 25 13:17:20 2010
+
+config:
+
+        NAME         STATE     READ WRITE CKSUM
+
+        sanpool      ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c2t17d0  ONLINE       0     0     0
+
+            c2t14d0  ONLINE       0     0     0
+
+          c2t18d0    ONLINE       0     0     0
+
+          c2t19d0    ONLINE       0     0     0
+
+errors: No known data errors
+
+[root@testserver ~]# ls -l /sanpool
+
+total 6
+
+-rw-r--r--   1 root     root           0 Oct 25 13:15 aaa
+
+-rw-r--r--   1 root     root          52 Oct 25 13:15 bbb
+
+drwxr-xr-x   2 root     root           2 Oct 25 13:16 ccc
+
+[root@testserver ~]# zpool attach sanpool c2t18d0 c2t15d0
+
+[root@testserver ~]#
+
+[root@testserver ~]# zpool attach sanpool c2t19d0 c2t16d0
+
+[root@testserver ~]#
+
+[root@testserver ~]#
+
+[root@testserver ~]#  zpool status -v sanpool
+
+  pool: sanpool
+
+ state: ONLINE
+
+ scrub: resilver completed after 0h0m with 0 errors on Mon Oct 25 13:18:58 2010
+
+config:
+
+        NAME         STATE     READ WRITE CKSUM
+
+        sanpool      ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c2t17d0  ONLINE       0     0     0
+
+            c2t14d0  ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c2t18d0  ONLINE       0     0     0
+
+            c2t15d0  ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c2t19d0  ONLINE       0     0     0
+
+            c2t16d0  ONLINE       0     0     0
+
+errors: No known data errors
+
+[root@testserver ~]# ls -l /sanpool
+
+total 6
+
+-rw-r--r--   1 root     root           0 Oct 25 13:15 aaa
+
+-rw-r--r--   1 root     root          52 Oct 25 13:15 bbb
+
+drwxr-xr-x   2 root     root           2 Oct 25 13:16 ccc
+
+[root@testserver ~]# cat /sanpool/bbb
+
+khflfd
+
+dflkdffdsfds
+
+dflkfdshldfs
+
+dflkdsfhlkdsfjlfsd
+
+
+
+[root@testserver ~]# zpool detach sanpool c2t17d0
+
+[root@testserver ~]# zpool status -v sanpool
+
+  pool: sanpool
+
+ state: ONLINE
+
+ scrub: resilver completed after 0h0m with 0 errors on Mon Oct 25 13:18:58 2010
+
+config:
+
+        NAME         STATE     READ WRITE CKSUM
+
+        sanpool      ONLINE       0     0     0
+
+          c2t14d0    ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c2t18d0  ONLINE       0     0     0
+
+            c2t15d0  ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c2t19d0  ONLINE       0     0     0
+
+            c2t16d0  ONLINE       0     0     0
+
+errors: No known data errors
+
+[root@testserver ~]#  zpool detach sanpool c2t18d0
+
+[root@testserver ~]# zpool detach sanpool c2t19d0
+
+[root@testserver ~]# zpool status -v sanpool
+
+  pool: sanpool
+
+ state: ONLINE
+
+ scrub: resilver completed after 0h0m with 0 errors on Mon Oct 25 13:18:58 2010
+
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+
+        sanpool     ONLINE       0     0     0
+
+          c2t14d0   ONLINE       0     0     0
+
+          c2t15d0   ONLINE       0     0     0
+
+          c2t16d0   ONLINE       0     0     0
+
+errors: No known data errors
+
+ 
+
+[root@testserver ~]#  ls -l /sanpool/bbb
+
+-rw-r--r--   1 root     root          52 Oct 25 13:15 /sanpool/bbb
+
+[root@testserver ~]# cat /sanpool/bbb
+
+khflfd
+
+dflkdffdsfds
+
+dflkfdshldfs
+
+dflkdsfhlkdsfjlfsd
+
+==========================================================================
+Converting a ZFS pool to be mirrored
+
+We start with a pool called realzfs (because it's made out of real devices rather than files)
+
+# zpool list
+
+NAME                    SIZE    USED   AVAIL    CAP  HEALTH     ALTROOT
+realzfs                 544G   1.17G    543G     0%  ONLINE     -
+
+We can see that it is made up of 4 disks
+
+# zpool status
+
+  pool: realzfs
+
+ state: ONLINE
+
+ scrub: none requested
+
+config:
+
+
+
+        NAME        STATE     READ WRITE CKSUM
+
+        realzfs     ONLINE       0     0     0
+
+          c3t0d0    ONLINE       0     0     0
+
+          c3t1d0    ONLINE       0     0     0
+
+          c3t2d0    ONLINE       0     0     0
+
+          c3t5d0    ONLINE       0     0     0
+
+
+
+
+The correct way is to attach a new device to each existing ldev e.g.
+# zpool attach -f realzfs c3t0d0 c3t8d0
+
+# zpool status
+
+  pool: realzfs
+
+ state: ONLINE
+
+status: One or more devices is currently being resilvered.  The pool will
+
+        continue to function, possibly in a degraded state.
+
+action: Wait for the resilver to complete.
+
+ scrub: resilver in progress, 99.99% done, 0h0m to go
+
+config:
+
+
+
+        NAME        STATE     READ WRITE CKSUM
+
+        realzfs     ONLINE       0     0     0
+
+          mirror    ONLINE       0     0     0
+
+            c3t0d0  ONLINE       0     0     0
+
+            c3t8d0  ONLINE       0     0     0  178.3 resilvered
+
+          c3t1d0    ONLINE       0     0     0
+
+          c3t2d0    ONLINE       0     0     0
+
+          c3t5d0    ONLINE       0     0     0
+
+
+
+# zpool attach -f realzfs c3t1d0 c3t9d0
+
+# zpool attach -f realzfs c3t2d0 c3t10d0
+
+# zpool attach -f realzfs c3t5d0 c3t11d0
+
+
+Finally we see all our ldevs mirrored.
+
+# zpool status
+
+  pool: realzfs
+
+ state: ONLINE
+
+ scrub: resilver completed with 0 errors on Mon Jan 23 15:26:16 2006
+
+config:
+
+
+
+        NAME         STATE     READ WRITE CKSUM
+
+        realzfs      ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c3t0d0   ONLINE       0     0     0
+
+            c3t8d0   ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c3t1d0   ONLINE       0     0     0
+
+            c3t9d0   ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c3t2d0   ONLINE       0     0     0
+
+            c3t10d0  ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c3t5d0   ONLINE       0     0     0
+
+            c3t11d0  ONLINE       0     0     0
+
+
+
+The WRONG way to do it is as follows:-
+
+# zpool add -f realzfs mirror  c3t8d0  c3t9d0 c3t10d0 c3t11d0
+
+# zpool status
+  pool: realzfs
+ state: ONLINE
+
+ scrub: resilver completed with 0 errors on Mon Jan 23 15:26:16 2006
+
+config:
+
+        NAME         STATE     READ WRITE CKSUM
+
+        realzfs      ONLINE       0     0     0
+
+          c3t0d0     ONLINE       0     0     0
+
+          c3t1d0     ONLINE       0     0     0
+
+          c3t2d0     ONLINE       0     0     0
+
+          c3t5d0     ONLINE       0     0     0
+
+          mirror     ONLINE       0     0     0
+
+            c3t8d0   ONLINE       0     0     0
+
+            c3t9d0   ONLINE       0     0     0
+
+            c3t10d0  ONLINE       0     0     0
+
+            c3t11d0  ONLINE       0     0     0
+
+Which is 4 single disk ldevs and one 4way mirrored ldev.  NOT 4 mirrored ldev's which is wha
+</pre>

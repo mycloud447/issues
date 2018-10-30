@@ -1,0 +1,32 @@
+---++ Doc Log 1148051972_01
+
+	$ Date: Fri May 19 15:19:32 2006
+	$ Summary: added network printer
+
+---++++ Details:
+<pre>
+updated /etc/hosts with;
+
+130.22.116.30   P631-prt P631-prt
+
+used /opt/hpnpl/hppi to add printer and then 
+modified /etc/printers.conf to be the right name.
+then tested thusly;
+/opt/hpnpl # banner test
+
+  #####  ######   ####    #####
+    #    #       #          #
+    #    #####    ####      #
+    #    #            #     #
+    #    #       #    #     #
+    #    ######   ####      #
+
+# banner test > /tmp/file
+# lp -d p631 /tmp/file
+request id is p631-266 (1 file)
+# lpstat -p p631
+printer p631 is idle. enabled since Fri May 19 15:08:22 2006. available.
+# 
+
+sent email 
+</pre>

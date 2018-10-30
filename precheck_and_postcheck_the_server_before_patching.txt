@@ -1,0 +1,200 @@
+---++ Doc Log 1427172246_01
+        $ Date: Mar 24 10:14:06 2015
+        $ Summary: precheck and postcheck the server before patching
+
+---++++ Details:
+<pre>
+#  Script to precheck and postcheck the server before patching
+#  02-July-2014
+#  Version: 1.00
+#########################################################################################
+#!/usr/bin/perl
+
+
+# Any build in characters should be escaped using "\".  
+# For example :
+# If the command contains double quotes, it should be escaped as the commands start with double quotes.
+
+
+# If we would like to redirect the output to some specific file, 
+# The command line should be constructed as
+# <cmd><redirection_operator><output_filename>
+# ps -ef,>,ps.txt
+# or
+# ps -ef,>>,ps.txt
+
+my @solaris_cmds = (
+"df -k |grep vx,vxprint -hrt,vxdisk -o alldgs list,vxprint -htg rootdg,cat /etc/vx/volboot",
+"df -k",
+"echo format",
+"ifconfig -a",
+"netstat -rn",
+"cat /etc/vfstab",
+"cat /etc/system",
+"df -k |grep md,metastat -p,metastat",
+"eeprom",
+"prtconf -vp | grep -i boot",
+"ps -ef | grep had,/opt/VRTSvcs/bin/hastatus -sum",
+"swap -l",
+"ps -ef",
+"cat  /etc/inet/netmasks",
+"cat  /etc/mnttab",
+"ps -ef |egrep \"db2sysc|sybase|oracle\"",
+);
+my @aix_cmds = (
+"uptime","oslevel -s","bootlist -m normal -o","bootlist -m normal -ov","bootinfo -b","lppchk -v","cat /etc/filesystems","cat /etc/hosts","lsvg","lsvg -o | lsvg -i","lsvg -o | lsvg -il","lsvg -o | lsvg -ip","df -Ig","df -Ig |wc -l","lspv","lspv |grep rootvg","lspv | wc -l","powermt display dev=all","ps -ef","ps -ef|grep db2sysc","ps -ef|grep pmon","ps -ef|grep had","lssrc -g cluster","clRGinfo","clshowsrv -v","vxdisk list","vxprint -hrt","hastatus -sum","ifconfig -a","netstat -rn","sysdumpdev -l","lslpp -l | grep -i VRTSvxvm","lslpp -l | grep -i VRTSvcs","lsrsrc -a IBM.ManagementServer"
+);
+
+$cmd1 = "uname -a > /var/tmp/tmp_uname.txt ";
+system("$cmd1");
+system("cat /var/tmp/tmp_uname.txt");
+
+open(TMPFILE,"/var/tmp/tmp_uname.txt");
+$i=1;
+while (<TMPFILE>){
+ $line=$_;
+ chomp($line);
+ last if($i == 1);
+}
+@reswords = split(/\s+/,$line);
+$cmd1res = $reswords[0];
+
+$servos = substr($cmd1res,0,1);
+$servos = uc($servos);
+
+if ($servos eq 'L'){
+        $servosname = 'LINUX';
+        open FH,"<linux_cmds.txt";
+} elsif ($servos =~/^S/){
+        open FH,">/var/tmp/solaris_cmds.txt";
+        foreach (@solaris_cmds){
+                print FH "$_\n";
+        }
+        close FH;
+        $servosname = 'SOLARIS';
+        open FH,"</var/tmp/solaris_cmds.txt";
+}elsif ($servos =~/^A/){
+	open FH,">/var/tmp/aix_cmds.txt";
+	foreach (@aix_cmds){
+		print FH "$_\n";
+	}
+	close FH;
+	$servosname = 'AIX';
+	open FH,"<aix_cmds.txt";
+}else {
+        print " INVALID OS \n";
+        exit;
+}
+$redirection =">";
+
+chomp($ARGV[0]);
+if ( (uc($ARGV[0]) eq 'PRE') || (uc($ARGV[0]) eq 'POST')  ){
+## Proceed with other commands
+}else{
+        print " INVALID ARGUMENTS / No Arguments passed .  Usage : perl  checkserve.pl pre  (or) perl checkserve.pl post \n";
+exit;
+}
+
+$dirname = "/var/tmp/".lc($ARGV[0])."check";
+print $dirname;
+if (-d "$dirname") {
+        print "There is a directory named $dirname! Proceeding further with Checking\n\n";
+}
+else {
+        print "There is a no such directory - $dirname. Creating directory $dirname and Proceeding further with Checking \n\n";
+        `mkdir $dirname`;
+        `chmod 777 $dirname`;
+}
+open FH1,">$dirname/script.txt";
+print FH1 $0;
+close FH1;
+
+if (uc($ARGV[0]) eq 'POST'){
+        $diffprepost = "$dirname/"."diffprepost.txt";
+        open(DIFFFILE, ">$diffprepost");
+        print DIFFFILE "--- ($0) DIFF of PRE & POST CHECKS ---\n";
+   	`date >> /var/tmp/postcheck/diffprepost.txt`;
+        print DIFFFILE "\n\n";
+}
+while(<FH>){
+        chomp($_);
+        $cmd = $_;
+        @exec_cmd = split(",",$cmd);
+        $out_file = $exec_cmd[0];
+
+                $out_file=~s/[-\/ \|\{\}\^\$]{1,}/_/g;
+                $out_file=~s/[\`\"\'\r\n]//g; $out_file=~s/^_//;
+                chomp($out_file);
+
+                if($#exec_cmd >0){
+                                @all_cmd = split(",",$cmd);
+                                if($all_cmd[1] eq '>' || $all_cmd[1] eq '>>'){
+                                        $out_file = $all_cmd[2];
+                                        $run_cmd = $all_cmd[0];
+                                        $redirection =  $all_cmd[1];
+                                }
+                                $run_cmd = $all_cmd[0];
+                                $run_cmd=~s/\`/\\`/g;
+                            #  print "Executing $run_cmd and redirecting output to $dirname/$out_file.txt\n";
+                             # print "$run_cmd $redirection $dirname/$out_file.txt\n";
+                                `$run_cmd $redirection $dirname/$out_file.txt`;
+                                if (uc($ARGV[0]) eq 'POST'){
+                                        print DIFFFILE "========== DIFF of $dirname/$out_file.txt and  /var/tmp/precheck/$out_file.txt  ==========\n\n";
+                                        print DIFFFILE `diff $dirname/$out_file.txt /var/tmp/precheck/$out_file.txt`;
+                                        print DIFFFILE "========== END OF DIFF of $dirname/$out_file.txt and  /var/tmp/precheck/$out_file.txt ==========\n\n";
+                                }
+                                if($all_cmd[1] eq '>' || $all_cmd[1] eq '>>'){next;}
+                                if(-z "$dirname/$out_file.txt"){
+                                        print "No return value for $run_cmd\n";
+                                        next;
+                                }elsif($run_cmd=~/^ps/){
+                                        open LINECNT,"<$dirname/$out_file.txt";
+                                        @lncnt = <LINECNT>;
+                                        close LINECNT;
+                                        $no_of_lines = @lncnt;
+                                        if($no_of_lines<=2){
+                                                next;
+                                        }
+                                }
+
+                                for ($i=1;$i<=$#all_cmd;$i++){
+                                        @exec_cmd1 = split(",",$all_cmd[$i]);
+                                        foreach(@exec_cmd1){
+                                                $_=~s/[-\/ \|\{\}\^\$]{1,}/_/g;
+                                                $_=~s/[\`\"\']//g; $_=~s/^_//;
+                                                $out_file = $_;
+                                                chomp($out_file);
+                                        }
+                                        chomp($all_cmd[$i] );
+                                        $all_cmd[$i] =~s/\`/\\`/g;
+                                        `$all_cmd[$i] > $dirname/$out_file.txt`;
+                                        if (uc($ARGV[0]) eq 'POST'){
+                                                print DIFFFILE "========== DIFF of $dirname/$out_file.txt and  /var/tmp/precheck/$out_file.txt  ==========\n\n";
+                                                print DIFFFILE `diff $dirname/$out_file.txt /var/tmp/precheck/$out_file.txt`;
+                                                print DIFFFILE "========== END OF DIFF of $dirname/$out_file.txt and  /var/tmp/precheck/$out_file.txt ==========\n\n";
+                                        }
+                                }
+                }else{
+                                @all_cmd = split(",",$cmd);
+                                $run_cmd = $all_cmd[0];
+                                $run_cmd =~s/\`/\\`/g;
+                                #print "Executing $run_cmd and redirecting output to $dirname/$out_file.txt\n";
+                                # print "$run_cmd $redirection $dirname/$out_file.txt\n";
+
+                                `$run_cmd > $dirname/$out_file.txt`;
+                                if (uc($ARGV[0]) eq 'POST'){
+                                        print DIFFFILE "========== DIFF of $dirname/$out_file.txt and  /var/tmp/precheck/$out_file.txt ==========\n\n";
+                                        print DIFFFILE `diff $dirname/$out_file.txt /var/tmp/precheck/$out_file.txt`;
+                                        print DIFFFILE "========== END OF DIFF of $dirname/$out_file.txt and  /var/tmp/precheck/$out_file.txt ==========\n\n";
+                                }
+
+                }
+}
+close FH;
+if(-e "/var/tmp/solaris_cmds.txt"){
+	`rm /var/tmp/solaris_cmds.txt`;
+}
+if(-e "/var/tmp/aix_cmds.txt"){
+	`rm /var/tmp/aix_cmds.txt`;
+}
+</pre>

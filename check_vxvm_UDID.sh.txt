@@ -1,0 +1,19 @@
+---++ Doc Log 1427172892_01
+        $ Date: Mar 24 10:24:52 2015
+        $ Summary: check_vxvm_UDID.sh
+
+---++++ Details:
+<pre>
+#!/bin/ksh
+# vxudidlist.sh - Compare UDID values until upgrading to 6.x which has the "vxdisk -o udid list" command
+echo "Check excludes disks reported in online invalid|error|LVM|ZFS states"
+echo "DA_NAME DGNAME DDL_UID         PRIV_UDID  CHECK"
+
+for disk in `vxdisk -q list | egrep -v 'online invalid|error|LVM|ZFS' | awk '{ print $1 }'`
+do
+content=`vxdisk -v list $disk |egrep '(Device|group|udid)' |awk '{ print $2 }' |sed "s/name=/dgname:/g" |sed "s/udid_asl=//g" |tr -s "n" " "`
+echo "$content" | awk '{ if ($3==$4) print $1,"match" ; else print $1,"mismatch" }'
+done
+
+# END OF SCRIPT
+</pre>

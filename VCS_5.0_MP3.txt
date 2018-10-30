@@ -1,0 +1,52 @@
+---++ Doc Log 1241805969_01
+
+	$ Date: Fri May 08 18:06:09 2009
+	$ Summary: VCS 5.0 MP3
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+A number of new VCS 5.0 MP3 implementations/upgrades on Solaris have been experiencing a high volume of LLT informational messages being posted to /var/adm/messages. 
+
+These messages relate only to the low-priority network interfaces and do not affect the stability of the cluster. However, these messages may be being forwarded 
+
+Apr 18 19:09:53 vcshost1 llt: [ID 140958 kern.notice] LLT INFO V-14-1-10205 link 2 (nxge1) node 2 in trouble
+Apr 18 19:09:53 vcshost1 llt: [ID 860062 kern.notice] LLT INFO V-14-1-10024 link 2 (nxge1) node 2 active
+Apr 18 19:09:56 vcshost1 llt: [ID 140958 kern.notice] LLT INFO V-14-1-10205 link 2 (nxge1) node 2 in trouble
+Apr 18 19:09:56 vcshost1 llt: [ID 860062 kern.notice] LLT INFO V-14-1-10024 link 2 (nxge1) node 2 active
+Apr 18 19:10:19 vcshost1 llt: [ID 140958 kern.notice] LLT INFO V-14-1-10205 link 2 (nxge1) node 1 in trouble
+Apr 18 19:10:19 vcshost1 llt: [ID 860062 kern.notice] LLT INFO V-14-1-10024 link 2 (nxge1) node 1 active
+Apr 18 19:10:21 vcshost1 llt: [ID 140958 kern.notice] LLT INFO V-14-1-10205 link 2 (nxge1) node 2 in trouble
+Apr 18 19:10:21 vcshost1 llt: [ID 860062 kern.notice] LLT INFO V-14-1-10024 link 2 (nxge1) node 2 active
+
+Prior to 5.0MP3, (i.e. until 5.0MP1), LLT used broadcast heartbeats by default. Starting with 5.0MP3, Symantec has added the feature of one-way link detection in LLT. Instead of using broadcast heartbeats, LLT now uses unicast heartbeats. LLT transmits heartbeats on high-priority links every 0.5 secs and on low-priority links every 1 second. By default LLT considers a link to be in trouble for a specific cluster node if it has not processed a heartbeat within a 2 second period, as the heartbeat for the low priority links is less frequent the troubled condition is hit more often. And hence the corresponding LLT messages will be printed more often in the system log.
+
+It is possible to tune the period of time that is allowed to pass before a link is deemed to be in trouble. It is therefore recommended that for all Solaris systems running VCS 5.0 MP3 that this period should be set to 4 seconds. The following procedure details the steps involved.
+
+The LLT peertrouble tunable can be dynamically changed by issuing the following command on each node in the cluster:
+
+	/opt/VRTS/bin/lltconfig -T peertrouble:400
+
+To ensure that this change is permanently applied to the cluster nodes the following line must be added to /etc/llttab on all the nodes in the cluster.
+
+	set-timer      peertrouble:400
+
+It is possible to query the current LLT tunable values. For Example:
+
+# /opt/VRTS/bin/lltconfig -T query
+Current LLT timer values (.01 sec units):
+  heartbeat   = 50
+  heartbeatlo = 100
+  peertrouble = 400
+  peerinact   = 1600
+  oos         = 10
+  retrans     = 10
+  service     = 100
+  arp         = 30000
+  arpreq         = 3000
+  Current LLT flow control values (in packets):
+  lowwater  = 40
+
+The Solaris VCS 5.0 MP3 Installation and Best Practice Guide is in the process of being updated to include the above information.
+
+</pre>

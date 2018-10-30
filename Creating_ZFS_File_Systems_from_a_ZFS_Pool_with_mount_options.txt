@@ -1,0 +1,60 @@
+---++ Doc Log 1383620267_01
+        $ Date: Tue Nov 05:: 08:27:47
+
+---++++ Details:
+<pre>
+# zfs create bigpool/mynewfs
+
+root# zfs list bigpool/mynewfs
+
+NAME                USED  AVAIL  REFER  MOUNTPOINT
+
+bigpool/mynewfs  24.5K  4.81T  24.5K  /bigpool/mynewfs
+
+The mount point defaults to /bigpool/mynewfs..let's say that I don't like that; in this case I don't have any data in the new file system so I can destroy it and start again...
+
+root# cd bigpool/mynewfs
+
+root# zfs destroy bigpool/mynewfs
+
+cannot unmount '/bigpool/mynewfs': Device busy
+
+
+I did this just to see what happened: OK, I proved that I cannot delete a busy file system...now...try again...
+
+
+root# cd /
+
+root# zfs destroy bigpool/mynewfs
+
+root# zfs create -o mountpoint=/mynewfs bigpool/mynewfs
+
+root# zfs list bigpool/mynewfs
+
+NAME                USED  AVAIL  REFER  MOUNTPOINT
+
+bigpool/mynewfs  24.5K  4.81T  24.5K  /mynewfs
+
+
+Note that I am not having to edit /etc/vfstab or create the mount points: ZFS doesn't use /etc/vfstab unless you want it to (see  "Legacy Mountpoints" in the ZFS Administration Guide ) and ZFS creates the mount points for you as well..it is as simple as that.
+
+
+I am fickle; I now want to change the mount point without destroying the file system...
+
+
+root# zfs set mountpoint=/fickle bigpool/mynewfs
+
+root# zfs list bigpool/mynewfs
+
+NAME                USED  AVAIL  REFER  MOUNTPOINT
+
+bigpool/mynewfs  24.5K  4.81T  24.5K  /fickle
+
+Job done. By the way, this won't work if the file system is busy...see below..
+
+root# cd /fickle
+
+root# zfs set mountpoint=/ohnoyoudont bigpool/mynewfs
+
+cannot unmount '/fickle': Device busy
+</pre>

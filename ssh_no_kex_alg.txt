@@ -1,0 +1,57 @@
+---++ Doc Log 1383634384_01
+        $ Date: Tue Nov 05:: 12:23:04
+        $ Summary: ssh no kex alg
+
+---++++ Details:
+<pre>
+Faced below issue while performing the change.
+==============================================
+
+As part of change, performed the Sanity Reboot of the host as uptime was more than 750 days. After the sanity reboot is completed, able to login to host thru console and when tried to do ssh to the host, got below error.
+
+$ ssh test13
+no kex alg
+
+
+$ ssh test13
+no kex alg
+
+
+Noticed in Console that below errors are getting generated, whenever we are trying to do ssh to the host.
+
+Aug 24 23:38:43 test13 sshd[4643]: fatal: no common kex alg: client 'diffie-hellman-group1-sha1,diffie-hellman-group1-sha14,diffie-hellman-group-exchange-sha1', server 'gss-group1-sha1-toWM5Slw5Ew8Mqkay+al2g=='
+
+Aug 24 23:38:57 test13 sshd[4713]: fatal: no common kex alg: client 'diffie-hellman-group1-sha1,diffie-hellman-group1-sha14,diffie-hellman-group-exchange-sha1', server 'gss-group1-sha1-toWM5Slw5Ew8Mqkay+al2g=='
+
+
+Issue was fixed by performing the below activities/commands.
+===========================================================
+
+# ls -l /etc/ssh/ssh_host_* 
+
+# cp -p /etc/ssh/ssh_host_dsa_key /etc/ssh/ssh_host_dsa_key-2408 
+
+# cp -p /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key-2408 
+
+# mv /etc/ssh/ssh_host_dsa_key.pub /etc/ssh/ssh_host_dsa_key.pub_240813 
+
+# mv /etc/ssh/ssh_host_rsa_key.pub /etc/ssh/ssh_host_rsa_key.pub_240813 
+
+# rm /etc/ssh/ssh_host_dsa_key 
+
+# rm /etc/ssh/ssh_host_rsa_key 
+
+# ls -l /etc/ssh/ssh_host_* 
+
+ rw----r--   1 root     root         668 May 31  2010 /etc/ssh/ssh_host_dsa_key-2408 -rw-r--r--   1 root     root         603 Aug 24 23:53 /etc/ssh/ssh_host_dsa_key.pub_240813 -rw----r--   1 root     root         883 May 31  2010 /etc/ssh/ssh_host_rsa_key-2408 -rw-r--r--   1 root     root         223 Aug 24 23:55 /etc/ssh/ssh_host_rsa_key.pub_240813
+
+
+# /lib/svc/method/sshd -c (to create new rsa/dsahost pair key)
+
+   Creating new rsa public/private host key pair
+
+   Creating new dsa public/private host key pair 
+
+# svcadm restart ssh
+
+</pre>

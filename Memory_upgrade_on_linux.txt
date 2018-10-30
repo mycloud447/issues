@@ -1,0 +1,78 @@
+---++ Doc Log 1265544322_01
+
+	$ Date: Sun Feb 07 12:05:22 2010
+	$ Summary: Memory upgrade on linux
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+Volume Block Device (minor No)was changed after system reboot.
+=============================================================
+
+Affected Volumes
+================
+/dev/mapper/vg00-LMDS08--03
+/dev/mapper/vg00-u01
+/dev/mapper/vg00-u01--01
+
+To Check Volume Block Device 
+============================
+# lvdisplay /dev/vg00/LMDS08-03
+  --- Logical volume ---
+  LV Name                /dev/vg00/LMDS08-03
+  VG Name                vg00
+  LV UUID                2ioPs7-poQY-6f7Y-qZ9g-bj4F-VY4M-UXlJ06
+  LV Write Access        read/write
+  LV Status              available
+  # open                 0
+  LV Size                310.00 GB
+  Current LE             39680
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     0
+  Block device           253:8
+
+# ls -ld /dev/mapper/vg00-LMDS08--03
+brw-------  1 root root 253, 6 Oct 23 16:55 /dev/mapper/vg00-LMDS08--03
+
+Tried vgchange, but no luck, same issue.
+========================================
+# vgchange -ay
+  13 logical volume(s) in volume group "vg00" now active
+#
+
+Not able to deactivate vg00 are some volumes are already online. Hence deactivated/activated below volumes to fix the issue.
+
+To Deactivate Volumes
+=====================
+# lvchange -a n /dev/vg00/LMDS08-03
+# lvchange -a n /dev/vg00/u01
+# lvchange -a n /dev/vg00/u01-01
+
+To Activate Volumes
+===================
+# lvchange -a y /dev/vg00/u01
+# lvchange -a y /dev/vg00/u01-01
+# lvchange -a y /dev/vg00/LMDS08-03
+
+
+129s:/sbin # lvdisplay /dev/vg00/LMDS08-03
+  --- Logical volume ---
+  LV Name                /dev/vg00/LMDS08-03
+  VG Name                vg00
+  LV UUID                2ioPs7-poQY-6f7Y-qZ9g-bj4F-VY4M-UXlJ06
+  LV Write Access        read/write
+  LV Status              available
+  # open                 0
+  LV Size                310.00 GB
+  Current LE             39680
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     0
+  Block device           253:8
+
+129s:/sbin # ls -l /dev/mapper/vg00-LMDS08--03
+brw-------  1 root root 253, 8 Feb  7 11:43 /dev/mapper/vg00-LMDS08--03
+
+*****Enjoy*****
+</pre>

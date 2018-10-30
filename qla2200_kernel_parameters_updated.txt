@@ -1,0 +1,42 @@
+---++ Doc Log 1132210903_01
+
+	$ Date: Thu Nov 17 07:01:43 2005
+	$ Summary:  qla2200 kernel parameters updated
+
+---++++ Details:
+
+numerous repeated errors on one of the HBAs.  after HEAT 
+report from EMC, decided to go ahead and update following
+parameters in the /kernel/drv/qla2200.conf file;
+
+hba0-connection-option - currently set to 2 which implies 
+Loop is preferred otherwise Point-to-Point. As we use only 
+Point-to-Point, this should be set to 1. This setting 
+should also eliminate the warnings related to the hard-loop-ID
+
+hba0-execution-throttle - currently set at 16, EMC 
+recommends 20. This change should not cause any performance 
+problems on the disk subsystem but may prevent commands 
+from backing up on the server.
+
+hba0-fc-tape - currently set to 1 which implies that tape 
+support is enabled. This should be disabled (set to 0)
+
+hba0-persistent-binding-configuration - current set to 0. 
+As persistant binding is in use, this should be set to 1.
+
+hba0-extended-logging - currently enabled (set to 1). 
+Unless this has been turned on for a specific reason it 
+should be disabled (set to 0)
+
+errors involved;
+Oct 17 20:13 on HBA0 -- known fabric refresh -- offline/online with retryable error
+Oct 17 20:53 on HBA1 -- known fabric refresh -- offline/online with retryable error
+
+Oct 18 01:08 on HBA0 -- retryable read error
+Oct 19 03:24 on HBA0 -- offline/online with retryable error
+Oct 19 12:53 on HBA0 -- offline/online with retryable error
+Oct 20 00:37 on HBA0 -- offline/online with retryable error
+Oct 20 11:54 on HBA0 -- offline/online with retryable error
+Oct 20 14:23 on HBA0 -- retryable write error.
+

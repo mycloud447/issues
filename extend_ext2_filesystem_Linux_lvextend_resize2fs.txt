@@ -1,0 +1,52 @@
+---++ Doc Log 1210943404_01
+
+	$ Date: May 16 13:10:04 2008
+	$ Summary: extend ext2 filesystem Linux lvextend resize2fs
+	$ On-Call: UNSPECIFIED
+
+---++++ Details:
+<pre>
+df -h /u03/oradata/LMDS03
+/dev/mapper/vg00-u03  113G  107G  455M 100% /u03/oradata/LMDS03
+
+umount /u03/oradata/LMDS03
+
+vgdisplay vg00
+
+look for free PE / Size              To see space is on volume 
+
+--- Volume group ---
+  VG Name               vg00
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  17
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                255
+  Cur LV                13
+  Open LV               13
+  Max PV                255
+  Cur PV                1
+  Act PV                1
+  VG Size               1.36 TB
+  PE Size               8.00 MB
+  Total PE              178673
+  Alloc PE / Size       48508 / 378.97 GB
+  Free  PE / Size       130165 / 1016.91 GB
+  VG UUID               f8jzpR-L3al-MvC5-dWLW-sZPz-htZy-X4BmZD
+
+cd /dev/vg00
+ls -l u03
+lrwxrwxrwx  1 root root 20 May 16 12:19 u03 -> /dev/mapper/vg00-u03
+
+lvextend -L +50G /dev/vg00/u03
+
+e2fsck -f /dev/vg00/u03
+
+resize2fs /dev/vg00/u03
+
+mount /u03/oradata/LMDS03
+
+df -h /u03/oradata/LMDS03
+/dev/mapper/vg00-u03  162G  107G   49G  69% /u03/oradata/LMDS03
+</pre>

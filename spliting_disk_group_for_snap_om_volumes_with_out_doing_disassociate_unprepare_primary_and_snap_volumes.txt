@@ -1,0 +1,240 @@
+---++ Doc Log 1383609903_01
+        $ Date: Tue Nov 05:: 05:35:03
+        $ Summary: Spliting disk group for snap/om volumes with out doing disassociate/unprepare primary and snap volumes
+
+---++++ Details:
+<pre>
+-bash-4.1#
+-bash-4.1# uname -r
+5.11
+
+-bash-4.1# modinfo |grep vx
+ 65 fffffffff798c000  5cec0 282   1  vxdmp (VxVM 6.0.1 Multipathing Driver)
+ 99 fffffffff7dae000 3877b8 283   1  vxio (VxVM 6.0.1 I/O driver)
+100 fffffffff8107000   12b0 284   1  vxspec (VxVM 6.0.1 control/status drive)
+273 fffffffff81cf418    d18 281   1  vxportal (VxFS 6.0.100.0 Solaris OS 5.11 )
+274 fffffffff875b000 282518  25   1  vxfs (VxFS 6.0.100.0 Solaris OS 5.11 )
+
+-bash-4.1# vxdisk -oalldgs list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c1d0s2       auto:none       -            -            online invalid
+c1d1s2       auto:none       -            -            online invalid
+c7d1s2       auto:none       -            -            online invalid
+disk_0       auto:cdsdisk    -            -            online
+disk_1       auto:ZFS        -            -            ZFS
+disk_2       auto:cdsdisk    -            -            online
+
+-bash-4.1# vxdg init db_db4prod disk01=disk_0
+-bash-4.1# vxdg -g db_db4prod adddisk disk02=disk_2
+-bash-4.1# vxdisk -oalldgs list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c1d0s2       auto:none       -            -            online invalid
+c1d1s2       auto:none       -            -            online invalid
+c7d1s2       auto:none       -            -            online invalid
+disk_0       auto:cdsdisk    disk01       db_db4prod   online
+disk_1       auto:ZFS        -            -            ZFS
+disk_2       auto:cdsdisk    disk02       db_db4prod   online
+
+
+Preparing Primary volume
+-bash-4.1#  vxassist -g db_db4prod make vol_db4prod1 100m alloc=disk01
+-bash-4.1# vxsnap -g db_db4prod prepare vol_db4prod1 ndcomirs=1 alloc=disk01
+
+-bash-4.1# vxprint -htg db_db4prod
+DG NAME         NCONFIG      NLOG     MINORS   GROUP-ID
+ST NAME         STATE        DM_CNT   SPARE_CNT         APPVOL_CNT
+DM NAME         DEVICE       TYPE     PRIVLEN  PUBLEN   STATE
+RV NAME         RLINK_CNT    KSTATE   STATE    PRIMARY  DATAVOLS  SRL
+RL NAME         RVG          KSTATE   STATE    REM_HOST REM_DG    REM_RLNK
+CO NAME         CACHEVOL     KSTATE   STATE
+VT NAME         RVG          KSTATE   STATE    NVOLUME
+V  NAME         RVG/VSET/CO  KSTATE   STATE    LENGTH   READPOL   PREFPLEX UTYPE
+PL NAME         VOLUME       KSTATE   STATE    LENGTH   LAYOUT    NCOL/WID MODE
+SD NAME         PLEX         DISK     DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+SV NAME         PLEX         VOLNAME  NVOLLAYR LENGTH   [COL/]OFF AM/NM    MODE
+SC NAME         PLEX         CACHE    DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+DC NAME         PARENTVOL    LOGVOL
+SP NAME         SNAPVOL      DCO
+EX NAME         ASSOC        VC                       PERMS    MODE     STATE
+SR NAME         KSTATE
+
+dg db_db4prod   default      default  14000    1368522818.25.vcs2
+
+dm disk01       disk_0       auto     65536    2031232  -
+dm disk02       disk_2       auto     65536    2031232  -
+
+v  vol_db4prod1 -            ENABLED  ACTIVE   204800   SELECT    -        fsgen
+pl vol_db4prod1-01 vol_db4prod1 ENABLED ACTIVE 204800   CONCAT    -        RW
+sd disk01-01    vol_db4prod1-01 disk01 0       204800   0         disk_0   ENA
+dc vol_db4prod1_dco vol_db4prod1 vol_db4prod1_dcl
+v  vol_db4prod1_dcl -        ENABLED  ACTIVE   67840    SELECT    -        gen
+pl vol_db4prod1_dcl-01 vol_db4prod1_dcl ENABLED ACTIVE 67840 CONCAT -      RW
+sd disk01-02    vol_db4prod1_dcl-01 disk01 204800 67840 0         disk_0   ENA
+
+
+-bash-4.1# vxdisk -oalldgs list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c1d0s2       auto:none       -            -            online invalid
+c1d1s2       auto:none       -            -            online invalid
+c7d1s2       auto:none       -            -            online invalid
+disk_0       auto:cdsdisk    disk01       db_db4prod   online
+disk_1       auto:ZFS        -            -            ZFS
+disk_2       auto:cdsdisk    disk02       db_db4prod   online
+
+Preparing snap/om volume
+
+-bash-4.1# vxassist -g db_db4prod make snap_db4prod1 100m alloc=disk02
+-bash-4.1# vxsnap -g db_db4prod prepare snap_db4prod1 ndcomirs=1 alloc=disk02
+-bash-4.1# vxprint -htv
+Disk group: db_db4prod
+
+V  NAME         RVG/VSET/CO  KSTATE   STATE    LENGTH   READPOL   PREFPLEX UTYPE
+PL NAME         VOLUME       KSTATE   STATE    LENGTH   LAYOUT    NCOL/WID MODE
+SD NAME         PLEX         DISK     DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+SV NAME         PLEX         VOLNAME  NVOLLAYR LENGTH   [COL/]OFF AM/NM    MODE
+SC NAME         PLEX         CACHE    DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+DC NAME         PARENTVOL    LOGVOL
+SP NAME         SNAPVOL      DCO
+EX NAME         ASSOC        VC                       PERMS    MODE     STATE
+
+v  snap_db4prod1 -           ENABLED  ACTIVE   204800   SELECT    -        fsgen
+pl snap_db4prod1-01 snap_db4prod1 ENABLED ACTIVE 204800 CONCAT    -        RW
+sd disk02-01    snap_db4prod1-01 disk02 0      204800   0         disk_2   ENA
+dc snap_db4prod1_dco snap_db4prod1 snap_db4prod1_dcl
+v  snap_db4prod1_dcl -       ENABLED  ACTIVE   67840    SELECT    -        gen
+pl snap_db4prod1_dcl-01 snap_db4prod1_dcl ENABLED ACTIVE 67840 CONCAT -    RW
+sd disk02-02    snap_db4prod1_dcl-01 disk02 204800 67840 0        disk_2   ENA
+
+v  vol_db4prod1 -            ENABLED  ACTIVE   204800   SELECT    -        fsgen
+pl vol_db4prod1-01 vol_db4prod1 ENABLED ACTIVE 204800   CONCAT    -        RW
+sd disk01-01    vol_db4prod1-01 disk01 0       204800   0         disk_0   ENA
+dc vol_db4prod1_dco vol_db4prod1 vol_db4prod1_dcl
+v  vol_db4prod1_dcl -        ENABLED  ACTIVE   67840    SELECT    -        gen
+pl vol_db4prod1_dcl-01 vol_db4prod1_dcl ENABLED ACTIVE 67840 CONCAT -      RW
+sd disk01-02    vol_db4prod1_dcl-01 disk01 204800 67840 0         disk_0   ENA
+
+
+-bash-4.1# vxsnap -g db_db4prod -vx list
+-bash-4.1# vxsnap -g db_db4prod make source=vol_db4prod1/snapvol=snap_db4prod1/syncing=on
+
+-bash-4.1#  vxsnap -g db_db4prod -vx list
+NAME          DG         OBJTYPE SNAPTYPE PARENT     PARENTDG   SNAPDATE         CHANGED_DATA SYNCED_DATA
+vol_db4prod1  db_db4prod vol     -        -          -          - -              - -          100M (100%)
+snap_db4prod1 db_db4prod vol     fullinst vol_db4prod1 db_db4prod 2013/05/14 14:48 0 (0%)     100M (100%)
+
+-bash-4.1# vxsnap -g db_db4prod refresh snap_db4prod1 source=vol_db4prod1
+-bash-4.1# vxsnap -g db_db4prod -vx list
+NAME          DG         OBJTYPE SNAPTYPE PARENT     PARENTDG   SNAPDATE         CHANGED_DATA SYNCED_DATA
+vol_db4prod1  db_db4prod vol     -        -          -          - -              - -          100M (100%)
+snap_db4prod1 db_db4prod vol     fullinst vol_db4prod1 db_db4prod 2013/05/14 14:49 0 (0%)     100M (100%)
+ 
+-bash-4.1#
+-bash-4.1# vxdg list
+NAME         STATE           ID
+db_db4prod   enabled,cds          1368522818.25.vcs2
+
+-bash-4.1# vxdisk -oalldgs list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c1d0s2       auto:none       -            -            online invalid
+c1d1s2       auto:none       -            -            online invalid
+c7d1s2       auto:none       -            -            online invalid
+disk_0       auto:cdsdisk    disk01       db_db4prod   online
+disk_1       auto:ZFS        -            -            ZFS
+disk_2       auto:cdsdisk    disk02       db_db4prod   online
+
+
+Spliting snap volume
+
+-bash-4.1# vxdg split db_db4prod dgSnap4prod snap_db4prod1
+-bash-4.1# vxdg list
+NAME         STATE           ID
+db_db4prod   enabled,cds          1368522818.25.vcs2
+dgSnap4prod  enabled,cds          1368523232.26.vcs2
+
+-bash-4.1# vxinfo -g dgSnap4prod
+snap_db4prod1  fsgen    Started
+snap_db4prod1_dcl gen      Started
+
+-bash-4.1# vxinfo -g db_db4prod
+vol_db4prod1   fsgen    Started
+vol_db4prod1_dcl gen      Started
+
+-bash-4.1# vxsnap -g db_db4prod -vx list
+NAME          DG         OBJTYPE SNAPTYPE PARENT     PARENTDG   SNAPDATE         CHANGED_DATA SYNCED_DATA
+vol_db4prod1  db_db4prod vol     -        -          -          - -              - -          100M (100%)
+snap_db4prod1 dgSnap4prod vol    fullinst vol_db4prod1 db_db4prod 2013/05/14 14:49 0 (0%)     100M (100%)
+
+-bash-4.1#  vxsnap -g db_db4prod refresh snap_db4prod1 source=vol_db4prod1
+VxVM vxsnap ERROR V-5-1-7015 Volume snap_db4prod1 doesn't exist  -----> Snap has been moved in to differed dg hence we are getting error.
+
+-bash-4.1#
+-bash-4.1#
+-bash-4.1# vxdisk -oalldgs list
+DEVICE       TYPE            DISK         GROUP        STATUS
+c1d0s2       auto:none       -            -            online invalid
+c1d1s2       auto:none       -            -            online invalid
+c7d1s2       auto:none       -            -            online invalid
+disk_0       auto:cdsdisk    disk01       db_db4prod   online
+disk_1       auto:ZFS        -            -            ZFS
+disk_2       auto:cdsdisk    disk02       dgSnap4prod  online
+
+
+-bash-4.1# vxrecover -s -g dgSnap4prod
+-bash-4.1# vxrecover -s -g db_db4prod
+-bash-4.1#
+-bash-4.1#
+
+
+Joining diskgroups
+
+-bash-4.1# vxdg join dgSnap4prod db_db4prod
+-bash-4.1# vxdg list
+NAME         STATE           ID
+db_db4prod   enabled,cds          1368522818.25.vcs2
+
+-bash-4.1# vxinfo -g db_db4prod
+vol_db4prod1   fsgen    Started
+snap_db4prod1  fsgen    Started
+vol_db4prod1_dcl gen      Started
+snap_db4prod1_dcl gen      Started
+
+-bash-4.1#  vxrecover -s -g db_db4prod
+
+-bash-4.1# vxsnap -g db_db4prod -vx list
+NAME          DG         OBJTYPE SNAPTYPE PARENT     PARENTDG   SNAPDATE         CHANGED_DATA SYNCED_DATA
+vol_db4prod1  db_db4prod vol     -        -          -          - -              - -          100M (100%)
+snap_db4prod1 db_db4prod vol     fullinst vol_db4prod1 db_db4prod 2013/05/14 14:49 0 (0%)     100M (100%)
+
+
+-bash-4.1# vxsnap -g db_db4prod refresh snap_db4prod1 source=vol_db4prod1
+
+-bash-4.1# vxprint -htv
+Disk group: db_db4prod
+
+V  NAME         RVG/VSET/CO  KSTATE   STATE    LENGTH   READPOL   PREFPLEX UTYPE
+PL NAME         VOLUME       KSTATE   STATE    LENGTH   LAYOUT    NCOL/WID MODE
+SD NAME         PLEX         DISK     DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+SV NAME         PLEX         VOLNAME  NVOLLAYR LENGTH   [COL/]OFF AM/NM    MODE
+SC NAME         PLEX         CACHE    DISKOFFS LENGTH   [COL/]OFF DEVICE   MODE
+DC NAME         PARENTVOL    LOGVOL
+SP NAME         SNAPVOL      DCO
+EX NAME         ASSOC        VC                       PERMS    MODE     STATE
+
+v  snap_db4prod1 -           ENABLED  ACTIVE   204800   SELECT    -        fsgen
+pl snap_db4prod1-01 snap_db4prod1 ENABLED ACTIVE 204800 CONCAT    -        RW
+sd disk02-01    snap_db4prod1-01 disk02 0      204800   0         disk_2   ENA
+dc snap_db4prod1_dco snap_db4prod1 snap_db4prod1_dcl
+v  snap_db4prod1_dcl -       ENABLED  ACTIVE   67840    SELECT    -        gen
+pl snap_db4prod1_dcl-01 snap_db4prod1_dcl ENABLED ACTIVE 67840 CONCAT -    RW
+sd disk02-02    snap_db4prod1_dcl-01 disk02 204800 67840 0        disk_2   ENA
+sp vol_db4prod1_snp snap_db4prod1 snap_db4prod1_dco
+
+v  vol_db4prod1 -            ENABLED  ACTIVE   204800   SELECT    -        fsgen
+pl vol_db4prod1-01 vol_db4prod1 ENABLED ACTIVE 204800   CONCAT    -        RW
+sd disk01-01    vol_db4prod1-01 disk01 0       204800   0         disk_0   ENA
+dc vol_db4prod1_dco vol_db4prod1 vol_db4prod1_dcl
+v  vol_db4prod1_dcl -        ENABLED  ACTIVE   67840    SELECT    -        gen
+pl vol_db4prod1_dcl-01 vol_db4prod1_dcl ENABLED ACTIVE 67840 CONCAT -      RW
+sd disk01-02    vol_db4prod1_dcl-01 disk01 204800 67840 0         disk_0   ENA
+sp snap_db4prod1_snp vol_db4prod1 vol_db4prod1_dco
+</pre>

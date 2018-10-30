@@ -1,0 +1,108 @@
+---++ Doc Log 1429490900_01
+        $ Date: Apr 20 06:18:20 2015
+        $ Summary: Veritas diskgroup recovery process
+
+---++++ Details:
+<pre>
+Below are the details and Disk group recovery plan
+===================================================
+
+# vxdisk -o alldgs list |grep sandg | awk '{print $1}'| while read disk
+
+> do
+
+>  vxdisk list $disk | grep "group:"
+
+> done
+
+group:     name=sandg id=1103066540.1254.testserver
+
+group:     name=sandg id=1103066540.1254.testserver
+
+group:     name=sandg id=1103066540.1254.testserver
+
+group:     name=sandg id=1103066540.1254.testserver
+
+group:     name=sandg id=1103066540.1254.testserver
+
+group:     name=sandg id=1103066540.1254.testserver
+
+group:     name=sandg id=1103066540.1254.testserver
+
+group:     name=sandg id=1103066540.1254.testserver
+
+group:     name=sandg id=1103066540.1254.testserver
+
+#
+
+# vxdg -tfC import sandg
+
+VxVM vxconfigd ERROR V-5-1-7935 Disk group sandg: update failed: Disk group has no valid configuration copies
+
+VxVM vxconfigd ERROR V-5-1-7934 Disk group sandg: Disabled by errors
+
+VxVM vxdg ERROR V-5-1-10978 Disk group sandg: import failed: 
+
+Disk group has no valid configuration copies
+
+#
+
+# /usr/sbin/vxdg -o selectcp=1103066540.1254.testserver import sandg
+
+VxVM vxconfigd ERROR V-5-1-13087 Unable to find a diskgroup configuration copy in specified disk: 1103066540.1254.testserver
+
+VxVM vxdg ERROR V-5-1-10978 Disk group sandg: import failed:
+
+Diskgroup configuration copy disabled on selected disk. Please select another disk which has config copy enab
+
+# 
+
+Below is the plan
+
+/usr/lib/vxvm/diag.d/vxprivutil dumpconfig/dev/vx/rdmp/<disk enable config> > /tmp/dumpconfig.out   >>>>>>>>>>>>>>>>>> collect dumpconfig form the enabled disk copies (vxdisk list <disk> |grep enable) 
+
+ 1) We have to delete all the “dgid’s” from all the disk which are within the Problematic Disk Group (sandg)
+
+ Note :: we are “/dev/vx/rdmp/” because we have DMP for multipathing.
+
+for i in `vxdisk -o alldgs list| grep –i sandg | awk '{print $1}'`
+
+> do
+
+> /etc/vx/diag.d/vxprivutil -D set /dev/vx/rdmp/"$i"s3 dg_name=""
+> /etc/vx/diag.d/vxprivutil -D set /dev/vx/rdmp/"$i"s3 dgid=""      >>>>>>>>>> (if the disk format with sliced formate then we need to provie s3 other wise not require in both cases) 
+> done
+
+2) Verify the output vxdisk -oalldgs list
+
+In the output all the disks which are under sandg will be in online and those disk do not have any disk group.
+
+3. Now create the dg again and add the all the disk into the disk group in the similar fashion as those were before like "emc0_disk=san_allocated_name"
+
+# mv /etc/vx/disk.info /etc/vx/disk.info_backup
+
+# mv /etc/vx/jbod.info /etc/vx/jbod.info_backup
+
+# mv /dev/vx/rdmp /dev/vx/rdmp_old
+
+# mv /dev/vx/dmp /dev/vx/dmp_old
+# vxconfigd -k -m enable
+# vxdctl initdmp
+
+# vxdg init sandg 002testserversandn=emc0_00c9 006testserversandn=emc0_00d9 003testserversandn=emc0_00dd 001testserversandn=emc0_00cd 005testserversandn=emc0_00d5 004testserversandn=emc0_00d1 009testserversandn=emc0_00e9 007testserversandn=emc0_00e1  008testserversandn=emc0_00e5 cds=off
+
+4. Now collecting the information from the “dumpconfig.out” file which I took from a Disk which was having the Enable configuration earlier.
+
+# cat /tmp/dumpconfig.out | vxprint -D – -mvphsr > /var/vxmake.out
+
+5. Now we will create the whole Disk group configuration using the “vxmake” command from the “vxmake.out” file which we have build from the “dumpconfig.out” file. Here it will put all the volume(s)/plex(s)/Sub Disk(s) back to the configuration including their original layout.
+
+# vxmake -g sandg -d /var/vxmake.out
+# vxprint -htg sandg
+
+Do start all volumes  and then mount all the File systems
+
+# vxvol -g  sandg init active <vol>
+# vxvol -g  sandg start <vol>
+# mountall
+</pre>

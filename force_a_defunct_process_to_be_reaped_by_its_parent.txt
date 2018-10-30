@@ -1,0 +1,51 @@
+---++ Doc Log 1383884750_01
+        $ Date: Nov 08 09:55:50 2013
+        $ Summary: force a defunct process to be reaped by its parent
+
+---++++ Details:
+<pre>
+# ps -ef | grep -c defunct
+606
+
+# ps -ef -o 'pid,comm' | awk '/<defunct>/{print $1}' | xargs preap
+# ps -ef | grep -c defunct
+# 
+
+Preap command availability
+==========================
+
+SunOS/5.10/i386	/usr/bin
+SunOS/5.10/sparc	/usr/bin
+SunOS/5.9/sparc	/usr/bin
+
+============================
+AIX/4.2/007251A34C00
+CYGWIN_NT-5.1/1.5.18_0.132-4-2_/i686
+Darwin/7.9.0/powerpc
+FreeBSD/4.4-RELEASE/i386
+FreeBSD/5.0-RELEASE/i386
+FreeBSD/5.4-RELEASE/alpha
+HP-UX/B.10.20/9000-712
+HP-UX/B.11.11/9000-800
+HP-UX/B.11.23/9000-800
+HP-UX/B.11.23/ia64
+IRIX64/6.5/IP27
+Linux/2.4.17-64/parisc64
+Linux/2.4.18-e.43smp/ia64
+Linux/2.4.19-4a/ppc
+Linux/2.4.19-xfs-gentoo-cd/alpha
+Linux/2.4.21-sgi305rp05041818_10155/ia64
+Linux/2.4.27-2-generic/alpha
+Linux/2.4.27-mipscvs-20040814/mips
+Linux/2.4.28-sparc-r1/sparc64
+Linux/2.6.5-7.155.29-default/ia64
+Linux/2.6.9-11.ELsmp/i686
+Linux/2.6.9-11.ELsmp/x86_64
+NetBSD/1.6/i386
+OSF1/V4.0/alpha
+OSF1/V5.1/alpha
+OpenBSD/3.2/i386
+SunOS/5.7/sparc
+SunOS/5.8/sparc
+UWIN_XP/4.0.0_5.1/i686
+</pre>

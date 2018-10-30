@@ -1,0 +1,26 @@
+---++ Doc Log 1383886963_01
+        $ Date: Nov 08 10:32:43 2013
+        $ Summary: Missing ISCSI LUN after rebooting the Server.
+
+---++++ Details:
+<pre>
+O.S: solaris 10
+
+Problem Description :-
+After sanity reboot, ISCSI LUN are missing and not shown in format command output.
+
+Solution: -  
+
+Reconfigure the ISCSI configuration with ISCSI setting before reboot.
+
+#svcadm enable iscsi_initiator
+#iscsiadm modify initiator-node -N iqn.1986-03.com.sun:au07qap0d0tels2
+#iscsiadm modify initiator-node --authentication CHAP
+#iscsiadm modify initiator-node --CHAP-name oss_ait
+#iscsiadm modify initiator-node --CHAP-secret
+Enter secret: adeiscat.3028
+Re-enter secret: adeiscat.3028
+#iscsiadm modify discovery --static enable
+#iscsiadm add static-config iqn.1992-08.com.netapp:emomni0077c01:ossait,10.97.68.1:3260
+#devfsadm -v -i iscsi
+</pre>

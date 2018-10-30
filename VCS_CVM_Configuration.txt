@@ -1,0 +1,39 @@
+---++ Doc Log 1217318216_01
+
+	$ Date: Tue Jul 29:: 07:56:56
+	$ Summary: VCS CVM Configuration
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+CVM/CFS Configuration
+CVM Volume Name - d11_vol01
+Mount Point - /u53/oradata
+
+Adding CVM Volume
+haconf -makerw
+hares -add d11_sdg CVMVolDg orabin_shared
+hares -modify d11_sdg Critical 0
+hares -modify d11_sdg CVMDiskGroup d11dg
+hares -modify d11_sdg CVMVolume "d11_vol01"
+hares -modify d11_sdg CVMActivation "sw"
+hares -modify d11_sdg Enabled 1
+
+Adding CFS Mount
+hares -add d11_u53oradata CFSMount orabin_shared
+hares -modify d11_u53oradata Critical 0
+hares -modify d11_u53oradata MountPoint "/u53/oradata"
+hares -modify d11_u53oradata BlockDevice "/dev/vx/dsk/d11dg/d11_vol01"
+hares -modify d11_u53oradata MountOpt "rw"
+hares -modify d11_u53oradata Enabled 1
+
+Link Resource
+hares -link d11_u53oradata d11_sdg
+
+Save Configuration
+haconf -dump -makero
+
+Bring the resource online     
+hares -online d11_u53oradata -sys nsufd419                
+hares -online d11_sdg -sys nsufd418
+</pre>

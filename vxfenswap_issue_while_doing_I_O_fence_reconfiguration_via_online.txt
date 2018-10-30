@@ -1,0 +1,44 @@
+---++ Doc Log 1383611346_01
+        $ Date: Tue Nov 05:: 05:59:06
+        $ Summary: vxfenswap issue while doing I/O fence reconfiguration via online
+
+---++++ Details:
+<pre>
+Problem
+========
+
+I/O fencing issue while doing reconfiguration from DMX to VMAX
+
+Error
+=====
+
+$ /opt/VRTSvcs/vxfen/bin/vxfenswap -g vmax_bss_rac_fencdg
+
+Veritas vxfenswap version 5.1SP1RP2 Solaris
+
+The logfile generated for vxfenswap is /var/VRTSvcs/log/vxfen/vxfenswap.log.18050
+
+Please Wait...
+
+Did not find /etc/vxfenmode.test file, copying /etc/vxfenmode to /etc/vxfenmode.test
+Invalid entry for vxfen_mode found in /etc/vxfenmode.test file.
+
+Logs are showing.....!!!!
+
+
+Saturday March 23 22:14:51 EST 2013 Current fencing mode: TDTJ3
+Saturday March 23 22:14:51 EST 2013 Fencing mode specified in /etc/vxfenmode.test: scsi3
+
+Solution
+========
+modify the below script
+# cp -p /etc/vxfen.d/script/vxfen_scriptlib.sh /etc/vxfen.d/script/vxfen_scriptlib.sh.org
+# vi /etc/vxfen.d/script/vxfen_scriptlib.sh
+# TR="/usr/xpg4/bin/tr" to TR="/usr/bin/tr"
+
+$ echo SCSI3|/usr/xpg4/bin/tr '[A-Z]' '[a-z]'
+TDTJ3
+$ echo SCSI3|/usr/bin/tr '[A-Z]' '[a-z]'
+scsi3
+
+</pre>

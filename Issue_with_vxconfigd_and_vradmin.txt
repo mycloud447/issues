@@ -1,0 +1,134 @@
+---++ Doc Log 1253700540_01
+
+	$ Date: Wed Sep 23 10:09:00 2009
+	$ Summary: Issue with vxconfigd and vradmin on test192
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+vradmin reporting vxconfigd disabled. 
+But actually vxconfigd was running on both primary and secondary VVR hosts.
+
+(root_xyz192) @ / # vradmin -l repstatus sybdg01_192_rvg
+Replicated Data Set: sybdg01_192_rvg
+Primary:
+  Host name:          csrep192
+  RVG name:           sybdg01_192_rvg
+  DG name:            sybdg01_192
+  RVG state:          enabled for I/O
+  Data volumes:       25
+  SRL name:           srl_log
+  SRL size:           33.71 G
+  Total secondaries:  1
+
+Secondary:
+  Host name:          syrep192
+  RVG name:           sybdg01_192_rvg
+  DG name:            sybdg01_192
+  Rlink from Primary: to_syrep192
+  Rlink to Primary:   csrep192
+  Configured mode:    asynchronous
+  Latency protection: off
+  SRL protection:     autodcm
+  Data status:        consistent, up-to-date
+  Replication status: replicating (connected)
+  Current mode:       asynchronous
+  Logging to:         SRL
+
+Config Errors:
+  csrep192:           vxconfigd disabled
+=================================================================================  
+(root_test192) @ / # vradmin -g sybdg01_192 -l printrvg sybdg01_192_rvg
+Replicated Data Set: sybdg01_192_rvg
+Primary:
+        HostName: csrep192      <localhost>
+        RvgName: sybdg01_192_rvg
+        DgName: sybdg01_192
+        datavol_cnt: 25
+        srl: srl_log
+        RLinks:
+            name=to_syrep192, detached=off, synchronous=off
+Secondary:
+        HostName: syrep192
+        RvgName: sybdg01_192_rvg
+        DgName: sybdg01_192
+        datavol_cnt: 25
+        srl: srl_log
+        RLinks:
+            name=csrep192, detached=off, synchronous=off
+Config Errors:
+        csrep192: vxconfigd disabled
+
+To Stop VVR on both nodes
+=========================
+(root_test192) @ / # /usr/sbin/vxstart_vvr stop
+(root_xyz192) @ / #  /usr/sbin/vxstart_vvr stop
+
+Even after stopping VVR daemon, process was still running. Finally killed vradmind on both nodes.
+
+To Kill vradmind
+================
+(root_test192) @ / # ps -ef |grep vradmin
+    root  8882     1  0  Nov  2  ?        1921:57 /usr/sbin/vradmind
+
+(root_test192) @ / # kill -9 8882
+(root_test192) @ / # ps -ef |grep vradmin
+(root_test192) @ / # 
+
+(root_xyz192) @ / # ps -ef |grep vradmin
+    root  2013     1  0  May 23  ?        184:30 /usr/sbin/vradmind
+(root_xyz192) @ / # kill -9 2013
+(root_xyz192) @ / #
+
+To Start VVR daemon on both nodes 
+=================================
+Note: Please start on secondary host first - xyz192
+
+(root_xyz192) @ / #  /usr/sbin/vxstart_vvr start
+(root_test192) @ / # /usr/sbin/vxstart_vvr start
+
+Status now looks good on both nodes.
+====================================
+(root_test192) @ / # vradmin -g sybdg01_192 -l printrvg sybdg01_192_rvg
+Replicated Data Set: sybdg01_192_rvg
+Primary:
+        HostName: csrep192      <localhost>
+        RvgName: sybdg01_192_rvg
+        DgName: sybdg01_192
+        datavol_cnt: 25
+        srl: srl_log
+        RLinks:
+            name=to_syrep192, detached=off, synchronous=off
+Secondary:
+        HostName: syrep192
+        RvgName: sybdg01_192_rvg
+        DgName: sybdg01_192
+        datavol_cnt: 25
+        srl: srl_log
+        RLinks:
+            name=csrep192, detached=off, synchronous=off
+
+(root_test192) @ / #
+=================================================================================
+(root_xyz192) @ / # vradmin -g sybdg01_192 -l printrvg sybdg01_192_rvg
+Replicated Data Set: sybdg01_192_rvg
+Primary:
+        HostName: csrep192
+        RvgName: sybdg01_192_rvg
+        DgName: sybdg01_192
+        datavol_cnt: 25
+        srl: srl_log
+        RLinks:
+            name=to_syrep192, detached=off, synchronous=off
+Secondary:
+        HostName: syrep192      <localhost>
+        RvgName: sybdg01_192_rvg
+        DgName: sybdg01_192
+        datavol_cnt: 25
+        srl: srl_log
+        RLinks:
+            name=csrep192, detached=off, synchronous=off
+
+
+(root_xyz192) @ / #
+</pre>

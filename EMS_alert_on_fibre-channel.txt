@@ -1,0 +1,178 @@
+---++ Doc Log 1144425306_01
+
+	$ Date: Fri Apr 07 15:55:06 2006
+	$ Summary: EMS alert on fibre-channel
+
+---++++ Details:
+<pre>
+Critical  O-XSXX- 14:40:28 07/04/06 syslogd OS syslog Apr  7 14:39:55 EMS [2605]: ------ EMS Event Notification ------   Value: "SERIOUS (4)" for Resource: "/adapters/events/TL_adapter/0_6_0_0"     (Threshold:  >= " 3")    Execute the following command to obtain event details:   /opt/resmon/bin/resdata -R 170721282 -r /adapters/events/TL_adapter/0_6_0_0 -n 170721281 -a
+
+EMS alert is;
+
+CURRENT MONITOR DATA:
+
+Event Time..........: Fri Apr  7 14:39:54 2006
+Severity............: SERIOUS
+Monitor.............: dm_TL_adapter
+Event #.............: 51
+
+Summary:
+     Adapter at hardware path 0/6/0/0 : Received an FCP_XFER_RDY frame with
+     unexpected value for F_CTL
+
+
+Description of Error:
+
+
+ lbolt value: 156852465
+
+   Received an FCP_XFER_RDY frame from port 0x612713  ,with originator
+   exchange ID 0xfa   Unexpected value 0x990000  for F_CTL in frame header
+
+
+Probable Cause / Recommended Action:
+
+FCP_XFER_RDY frame was received from the target device. This
+ might indicate a device failure.
+      Examine the fibre channel device logs for errors.
+      If the problem persists, contact your HP customer
+      representative.
+
+Additional Event Data:
+     Event Id............: 0x44366bab00000000
+     Monitor Version.....: B.01.00
+     Event Class.........: I/O
+     Client Configuration File...........:
+     /var/stm/config/tools/monitor/default_dm_TL_adapter.clcfg
+     Client Configuration File Version...: A.01.00
+          Qualification criteria met.
+               Number of events..: 1
+     Associated OS error log entry id(s):
+          0x44366baa00000002
+          OS Version......................: B.11.00
+          EMS Version.....................: A.03.20
+          STM Version.....................: A.44.00
+     Latest information on this event:
+          http://docs.hp.com/hpux/content/hardware/ems/dm_TL_adapter.htm#51
+
+v-v-v-v-v-v-v-v-v-v-v-v-v    D  E  T  A  I  L  S    v-v-v-v-v-v-v-v-v-v-v-v-v
+
+
+
+Component Data:
+    Physical Device Path....: 0/6/0/0
+    Vendor Id...............: 0x00000000
+    Serial Number(WWN)......: 0000000000000000
+
+I/O Log Event Data:
+
+     Driver Status Code..................: 0x00000033
+     Length of Logged Hardware Status....: 0 bytes.
+     Offset to Logged Manager Information: 0 bytes.
+     Length of Logged Manager Information: 55 bytes.
+
+Manager-Specific Information:
+
+Raw data from FCMS Adapter driver:
+00000003 095960F1 00000003 00000001 00612713 000000FA 00990000 2F75782F
+636F7265 2F6B6572 6E2F7773 696F2F74 645F6364 622E63
+
+disks attached are;
+
+# ioscan -funC disk
+Class     I  H/W Path                 Driver   S/W State   H/W Type     Description
+====================================================================================
+disk      0  0/0/1/1.15.0             sdisk    CLAIMED     DEVICE       HP 36.4GMAN3367MC
+                                     /dev/dsk/c1t15d0   /dev/rdsk/c1t15d0
+disk      1  0/0/2/1.15.0             sdisk    CLAIMED     DEVICE       HP 36.4GMAN3367MC
+                                     /dev/dsk/c3t15d0   /dev/rdsk/c3t15d0
+disk     17  0/6/0/0.97.31.255.1.3.0  sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+disk      2  0/6/0/0.97.39.19.0.0.0   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c16t0d0   /dev/rdsk/c16t0d0
+disk      5  0/6/0/0.97.39.19.0.1.1   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c16t1d1   /dev/rdsk/c16t1d1
+disk     13  0/6/0/0.97.39.19.0.1.2   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c16t1d2   /dev/rdsk/c16t1d2
+disk     15  0/6/0/0.97.39.19.0.1.3   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c16t1d3   /dev/rdsk/c16t1d3
+disk     20  0/6/0/0.97.39.19.0.2.1   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c16t2d1   /dev/rdsk/c16t2d1
+disk      4  0/6/0/0.97.39.19.0.2.2   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c16t2d2   /dev/rdsk/c16t2d2
+disk     24  0/6/0/0.97.39.19.0.2.5   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c16t2d5   /dev/rdsk/c16t2d5
+disk     25  0/6/0/0.97.39.19.0.2.7   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c16t2d7   /dev/rdsk/c16t2d7
+disk     28  0/6/0/0.97.39.19.0.4.0   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c16t4d0   /dev/rdsk/c16t4d0
+disk     29  0/6/0/0.97.39.19.0.4.1   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c16t4d1   /dev/rdsk/c16t4d1
+disk     30  0/6/0/0.97.39.19.0.4.2   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c16t4d2   /dev/rdsk/c16t4d2
+disk     31  0/6/0/0.97.39.19.0.4.3   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c16t4d3   /dev/rdsk/c16t4d3
+disk     32  0/6/0/0.97.39.19.0.15.1  sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c16t15d1   /dev/rdsk/c16t15d1
+disk     14  0/6/0/0.98.59.19.0.0.0   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+disk     38  0/6/0/0.99.67.19.0.0.0   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c24t0d0   /dev/rdsk/c24t0d0
+disk     40  0/6/0/0.99.67.19.0.0.1   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c24t0d1   /dev/rdsk/c24t0d1
+disk     41  0/6/0/0.99.67.19.0.0.2   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c24t0d2   /dev/rdsk/c24t0d2
+disk     42  0/6/0/0.99.67.19.0.0.3   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c24t0d3   /dev/rdsk/c24t0d3
+disk     43  0/6/0/0.99.67.19.0.0.4   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c24t0d4   /dev/rdsk/c24t0d4
+disk     44  0/6/0/0.99.67.19.0.0.5   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c24t0d5   /dev/rdsk/c24t0d5
+disk     45  0/6/0/0.99.67.19.0.0.6   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c24t0d6   /dev/rdsk/c24t0d6
+disk     22  0/6/2/0.97.31.255.1.3.0  sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+disk      3  0/6/2/0.97.39.19.0.0.0   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t0d0   /dev/rdsk/c8t0d0
+disk     16  0/6/2/0.97.39.19.0.1.1   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t1d1   /dev/rdsk/c8t1d1
+disk     18  0/6/2/0.97.39.19.0.1.2   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t1d2   /dev/rdsk/c8t1d2
+disk     19  0/6/2/0.97.39.19.0.1.3   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t1d3   /dev/rdsk/c8t1d3
+disk     21  0/6/2/0.97.39.19.0.2.1   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t2d1   /dev/rdsk/c8t2d1
+disk     12  0/6/2/0.97.39.19.0.2.2   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t2d2   /dev/rdsk/c8t2d2
+disk     26  0/6/2/0.97.39.19.0.2.5   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t2d5   /dev/rdsk/c8t2d5
+disk     27  0/6/2/0.97.39.19.0.2.7   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t2d7   /dev/rdsk/c8t2d7
+disk     33  0/6/2/0.97.39.19.0.4.0   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t4d0   /dev/rdsk/c8t4d0
+disk     34  0/6/2/0.97.39.19.0.4.1   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t4d1   /dev/rdsk/c8t4d1
+disk     35  0/6/2/0.97.39.19.0.4.2   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t4d2   /dev/rdsk/c8t4d2
+disk     36  0/6/2/0.97.39.19.0.4.3   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t4d3   /dev/rdsk/c8t4d3
+disk     37  0/6/2/0.97.39.19.0.15.1  sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c8t15d1   /dev/rdsk/c8t15d1
+disk     23  0/6/2/0.98.64.19.0.0.0   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+disk     39  0/6/2/0.99.59.19.0.0.0   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c26t0d0   /dev/rdsk/c26t0d0
+disk     46  0/6/2/0.99.59.19.0.0.1   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c26t0d1   /dev/rdsk/c26t0d1
+disk     47  0/6/2/0.99.59.19.0.0.2   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c26t0d2   /dev/rdsk/c26t0d2
+disk     48  0/6/2/0.99.59.19.0.0.3   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c26t0d3   /dev/rdsk/c26t0d3
+disk     49  0/6/2/0.99.59.19.0.0.4   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c26t0d4   /dev/rdsk/c26t0d4
+disk     50  0/6/2/0.99.59.19.0.0.5   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c26t0d5   /dev/rdsk/c26t0d5
+disk     51  0/6/2/0.99.59.19.0.0.6   sdisk    CLAIMED     DEVICE       EMC     SYMMETRIX
+                                     /dev/dsk/c26t0d6   /dev/rdsk/c26t0d6
+#
+
+only one alert on that fibre channel path. will wait to see if problem repeats 
+(as in the EMS advisory actions).
+
+</pre>

@@ -1,0 +1,72 @@
+---++ Doc Log 1254224064_01
+
+	$ Date: Tue Sep 29 11:34:24 2009
+	$ Summary: extend LVM Linux
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+
+# lsof /home
+# umount /home
+# more /etc/fstab
+/dev/sda2            /                    ext3       acl,user_xattr        1 1
+/dev/vg00/lvol6      /appvol              ext3       defaults              1 2
+/dev/sda1            /boot                ext3       noatime,nodiratime,acl 1 2
+/dev/vg00/lvol4      /home                ext3       defaults              1 2
+/dev/vg00/lvol5      /opt                 ext3       defaults              1 2
+/dev/vg00/lvol2      /tmp                 ext3       noatime,nodiratime,nosuid,nodev,data=w
+riteback,acl 1 2
+/dev/vg00/lvol3      /var                 ext3       defaults              1 2
+/dev/vg00/lvol1      swap                 swap       defaults              0 0
+proc                 /proc                proc       defaults              0 0
+sysfs                /sys                 sysfs      noauto                0 0
+debugfs              /sys/kernel/debug    debugfs    noauto                0 0
+devpts               /dev/pts             devpts     mode=0620,gid=5       0 0
+/dev/fd0             /media/floppy        auto       noauto,user,sync      0 0
+# extendfs -F ext3 /dev/vg00/lvol4
+# df -k /home
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/sda2              6198436   1921168   3962396  33% /
+
+# resize2fs /dev/vg00/lvol4
+resize2fs 1.38 (30-Jun-2005)
+Please run 'e2fsck -f /dev/vg00/lvol4' first.
+
+# e2fsck -f /dev/vg00/lvol4
+e2fsck 1.38 (30-Jun-2005)
+Pass 1: Checking inodes, blocks, and sizes
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Pass 5: Checking group summary information
+/dev/vg00/lvol4: 10332/131072 files (1.3% non-contiguous), 206799/262144 blocks
+
+# resize2fs /dev/vg00/lvol4
+resize2fs 1.38 (30-Jun-2005)
+Resizing the filesystem on /dev/vg00/lvol4 to 524288 (4k) blocks.
+The filesystem on /dev/vg00/lvol4 is now 524288 blocks long.
+
+# mount /home
+# df -k
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/sda2              6198436   1921168   3962396  33% /
+udev                   1947076       116   1946960   1% /dev
+/dev/mapper/vg00-lvol6
+                       2064208     96072   1863280   5% /appvol
+/dev/sda1               521748     43544    451700   9% /boot
+/dev/mapper/vg00-lvol5
+                       4128448   2930988    987748  75% /opt
+/dev/mapper/vg00-lvol2
+                       2064208   1406216    553136  72% /tmp
+/dev/mapper/vg00-lvol3
+                       4128448    893632   3025104  23% /var
+/dev/mapper/vg00-lvol4
+                       2064208    810960   1169364  41% /home
+# df -kh /home
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/mapper/vg00-lvol4
+                      2.0G  792M  1.2G  41% /home
+#
+
+</pre>

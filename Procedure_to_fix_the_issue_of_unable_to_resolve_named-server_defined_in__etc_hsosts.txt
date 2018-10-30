@@ -1,0 +1,89 @@
+---++ Doc Log 1383707703_01
+        $ Date: Wed Nov 06:: 08:45:03
+        $ Summary: Procedure to fix the issue of unable to resolve named-server defined in /etc/hsosts
+
+---++++ Details:
+<pre>
+Description:
+Unable to resolve server name defined in /etc/hosts,  command "getent hosts server-name" returned nothing instead of
+returning the IP address associated with the server-name.
+For example:
+$ grep testserver /etc/hosts
+192.168.1.30   testserver.com
+$
+$ getent hosts testserver.com                    <<<<<  Cannot resolve testserver.com as getent command returned nothing.
+$
+
+To fix this issue, restart the nscd (Name Service Cache daemon) however before restarting nscd we need to perform the following test
+to determine if or if not the nscd and hostname resolution for local hosts works fine on that system (this test is recommended by Oracle
+Support for root cause analysis purpose):
+
+a) Ensure the nscd daemon is running in the system
+b) Run the command "date;getent hosts bla.foo.com"
+if that does not return an entry the nscd will keep that name for 5 seconds in it's negative cache
+c) Do quickly add a line with "1.2.3.4 bla.foo.com" to the /etc/hosts
+d) Run the command "date;getent hosts bla.foo.com" again 2 times
+- if 1st time is <5 seconds later than step b) was executed the command is expected to return no entry
+- if 1st and/or 2nd time is >5 seconds later than step b) was executed the command is expected to return "1.2.3.4 bla.foo.com"
+If it won't behave as described here, we need to collect trusses to find out the reason why.
+
+Collect the following debug information:
+1. start a very verbose truss on the PID of the nscd daemon:
+# truss -eflda -rall -wall -vall -u a.out:: -u nss*:: -o /var/tmp/truss_nscd -p <PID of nscd>
+
+2. repeat the getent command that has failed and also truss that:
+# truss -eflda -rall -wall -vall -u a.out:: -u nss*:: -u libnsl::gethost*,getip* -u libresolv -o /var/tmp/truss_getent getent hosts <hostname>
+
+3. stop the truss that was started in step 1. after the issue will have been noticed in step 2.
+
+The result of the test output from two truss commands will be sent to Oracle later for root cause analysis.
+
+Now we can restart the nscd daemon.
+
+Solaris 9
+================================================================
+# ps -fe | grep nscd
+    root  6802     1  0   Mar 10 ?       37:54 /usr/sbin/nscd                         <<<< nscd daemon
+    root 26084 25328  0 12:20:31 pts/1    0:00 grep nscd
+#
+# cd /etc/rc2.d
+# grep nscd *
+S76nscd:#ident  "@(#)nscd       1.10    01/10/29 SMI"
+S76nscd:        [ -f /etc/nscd.conf ] && [ -f /usr/sbin/nscd ] || exit 0
+S76nscd:                /usr/lib/nscd_nischeck passwd || secure="$secure -S passwd,yes"
+S76nscd:        /usr/sbin/nscd$secure < /dev/null > /dev/msglog 2>&1 &
+S76nscd:        [ -f /usr/sbin/nscd ] && /usr/sbin/nscd -K
+#
+#  ./S76nscd stop                                    <<<< Stop nscd
+#  ps -fe | grep nscd                               <<<<  Verify that nscd has stopped
+# ./S76nscd start                                    <<<<  Start nscd
+#  ps -fe | grep nscd                               <<<<  Verify that nscd has started
+=================================================================
+Solaris 10
+# svcs -a | grep name-service-cache
+online         Aug_29   svc:/system/name-service-cache:default
+# svcs -p svc:/system/name-service-cache:default
+STATE          STIME    FMRI
+online         Aug_29   svc:/system/name-service-cache:default
+               Aug_29        435 nscd
+#
+Stop nscd service:
+# svcadm disable svc:/system/name-service-cache:default
+
+Verify that nscd service is offline:
+# svcs -a | grep name-service-cache
+
+Start nscd service:
+# svcadm enable svc:/system/name-service-cache:default
+
+Verify that nscd service is online
+# svcs -a | grep name-service-cache
+======================================================================
+
+Now the getent command should work hence the issue is resolved, for example:
+# grep testserver /etc/hosts
+192.168.1.30   testserver.com
+# getent hosts testserver.com
+192.168.1.30    testserver.com
+#
+</pre>

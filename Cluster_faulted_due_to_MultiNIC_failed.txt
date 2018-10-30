@@ -1,0 +1,262 @@
+---++ Doc Log 1383635609_01
+        $ Date: Tue Nov 05:: 12:43:29
+        $ Summary: Cluster faulted due to MultiNIC failed
+
+---++++ Details:
+<pre>
+Issue :  Cluster faulted due to MultiNIC failed.
+==============================================
+ROOT@:/root # ifconfig -a
+
+nxge0: flags=39040843<UP,BROADCAST,RUNNING,MULTICAST,DEPRECATED,IPv4,NOFAILOVER,FAILED,STANDBY> mtu 1500 index 7-------------> failed
+
+        inet 10.154.132.149 netmask fffffff0 broadcast 10.154.132.159
+
+        groupname MultiNIC01
+
+        ether 0:21:28:4d:1:ee
+
+nxge4: flags=19040843<UP,BROADCAST,RUNNING,MULTICAST,DEPRECATED,IPv4,NOFAILOVER,FAILED> mtu 1500 index 8
+
+        inet 10.154.132.148 netmask fffffff0 broadcast 10.154.132.159
+
+        groupname MultiNIC01
+
+        ether 0:21:28:57:bb:a0
+
+nxge4:1: flags=11000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4,FAILED> mtu 1500 index 8
+
+        inet 10.154.132.150 netmask fffffff0 broadcast 10.154.132.159
+
+
+
+Engine logs:
+===========
+2012/02/23 18:56:53 VCS INFO V-16-1-10307 Resource MultiNIC01 (Owner: unknown, Group: MultiNIC01Grp) is offline on nygdgwxssfrly
+
+p1n2-oob (Not initiated by VCS)
+
+2012/02/23 18:56:53 VCS NOTICE V-16-1-10300 Initiating Offline of Resource phMultiNIC01 (Owner: unknown, Group: MultiNIC01Grp) o
+
+
+2012/02/23 18:56:54 VCS ERROR V-16-2-13067 (nygdgwxssfrlyp1n2-oob) Agent is calling clean for resource(phMultiNIC01) because the
+
+ resource became OFFLINE unexpectedly, on its own.
+
+2012/02/23 18:56:54 VCS ERROR V-16-2-13070 (nygdgwxssfrlyp1n2-oob) Resource(phMultiNIC01) - clean not implemented.
+
+
+
+# hagrp -state
+
+
+MultiNIC01Grp  State                 test1n1-oob |OFFLINE|FAULTED|
+
+MultiNIC01Grp  State                 test1n2-oob |OFFLINE|FAULTED|
+
+dgwghxssfrlyp1 State                 test1n1-oob |OFFLINE|FAULTED|
+
+dgwghxssfrlyp1 State                 test1n2-oob |OFFLINE|FAULTED|
+
+
+
+ROOT@:/etc # more /etc/VRTSvcs/conf/config/main.cf
+
+include "types.cf"
+
+include "DBvcszoneagent.cf"
+
+
+
+cluster nextgendbx (
+
+        UserNames = { admin = cmnFmhMjnInnLvnHmk }
+
+        Administrators = { admin }
+
+        )
+
+
+
+system test1n1-oob (
+
+        )
+
+
+
+system test1n2-oob (
+
+        )
+
+
+
+group MultiNIC01Grp (
+
+
+        Parallel = 1
+
+        )
+
+
+
+        MultiNICB MultiNIC01 (
+
+                UseMpathd = 1
+
+                MpathdCommand = "/usr/lib/inet/in.mpathd -a"
+
+                Device @test1n1-oob = { nxge4 = 0, nxge0 = 1 }
+
+                Device @test1n2-oob = { nxge4 = 0, nxge0 = 1 }
+
+                DefaultRouter = "10.154.132.145"
+
+
+
+ROOT@:/etc # cat hostname.nxge0
+
+test1n1-mp2 netmask + broadcast + group MultiNIC01 deprecated -failover standby up
+
+ROOT@:/etc # cat hostname.nxge4
+
+test1n1-mp1 netmask + broadcast + group MultiNIC01 deprecated -failover up \
+
+addif test1n1 netmask + broadcast + failover up
+
+
+
+ROOT@:/root # dladm show-dev
+
+nxge0           link: up        speed: 100   Mbps       duplex: full
+
+nxge1           link: down      speed: 100   Mbps       duplex: full
+
+nxge2           link: down      speed: 100   Mbps       duplex: full
+
+nxge3           link: up        speed: 100   Mbps       duplex: full
+
+nxge4           link: up        speed: 100   Mbps       duplex: full
+
+nxge5           link: up        speed: 100   Mbps       duplex: full
+
+nxge6           link: down      speed: 100   Mbps       duplex: full
+
+nxge7           link: up        speed: 100   Mbps       duplex: full
+
+
+
+Resolved :-
+
+# ifconfig -a -failed
+# ifconfig -a
+
+lo0: flags=2001000849<UP,LOOPBACK,RUNNING,MULTICAST,IPv4,VIRTUAL> mtu 8232 index 1
+
+        inet 127.0.0.1 netmask ff000000
+
+nxge0: flags=69040843<UP,BROADCAST,RUNNING,MULTICAST,DEPRECATED,IPv4,NOFAILOVER,STANDBY,INACTIVE> mtu 1500 index 7 ----------------> cleared failing flag
+
+        inet 10.154.132.149 netmask fffffff0 broadcast 10.154.132.159
+
+        groupname MultiNIC01
+
+        ether 0:21:28:4d:1:ee
+
+nxge4: flags=9040843<UP,BROADCAST,RUNNING,MULTICAST,DEPRECATED,IPv4,NOFAILOVER> mtu 1500 index 8
+
+        inet 10.154.132.148 netmask fffffff0 broadcast 10.154.132.159
+
+        groupname MultiNIC01
+
+        ether 0:21:28:57:bb:a0
+
+nxge4:1: flags=1000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4> mtu 1500 index 8
+
+        inet 10.154.132.150 netmask fffffff0 broadcast 10.154.132.159
+
+
+
+# hagrp -state
+
+
+MultiNIC01Grp  State                 test1n1-oob |ONLINE|
+
+MultiNIC01Grp  State                 test1n2-oob |ONLINE|
+
+dgwghxssfrlyp1 State                 test1n1-oob |OFFLINE|FAULTED|
+
+dgwghxssfrlyp1 State                 test1n2-oob |OFFLINE|FAULTED|
+
+
+
+#hagrp –clear dgwghxssfrlyp1
+# hastatus -summ
+
+
+
+-- SYSTEM STATE
+
+A  test1n1-oob RUNNING              0
+A  test1n2-oob RUNNING              0
+
+-- GROUP STATE
+
+B  MultiNIC01Grp   test1n1-oob Y          N               ONLINE
+B  MultiNIC01Grp   test1n2-oob Y          N               ONLINE
+B  dgwghxssfrlyp1  test1n1-oob Y          N               OFFLINE
+B  dgwghxssfrlyp1  test1n2-oob Y          N               ONLINE
+
+
+
+The link below relates to IPMP configurations which use Link-Based IPMP, this system does not use Link-Based, it uses Probe-Based.
+
+The configuration changes you have applied are therefore not correct – there is no requirement to use the “ConfigCheck = 0” parameter (please remove this from the config). 
+
+The main.cf  appears to be missing the “GroupName” parameter for the MultiNICB resource (see example below):
+
+ 
+Test21a
+
+MultiNICB mnicres (
+
+                UseMpathd = 1
+
+                MpathdCommand = "/usr/lib/inet/in.mpathd -a"
+
+                Device = { nxge1 = 0, nxge5 = 1 }
+
+                Failback = 1
+
+                GroupName @lonshspltp21a = shs21a_group
+
+                GroupName @lonshspltp21b = shs21b_group
+
+                )
+
+ 
+
+Test11a
+
+MultiNICB MultiNIC01 (
+
+                UseMpathd = 1
+
+                MpathdCommand = "/usr/lib/inet/in.mpathd -a"
+
+                ConfigCheck = 0
+
+                Device @lonshspltp11b = { nxge3 = 0, nxge7 = 1 }
+
+                Device @lonshspltp11a = { nxge1 = 0, nxge5 = 1 }
+
+                DefaultRouter = "10.143.169.250"
+
+                )
+
+ 
+
+From the engine log – this confirms the “GroupName” parameter is missing.
+
+Feb 12 06:23:38 lonshspltp11a Had[19667]: [ID 702911 daemon.notice] VCS ERROR V-16-1-6525 (lonshspltp11a) MultiNICB:MultiNIC01:monitor:Interface configuration is not valid. Check IP addresses, subnet masks, flags, groupnames on all interfaces. Make sure that all the interfaces of only one IP subnet are included under the resource. See Bundled Agents Reference Guide
+
+</pre>

@@ -1,0 +1,53 @@
+---++ Doc Log 1247658140_01
+
+	$ Date: Wed Jul 15 11:42:20 2009
+	$ Summary: X86 boot disk configuration
+	$ On-Call: UNSPECIFIED
+
+---++++ Details:
+<pre>
+PROJECTS:  Just to let you know that when hardware delivery hand over builds you should see the following configuration as per e.g 1).  
+
+You should see one RAID group comprising of device 0/1 and a second RAID group again consisting of a pair of disks device 2/3.   The second RAID group is effectively spare or can be used for additional local disk space or swap space.  At present the recommendation is to use Veritas on the second RAID set of disks if you really need to use them
+
+This can be checked via the following command this should indicate that all x4 devices are in the Online state and if the second RAID group hasn't been set up then you will see output in example 2) if this is the case hand the servers back to hardware delivery.
+
+EXAMPLE 1:
+
+/opt/StorMan # ./arcconf GETCONFIG 1 | grep State
+         State                              : Online
+         State                              : Online
+         State                              : Online
+         State                              : Online
+
+EXAMPLE 2:
+
+/opt/StorMan # ./arcconf GETCONFIG 1 | grep State
+         State                              : Online
+         State                              : Online
+         State                              : Ready
+         State                              : Ready
+
+Also in format you will see only one disk as below indicating that hardware delivery have not set up the second RAID set of disks:
+
+/opt/StorMan # echo | format | grep c0
+       0. c0t0d0 <DEFAULT cyl 17830 alt 2 hd 255 sec 63>
+
+PSD/PROJECTS:
+
+From the format command you may see inconsistent output shown from the format command....This is being looked into by Duncan Poulson as it should be consistent on all servers that are handed over I suppose the question is what one is showing the correct output.?
+
+In these examples both RAID groups have been configured yet format is questionable so best to check that teh RAID groups are set up correctly via (/opt/StorMan/./arcconf GETCONFIG 1) unless Engineering publish anything different in the near future.
+
+/opt/StorMan # echo | format | grep c0
+       0. c0t0d0 <DEFAULT cyl 17830 alt 2 hd 255 sec 63>
+       1. c0t1d0 <DEFAULT cyl 17830 alt 2 hd 255 sec 63>
+
+/opt/StorMan # echo | format | grep c0
+       0. c0t0d0 <Sun-STKRAIDINT-V1.0 cyl 17830 alt 2 hd 255 sec 63>
+       1. c0t1d0 <DEFAULT cyl 17830 alt 2 hd 255 sec 63>
+
+NB: Please note that the Solaris LIVE Upgrade procedure as used on SPARC is not possible at this time for x86 and possibly this could change or the introduction of incorporating using the second RAID set of disks could be used to integrate this feature in some how to the x86 range.
+
+
+</pre>

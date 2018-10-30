@@ -1,0 +1,190 @@
+---++ Doc Log 1384746562_01
+        $ Date: Nov 18 09:19:22 2013
+        $ Summary: Solaris 10 - Setting up printers inside zones
+
+---++++ Details:
+<pre>
+Install HP Jet Direct into global zone: 
+
+pkgadd -d . SOLe134.PKG 
+
+Start LPD: 
+
+svcadm enable svc:/application/print/server:default 
+
+
+Run /opt/hpnpl/hppi configurator and configure printers using prompts. If needed, select a similar type/model of printer from the list. 
+
+Copy devices from Global /dev to the zones: 
+
+for i in `ls | egrep '^lp|^bir|^edi|^gla|^lon'` ; do 
+
+find /dev -name ${i} -print | cpio -puvmd /zones/hosts/zone2/ 
+
+find /dev -name ${i} -print | cpio -puvmd /zones/hosts/zone1/ 
+
+done 
+
+/zones/hosts/zone2/dev/bir0007_1 
+
+0 blocks 
+
+/zones/hosts/zone1/dev/bir0007_1 
+
+0 blocks 
+
+/zones/hosts/zone2/dev/edi0001_1 
+
+0 blocks 
+
+/zones/hosts/zone1/dev/edi0001_1 
+
+0 blocks 
+
+/zones/hosts/zone2/dev/gla0002_1 
+
+0 blocks 
+
+
+Copy the printers.conf: 
+
+# cat /etc/printers.conf | grep -v \# | sed 's/lonshspltp10a/zone1/g' 
+
+lpl0003_1:\ 
+
+:bsdaddr=zone1,lpl0003_1,Solaris: 
+
+lpl0004_1:\ 
+
+:bsdaddr=zone1,lpl0004_1,Solaris: 
+
+lpl0006_1:\ 
+
+:bsdaddr=zone1,lpl0006_1,Solaris: 
+
+lpl0012_1:\ 
+
+:bsdaddr=zone1,lpl0012_1,Solaris: 
+
+lpl0021_1:\ 
+
+:bsdaddr=zone1,lpl0021_1,Solaris: 
+
+lpl0028_1:\ 
+
+:bsdaddr=zone1,lpl0028_1,Solaris: 
+
+lon2194_1:\ 
+
+:bsdaddr=zone1,lon2194_1,Solaris: 
+
+bir0007_1:\ 
+
+:bsdaddr=zone1,bir0007_1,Solaris: 
+
+edi0001_1:\ 
+
+:bsdaddr=zone1,edi0001_1,Solaris: 
+
+gla0002_1:\ 
+
+:bsdaddr=zone1,gla0002_1,Solaris: 
+
+# ltp10a/zone1/g' >> /zones/hosts/zone1/root/etc/printers.conf 
+
+Copy the interfaces: 
+
+# cp -rp * /zones/hosts/zone2/root/etc/lp/interfaces/. 
+
+Copy the printers: 
+
+/etc/lp/printers# cp -rp * /zones/hosts/zone2/root/etc/lp/printers/. 
+
+/etc/lp/printers# 
+
+
+
+-------------------------------------------------------------------------------- 
+
+INSIDE THE ZONE 
+
+Start lpd: 
+
+svcadm enable svc:/application/print/server:default 
+
+Install HP Jet Direct into global zone: 
+
+# pkgadd -d . SOLe134.PKG 
+
+Restart lpd: 
+
+svcadm restart svc:/application/print/server:default 
+
+Enable the printers: 
+
+# for i in lpl0006_1 lpl0012_1 lpl0021_1 lpl0028_1 lon2194_1 bir0007_1 edi0001_1 gla0002_1 ; do 
+
+# enable ${i} 
+
+# accept ${i} 
+
+# done 
+
+printer "lpl0006_1" now enabled 
+
+destination "lpl0006_1" now accepting requests 
+
+printer "lpl0012_1" now enabled 
+
+destination "lpl0012_1" now accepting requests 
+
+printer "lpl0021_1" now enabled 
+
+destination "lpl0021_1" now accepting requests 
+
+printer "lpl0028_1" now enabled 
+
+destination "lpl0028_1" now accepting requests 
+
+printer "lon2194_1" now enabled 
+
+destination "lon2194_1" now accepting requests 
+
+printer "bir0007_1" now enabled 
+
+destination "bir0007_1" now accepting requests 
+
+printer "edi0001_1" now enabled 
+
+destination "edi0001_1" now accepting requests 
+
+printer "gla0002_1" now enabled 
+
+destination "gla0002_1" now accepting requests 
+
+# lpstat -a 
+
+lpl0003_1 accepting requests since Wed Apr 23 17:06:21 2008 
+
+lpl0004_1 accepting requests since Fri May 02 13:15:54 2008 
+
+lpl0006_1 accepting requests since Fri May 02 13:16:14 2008 
+
+lpl0012_1 accepting requests since Fri May 02 13:16:15 2008 
+
+lpl0021_1 accepting requests since Fri May 02 13:16:15 2008 
+
+lpl0028_1 accepting requests since Fri May 02 13:16:15 2008 
+
+lon2194_1 accepting requests since Fri May 02 13:16:15 2008 
+
+bir0007_1 accepting requests since Fri May 02 13:16:15 2008 
+
+edi0001_1 accepting requests since Fri May 02 13:16:15 2008 
+
+gla0002_1 accepting requests since Fri May 02 13:16:15 2008 
+
+root#
+
+
+</pre>

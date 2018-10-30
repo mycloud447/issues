@@ -1,0 +1,147 @@
+---++ Doc Log 1242049299_01
+
+	$ Date: Mon May 11 13:41:39 2009
+	$ Summary: The VVR replication issue
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+Issue: Secondary VVR host(test195) unreachable due to lan9 interface issue on Primary Host (xyz195)
+
+
+(root_xyz195) @ / # vradmin -l repstatus sybdg01_195_rvg
+Replicated Data Set: sybdg01_195_rvg
+Primary:
+  Host name:          crs95
+  RVG name:           sybdg01_195_rvg
+  DG name:            sybdg01_195
+  RVG state:          enabled for I/O
+  Data volumes:       171
+  SRL name:           srl_log
+  SRL size:           33.71 G
+  Total secondaries:  1
+
+Secondary:
+  Host name:          syrep195  <unreachable>
+  RVG name:           N/A
+  DG name:            sybdg01_195
+  Rlink from Primary: to_syrep195
+  Rlink to Primary:   to_crs95
+  Configured mode:    asynchronous
+  Latency protection: off
+  SRL protection:     autodcm
+  Data status:        consistent, behind
+  Replication status: paused by user (primary paused)
+  Current mode:       asynchronous
+  Logging to:         SRL (1942869 KBytes behind, 5% full)
+
+Config Errors:
+  syrep195:           vradmind server not reachable
+
+Updated new IP address for rlink in /etc/hosts file on xyz195 and test195
+==========================================================================
+(root_xyz195) @ / # grep crs95 /etc/hosts
+128.31.45.195   crs95
+
+On xyz195 - Primary VVR Host
+============================
+
+
+Check rlink configuration
+=========================
+(root_xyz195) @ / # vxprint -Pl
+Disk group: sybdg01_195
+Rlink:    to_syrep195
+info:     timeout=500 packet_size=8400 rid=0.4109
+          latency_high_mark=10000 latency_low_mark=9950
+state:    state=ACTIVE
+          synchronous=off latencyprot=off srlprot=autodcm
+assoc:    rvg=sybdg01_195_rvg
+          remote_host=syrep195 IP_addr=128.9.69.80 port=4145
+          remote_dg=sybdg01_195
+          remote_dg_dgid=1070619947.1244.test195
+          remote_rvg_version=10
+          remote_rlink=to_crs95
+          remote_rlink_rid=0.4574
+          local_host=128.31.45.195 IP_addr=128.31.45.195 port=4145
+protocol: UDP/IP
+flags:    write enabled attached consistent connected asynchronous
+
+To pause replication on Primary Host
+====================================
+(root_xyz195) @ / # vradmin -g sybdg01_195 pauserep sybdg01_195_rvg syrep195
+
+Check rlink status
+==================
+(root_xyz195) @ / # vxprint -qhtg sybdg01_195 |more
+rv sybdg01_195_rvg 1         ENABLED  ACTIVE   primary  171       srl_log
+rl to_syrep195  sybdg01_195_rvg ENABLED PAUSE  syrep195 sybdg01_195 to_crs95
+
+To update new rlink IP address on Primary Host
+==============================================
+(root_xyz195) @ / # vxedit -g sybdg01_195 set local_host=128.31.45.195 to_syrep195
+
+Verify new rlink IP
+===================
+(root_xyz195) @ / # vxprint -Pl
+
+On test195 - Secondary VVR Host
+================================
+
+Check rlink IP address
+==========================
+(root_test195) @ / # vxprint -Pl
+
+Detach rlink
+============
+(root_test195) @ / # vxrlink -g sybdg01_195 det to_crs95
+
+Change rlink IP address
+==========================
+(root_test195) @ / # vxedit -g sybdg01_195 set remote_host=128.31.45.195 to_crs95
+
+Attach rlink
+============
+(root_test195) @ / # vxrlink -g sybdg01_195 att to_crs95
+
+Check rlink status
+==================
+(root_test195) @ / # vxprint -qhtg sybdg01_195 |more
+rv sybdg01_195_rvg 1         ENABLED  ACTIVE   secondary 171      srl_log
+rl to_crs95  sybdg01_195_rvg ENABLED ACTIVE crs95 sybdg01_195 to_syrep195
+
+Verify new rlink IP
+===================
+(root_test195) @ / # vxprint -Pl
+
+Once all sorted out, resume replication from Primary Host (xyz195)
+==================================================================
+
+Resume Replication
+==================
+(root_xyz195) @ / # vradmin -g sybdg01_195 resumerep sybdg01_195_rvg syrep195
+
+And finally with lots of efforts, issue was fixed ......
+
+For information ...
+===================
+
+Another method to check rlink IP, if connectivity is available between Primary and Secondary VVR host .....
+
+To change rlink IP
+==================
+(root_xyz195) @ / # vradmin -g sybdg01_195 changeip sybdg01_195_rvg newpri=crs95
+
+To Stop/Start VVR to pickup new IP (On both hosts)
+==================================
+(root_xyz195) @ / # /usr/sbin/vxstart_vvr stop
+(root_xyz195) @ / # /usr/sbin/vxstart_vvr start
+
+To check vradmin is stopped
+===========================
+(root_xyz195) @ / # ps -ef |grep vradmin
+
+**** Enjoy ***
+
+
+</pre>

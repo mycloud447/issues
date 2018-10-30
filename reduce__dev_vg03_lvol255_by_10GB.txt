@@ -1,0 +1,86 @@
+---++ Doc Log 1149509835_01
+
+	$ Date: Mon Jun 05 12:17:15 2006
+	$ Summary: reduce /dev/vg03/lvol255 by 10GB.
+
+---++++ Details:
+<pre>
+The request was to to reduce /dev/vg03/lvol255 on psd184.
+
+# bdf 
+Filesystem          kbytes    used   avail %used Mounted on
+/dev/vg00/lvol3    1048576   51629  934692    5% /
+/dev/vg00/lvol1     255253   74494  155233   32% /stand
+/dev/vg00/lvol8    1572864  466664 1037236   31% /var
+/dev/vg00/lvol12    262144    1165  244675    0% /var/opt/log
+/dev/vg00/lvol11    262144    1165  244675    0% /var/opt/data
+/dev/vg00/lvol9    1048576  448919  562180   44% /var/adm/sw
+/dev/vg00/lvol10   6291456    2643 5895770    0% /var/adm/crash
+/dev/vg00/lvol7    2097152 1053838  978157   52% /usr
+/dev/vg00/lvol6    1048576   44149  941726    4% /tmp
+/dev/vg00/lvol5    8388608  929450 7226066   11% /opt
+/dev/vg01/lvol255  1024000  935007   83892   92% /opt/sybase
+/dev/vg00/lvol4     524288  500143   23134   96% /home
+/dev/vg01/lvol254  1048576  784387  247751   76% /home/sybase
+/dev/vg03/lvol252   516096  410845   98680   81% /home/sybase/tempdb_log
+/dev/vg03/lvol253   516096  410846   98679   81% /home/sybase/tempdb_data
+/dev/vg03/lvol255  32956416 14902132 17778252   46% /home/sybase/dump01
+csl090:/home/its   33554432 26734648 6620160   80% /home/its
+
+# swlist -l bundle | grep -i jfs
+  B3929CA               B.11.11        HP OnLineJFS
+
+The HP OnLineJFS was installed. 
+
+
+While running fsadm , the command was throwing following error.
+
+/usr/lbin/fs/vxfs # /usr/sbin/fsadm -F vxfs -b 22956416  /home/sybase/dump01
+fsadm: You don't have a license to run this program
+
+So checked for licenses
+/usr/lbin/fs/vxfs # vxlicense -p
+
+vrts:vxlicense: INFO: Feature name: HP_OnlineJFS [50]
+vrts:vxlicense: INFO: Number of licenses: 1 (non-floating)
+vrts:vxlicense: INFO: Expiration date: Sun Jun 24 09:00:00 2007 (383.9 days from now)
+vrts:vxlicense: INFO: Release Level: 22
+vrts:vxlicense: INFO: Machine Class: All
+vrts:vxlicense: INFO: Site ID: 0
+
+The License is there. Checked whether the features are enabled in kernel.
+
+/sbin/fs # /sbin/fs/vxfs/vxenablef
+The features were not enabled. Need to run vxenablef -a to enable features.
+
+The entry for this command resides in /etc/inittab , found no entry there , so added "vxen::bootwait:/sbin/fs/vxfs/vxenablef -a" entry to inittab.
+
+
+# /sbin/fs/vxfs/vxenablef -a
+# /sbin/fs/vxfs/vxenablef
+Full_VxFS HP_DMAPI
+
+Now , reduce the file system size.
+
+#  /usr/sbin/fsadm -F vxfs -b 22956416  /home/sybase/dump01
+vxfs fsadm: /dev/vg03/rlvol255 is currently 32956416 sectors - size will be reduced
+vxfs fsadm: allocations found in shrink range, moving data
+
+Reduce the underlying LV.
+# lvreduce -L 22425 /dev/vg03/lvol255
+Warning: rounding up logical volume size to extent boundary at size "22428" MB.
+Warning: rounding up logical volume size to extent boundary at size "5610" MB for striping.
+When a logical volume is reduced useful data might get lost;
+do you really want the command to proceed (y/n) : y
+Logical volume "/dev/vg03/lvol255" has been successfully reduced.
+Volume Group configuration for /dev/vg03 has been saved in /etc/lvmconf/vg03.conf
+
+
+/sbin/fs # bdf /home/sybase/dump01
+Filesystem          kbytes    used   avail %used Mounted on
+/dev/vg03/lvol255  22956416 14901532 7935092   65% /home/sybase/dump01
+
+
+Now filesystem is reduced by 10 GB.
+
+</pre>

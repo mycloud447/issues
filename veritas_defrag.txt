@@ -1,0 +1,68 @@
+---++ Doc Log 1251060532_01
+
+	$ Date: Sun Aug 23 20:48:52 2009
+	$ Summary: veritas defrag
+	$ On-Call: NO
+
+---++++ Details:
+<pre>
+
+#
+# fsadm -DEde /u12/oradata/LWHSE01
+
+  Directory Fragmentation Report
+             Dirs        Total      Immed    Immeds   Dirs to   Blocks to
+             Searched    Blocks     Dirs     to Add   Reduce    Reduce
+  total             8         5         4         3         4           4
+
+  Extent Fragmentation Report
+        Total    Average      Average     Total
+        Files    File Blks    # Extents   Free Blks
+          201      809607         218   117627005
+    blocks used for indirects: 171
+    % Free blocks in extents smaller than 64 blks: 0.00
+    % Free blocks in extents smaller than  8 blks: 0.00
+    % blks allocated to extents 64 blks or larger: 100.00
+    Free Extents By Size
+           1:         25            2:         40            4:         43
+           8:         35           16:         45           32:         46
+          64:         39          128:         46          256:         65
+         512:         76         1024:         83         2048:      10829
+        4096:       3768         8192:        151        16384:          3
+       32768:          2        65536:          2       131072:          2
+      262144:          2       524288:          2      1048576:          3
+     2097152:          1      4194304:          3      8388608:          3
+    16777216:          0     33554432:          1     67108864:          0
+   134217728:          0    268435456:          0    536870912:          0
+  1073741824:          0   2147483648:          0
+
+
+  Directory Fragmentation Report
+             Dirs        Total      Immed    Immeds   Dirs to   Blocks to
+             Searched    Blocks     Dirs     to Add   Reduce    Reduce
+  total             8         4         4         3         3           3
+
+  Extent Fragmentation Report
+        Total    Average      Average     Total
+        Files    File Blks    # Extents   Free Blks
+          205      809043          49   114501768
+    blocks used for indirects: 165
+    % Free blocks in extents smaller than 64 blks: 0.01
+    % Free blocks in extents smaller than  8 blks: 0.00
+    % blks allocated to extents 64 blks or larger: 100.00
+    Free Extents By Size
+           1:        144            2:        118            4:         95
+           8:        130           16:        130           32:        129
+          64:        129          128:        142          256:        166
+         512:        182         1024:        226         2048:       1033
+        4096:        858         8192:        645        16384:        444
+       32768:         31        65536:        158       131072:        117
+      262144:         62       524288:         29      1048576:         12
+     2097152:          2      4194304:          1      8388608:          0
+    16777216:          1     33554432:          0     67108864:          0
+   134217728:          0    268435456:          0    536870912:          0
+  1073741824:          0   2147483648:          0
+
+#
+
+</pre>

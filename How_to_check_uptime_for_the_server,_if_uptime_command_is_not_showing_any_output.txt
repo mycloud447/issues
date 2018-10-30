@@ -1,0 +1,30 @@
+---++ Doc Log 1383885909_01
+        $ Date: Nov 08 10:15:09 2013
+        $ Summary: How to check uptime for the server, if uptime command is not showing any output
+
+---++++ Details:
+<pre>
+$ mount |grep d0
+
+/ on /dev/md/dsk/d0 read/write/setuid/devices/intr/largefiles/logging/xattr/onerror=panic/dev=1540000 on Fri Aug  2 16:20:22 2013
+
+hots1$ vmstat -i
+
+interrupt         total     rate
+--------------------------------
+clock         276531059      100
+--------------------------------
+Total         276531059      100
+
+$ bc
+276531059/24/60/60/100
+32
+quit
+
+hots1$
+hots1$ uptime
+  4:26pm  4 users,  load average: 0.38, 0.33, 0.27
+hots1$
+
+
+</pre>

@@ -1,0 +1,90 @@
+---++ Doc Log 1454487564_01
+	<p /> <dl>
+        <dt> Date: </dt><dd> Feb 03 13:49:24 2016
+        </dd> <dt> Summary: </dt><dd> ULP_FCSM_version_mismatch_please_upgrade_FCSM
+	</dd></dl>
+	<p />
+
+---++++ Details:
+<pre>
+Error :-  unix: WARNING: fctl: ULP FCSM version mismatch; please upgrade FCSM
+
+Solution:-
+--------
+
+Re-install san foundation kit will fix the issue.
+
+$ ./install_it
+Logfile /var/tmp/install_it_Sun_StorEdge_SAN.log : created on Tuesday February 2 16:25:25 EST 2016
+
+
+This routine installs the packages and patches that
+make up Sun StorEdge SAN.
+
+Would you like to continue with the installation?
+[y,n,?] y
+
+
+Verifying system...
+
+Checking for incompatible patches : Done
+
+
+Begin installation of SAN software
+
+Installing StorEdge SAN packages -
+
+Package SUNWsan : Installed Previously.
+Package SUNWcfpl : Installed Previously.
+Package SUNWcfplx : Installed Previously.
+Package SUNWcfclr : Installed Previously.
+Package SUNWcfcl : Installed Previously.
+Package SUNWcfclx : Installed Previously.
+Package SUNWfchbr : Installed Previously.
+Package SUNWfchba : Installed Previously.
+Package SUNWfchbx : Installed Previously.
+Package SUNWfcsm : Installed Previously.
+Package SUNWfcsmx : Installed Previously.
+Package SUNWmdiu : Installed Previously.
+Package SUNWqlc : Installed Previously.
+Package SUNWqlcx : Installed Previously.
+Package SUNWjfca : Installed Successfully.
+Package SUNWjfcax : Installed Successfully.
+Package SUNWjfcau : Installed Successfully.
+Package SUNWjfcaux : Installed Successfully.
+Package SUNWemlxs : Installed Previously.
+Package SUNWemlxsx : Installed Previously.
+Package SUNWemlxu : Installed Previously.
+Package SUNWemlxux : Installed Previously.
+
+StorEdge SAN packages installation completed.
+
+Installing StorEdge SAN patches and required patches -
+
+Patch 111847-08 : Installed Previously.
+Patch 113046-01 : Installed Previously.
+Patch 113049-01 : Installed Previously.
+Patch 113039-20 : Installed Previously.
+Patch 113040-24 : Later version installed 113040-25.
+Patch 113041-14 : Installed Successfully.
+Patch 113042-18 : Installed Successfully.
+Patch 113043-15 : Installed Successfully.
+Patch 113044-07 : Installed Successfully.
+Patch 114476-09 : Installed Successfully.
+Patch 114477-04 : Later version installed 114477-05.
+Patch 114478-08 : Feb 2 16:27:48 testserver-new last message repeated 76 times
+Installed Successfully.
+Patch 114878-10 : Installed Successfully.
+Patch 119914-12 : Later version installed 119914-14.
+
+Patch installation completed.
+
+
+Installation of Sun StorEdge SAN completed Successfully
+
+-------------------------------------------
+-------------------------------------------
+Please reboot your system.
+-------------------------------------------
+-------------------------------------------
+</pre>

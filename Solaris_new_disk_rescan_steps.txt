@@ -1,0 +1,46 @@
+---++ Doc Log 1384130046_01
+        $ Date: Nov 11 06:04:06 2013
+        $ Summary: Solaris new disk rescan steps
+
+---++++ Details:
+<pre>
+Solaris Disk Rescan
+====================
+List the HBA controller numbers connected to EMC DMX (006048) and VMAX (000097) VSANs:
+# for ctrl in `cfgadm -al | egrep '006048|000097' | awk -F:  ‘{print $1}’ | sort | uniq`
+> do 
+> cfgadm -c configure $ctrl
+> done
+Ensure LUNs can be seen behind their targets (FA ports):
+# cfgadm -al -o show_FCP_dev
+Or 
+# cfgadm -al -o show_SCSI_dev
+Populate /dev/*dsk/ entries:
+# devfsadm -v -c disk
+# inq -nodots -sid -showvol
+Note: In case the volumes are not visible to the host and/or the host HBAs are not logging-in to the array FAs, a host reboot might be required to force the rescan.
+Label the LUNs one by one to prevent “wrong magic number” errors being reported by Solaris
+==========================================================================================
+# format “disk device from INQ output above” 
+> label
+yes
+(Note: Sysadmins normally automate this step via a custom script in presence of many LUNs)
+
+
+On hosts where Veritas is installed:
+====================================
+Let VxVM rescan for new disks once the OS sees them:
+#vxdctl -f enable
+   Or
+#vxdisk scandisks
+
+Check that VxVM sees all the new LUNs and that they are NOT in 'error' state. This will list only VMAX devices:
+#vxdisk -o alldgs -e list | grep 000097 (new vmx sym id)
+
+Check Multipathing for Veritas DMP
+==================================
+If using Veritas DMP, ensure multiple paths exist & each path is enabled:
+# /usr/lib/vxvm/diag.d/vxdmpdbprint
+# vxdisk -e path
+(There should not be any LUNs listeds in the Disabled state)
+</pre>

@@ -1,0 +1,56 @@
+---++ Doc Log 1157644238_01
+
+	$ Date: Sep 07 15:50:38 2006
+	$ Summary: 81.00 memory pages have been swapped out - possible performance issue
+	$ On-Call: SYONCALL
+
+---++++ Details:
+<pre>
+# /usr/ucb/ps aux |more
+USER       PID %CPU %MEM   SZ  RSS TT       S    START  TIME COMMAND
+oracle    1785  6.2  3.820049281972880 ?        O 17:14:54 285:25 oracleRCBRRP01 (DE
+oracle   17108  6.2 11.057843845750792 ?        O   Sep 04 3374:40 oracleRCUKRP01 (DE
+oracle   20378  1.7  3.719674161927536 ?        S 03:00:07  7:26 oracleRCHSRP01 (LO
+oracle   20762  1.6  3.719675441927680 ?        S 03:00:09  5:59 oracleRCHSRP01 (LO
+root      3130  1.1  0.0 4808 4488 pts/7    O 04:00:31  0:13 /usr/ucb/ps aux
+oracle   21903  1.0  3.719839441944088 ?        O 03:00:20  6:05 oracleRCBRRP01 (LO
+oracle   22409  0.9  3.719839441944104 ?        S 03:00:23  5:33 oracleRCBRRP01 (LO
+oracle   21751  0.9  3.719839521945800 ?        O 03:00:19  7:26 oracleRCBRRP01 (LO
+root         3  0.8  0.0    0    0 ?        S   Aug 19 2594:07 fsflush
+patrolag 24524  0.8  0.5219048218096 ?        S 09:56:33 195:27 PatrolAgent -p 330
+oracle   22473  0.7  3.719839441944088 ?        S 03:00:23  4:57 oracleRCBRRP01 (LO
+root     27418  0.7  0.12131218576 ?        S   Sep 06 123:18 bgscollect -I noIn
+oracle   21703  0.7  3.719839441944104 ?        S 03:00:18  5:18 oracleRCBRRP01 (LO
+oracle   21815  0.7  3.719839441944104 ?        S 03:00:19  5:28 oracleRCBRRP01 (LO
+oracle    2387  0.3  1.2667464633240 ?        S 03:52:46  0:25 oracleRCSGRP01 (LO
+oracle   15677  0.3  1.2647280613544 ?        S 02:11:17  1:54 oracleRCMYRP01 (LO
+root      3193  0.3  0.0 4296 3968 ?        S 04:01:00  0:02 /usr/lib/sa/sadc 6
+patrolag 23100  0.1  0.13648832336 ?        S 09:31:11 15:55 /usr/adm/best1_7.2
+oracle   16833  0.1  1.2626576592624 ?        S 02:26:08  0:41 oracleRCIDRP01 (LO
+oracle   28198  0.1  3.719594881924800 ?        S 03:10:06  0:06 oracleRCHKRP01 (LO
+oracle    3118  0.1  1.1623880583248 ?        S 04:00:10  0:00 oracleRCILRP01 (LO
+oracle    3077  0.1  1.1623896583288 ?        S 04:00:08  0:01 oracleRCILRP01 (LO
+oracle   15687  0.1  1.2670424635848 ?        S 02:11:42  0:24 oracleRCPHRP01 (LO
+oracle    3066  0.1  1.1623896583288 ?        S 04:00:06  0:01 oracleRCILRP01 (LO
+oracle    3068  0.1  1.1623896583288 ?        S 04:00:07  0:01 oracleRCILRP01 (LO
+oracle    3114  0.1  1.1623896583288 ?        S 04:00:08  0:01 oracleRCILRP01 (LO
+oracle    3116  0.1  1.1623896579264 ?        S 04:00:09  0:01 oracleRCILRP01 (LO
+oracle    3064  0.1  1.1623896583288 ?        S 04:00:05  0:01 oracleRCILRP01 (LO
+oracle   10181  0.1  1.1617912567744 ?        S   Aug 19 54:23 ora_pmon_RCLBRP01
+oracle    3056  0.1  0.15632046200 ?        S 04:00:03  0:05 rman target rman/s
+oracle    9071  0.1  1.2667064617032 ?        S   Aug 19 54:44 ora_pmon_RCAURP01
+oracle   10298  0.1  1.1617912567608 ?        S   Aug 19 54:52 ora_pmon_RCMYRP01
+oracle   15976  0.1  3.719609841927256 ?        S 02:13:47  1:03 oracleRCHKRP01 (LO
+oracle    9611  0.1  1.1617912567088 ?        S   Aug 19 54:24 ora_pmon_RCBNRP01
+oracle    9651  0.1  3.719777841927352 ?        S   Aug 19 55:18 ora_pmon_RCBRRP01
+oracle    9690  0.1  3.719777841927544 ?        S   Aug 19 54:29 ora_pmon_RCCARP01
+oracle    9728  0.1  1.1617912567712 ?        S   Aug 19 55:01 ora_pmon_RCCNRP01
+oracle    9925  0.1  3.719614001911144 ?        S   Aug 19 54:45 ora_pmon_RCHSRP01
+oracle   10105  0.1  1.1617912567568 ?        S   Aug 19 54:09 ora_pmon_RCJORP01
+root      3187  0.1  0.0 6448 6200 ?        S 04:01:00  0:00 sar 60 14
+oracle    8167  0.1 10.857283125666688 ?        S   Aug 19 676:46 ora_lgwr_RCUKRP01
+oracle    9965  0.1  1.1617912567592 ?        S   Aug 19 54:31 ora_pmon_RCIDRP01
+
+
+Oracle  is bottleneck , need to check from oracle side. Transferring IM to CIT/PSDMDB. Please healthcheck from oracle side.
+</pre>

@@ -1,0 +1,71 @@
+---++ Doc Log 1383813246_01
+        $ Date: Thu Nov 07:: 14:04:06
+        $ Summary: I/O fence reconfig online (minimum requirements SF5.0 with mp3
+
+---++++ Details:
+<pre>
+$ /opt/VRTSspt/VRTSexplorer/VRTSexplorer -dbac –vxfen
+
+Enable password-less ssh access from <host1> to all nodes
+
+ssh-keygen -t rsa
+
+cp -p id_rsa.pub authorized_keys
+cp -p /etc/ssh/sshd_config /etc/ssh/sshd_config.`date +%d%m%Y`
+cp -p /usr/local/soe/conf/soelogins.data /usr/local/soe/conf/soelogins.data.`date +%d%m%Y`
+
+Modifiy /etc/ssh/sshd_config ( #PermitRootLogin no to  #PermitRootLogin yes)
+Modifiy /usr/local/soe/conf/soelogins.data (root:1) to allow root 1 direct login
+
+svcs -a|grep -i ssh
+svcadm refresh svc:/network/ssh:default
+
+/etc/init.d/sshd restart
+
+/sbin/vxfenadm -g all -f /etc/vxfentab | tee vxfenadm_-g_all.pre
+/sbin/vxfenadm -r all -f /etc/vxfentab | tee vxfenadm_-r_all.pre
+
+
+/etc/vx/bin/vxdisksetup -i <vmax_id>
+/etc/vx/bin/vxdisksetup -i <vmax_id>
+/etc/vx/bin/vxdisksetup -i <vmax_id>
+
+
+vxdg init vmax_<cluster name>_fencdg fen001_<cluster name>_dm=<vmax_id>
+vxdg -g vmax_<cluster name>_fencdg adddisk fen002_<cluster name>_dm=<vmax_id>
+vxdg -g vmax_<cluster name>_fencdg adddisk fen003_<cluster name>_dm=<vmax_id>
+
+vxdg -g vmax_<cluster name>_fencdg set coordinator=on
+vxdg deport vmax_<cluster name>_fencdg
+vxdg -t import vmax_<cluster name>_fencdg
+vxdg deport vmax_<cluster name>_fencdg
+
+/opt/VRTSvcs/vxfen/bin/vxfenswap -g vmax_<cluster name>_fencdg
+
+cp /var/VRTSvcs/log/vxfen/vxfenswap.log.* .
+cp -p /etc/vxfendg vxfendg.post
+cp -p /etc/vxfenmode vxfenmode.post
+cp -p /etc/vxfentab vxfentab.post
+
+Destroy original fencing diskgroup
+----------------------------------
+
+vxdg -t import <cluster name>_fencdg
+vxdg -o coordinator destroy <cluster name>_fencdg
+/etc/vx/bin/vxdiskunsetup -C <dmx id>
+/etc/vx/bin/vxdiskunsetup -C <dmx id>
+/etc/vx/bin/vxdiskunsetup -C <dmx id>
+
+
+(OR)
+
+vxdg –t import tpni_ps_enr_rac_fendg 
+
+vxdg list
+vxdg -g tpni_ps_enr_rac_fencdg set coordinator=off
+vxdg destroy tpni_ps_enr_rac_fencdg
+
+
+
+
+</pre>
