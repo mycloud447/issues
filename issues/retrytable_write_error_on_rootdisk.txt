@@ -1,10 +1,5 @@
----++ Doc Log 1139814970_01
 
-	$ Date: Mon Feb 13 07:16:10 2006
-	$ Summary: retrytable write error on rootdisk
 
----++++ Details:
-<pre>
 Feb 12 11:05:01 cls001 scsi: [ID 107833 kern.warning] WARNING: /pci@1f,0/pci@1/scsi@8/sd@0,0 (sd0):
 Feb 12 11:05:01 cls001  Error for Command: write(10)               Error Level: Retryable
 Feb 12 11:05:01 cls001 scsi: [ID 107833 kern.notice]    Requested Block: 65569304                  Error Block: 65569304
@@ -15,4 +10,3 @@ Feb 12 11:05:01 cls001 scsi: [ID 107833 kern.notice]    ASC: 0x3 (peripheral dev
 Single error - ran format-analyse-read against disk and all okay.
 
 
-</pre>

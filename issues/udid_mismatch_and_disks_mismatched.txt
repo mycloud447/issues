@@ -1,9 +1,4 @@
----++ Doc Log 1383641053_01
-        $ Date: Tue Nov 05:: 14:14:13
-        $ Summary: udid mismatch and disks mismatched
 
----++++ Details:
-<pre>
 The customer zones luns out of the san.  Then sometime later new luns are zoned back in.  In the lower revisions
 of 5.0, 5.0mp3 and 5.1 vxconfigd does not know how to handle the missing devices and the new devices properly and can drop an application core.  It can also sometimes give a false udid mismatch. This problem was solved a while ago in the higher revisions and if you send me modinfo | grep vx I can get you the patches.
  
@@ -155,4 +150,3 @@ If PowerPath is present:
 # powermt save
 # vxconfigd -k -x cleartempdir -x syslog -m enable
 # vxdisk scandisks
-</pre>

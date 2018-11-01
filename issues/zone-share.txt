@@ -1,4 +1,3 @@
-<pre>
 # zonecfg -z gesctap1
 
 zonecfg:gesctap1> set rctl zone.cpu-shares=(priv=privileged,limit=800,action=none)
@@ -35,4 +34,3 @@ ZONE_gesctap1 Critical         global        0
 #hagrp -online gesctap1 -sys lonshspltp24b
 
 =========================================================================================================
-</pre>

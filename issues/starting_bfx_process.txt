@@ -1,9 +1,4 @@
----++ Doc Log 1399901055_01
-        $ Date: May 12 18:54:15 2014
-        $ Summary: starting bfx process
 
----++++ Details:
-<pre>
 # cd /usr/nesi/bfx/bin
 # ./bfxstart
 # ps -ef|grep bfx
@@ -13,4 +8,3 @@
     root  3704 27753   0 06:11:35 pts/1       0:00 /usr/nesi/bfx/bin/bfxjs
 
 #
-</pre>

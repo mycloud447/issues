@@ -1,9 +1,4 @@
----++ Doc Log 1383808847_01
-        $ Date: Thu Nov 07:: 12:50:47
-        $ Summary: LDom creation/installation setup - step by step
 
----++++ Details:
-<pre>
 LDom creation/installation setup - step by step 
 
 Virtualization - Using logical domains (LDom)
@@ -212,4 +207,3 @@ To use file as virtual disk to install  Solaris on Guest domain
 # ldm add-vdsdev /ldoms/disk-images/s10-5g.img vol2@primary-vds0
 
 #ldm add-vdisk vdisk2 vol2@primary-vds0 myldom1
-</pre>

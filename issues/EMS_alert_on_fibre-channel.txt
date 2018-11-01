@@ -1,10 +1,5 @@
----++ Doc Log 1144425306_01
 
-	$ Date: Fri Apr 07 15:55:06 2006
-	$ Summary: EMS alert on fibre-channel
 
----++++ Details:
-<pre>
 Critical  O-XSXX- 14:40:28 07/04/06 syslogd OS syslog Apr  7 14:39:55 EMS [2605]: ------ EMS Event Notification ------   Value: "SERIOUS (4)" for Resource: "/adapters/events/TL_adapter/0_6_0_0"     (Threshold:  >= " 3")    Execute the following command to obtain event details:   /opt/resmon/bin/resdata -R 170721282 -r /adapters/events/TL_adapter/0_6_0_0 -n 170721281 -a
 
 EMS alert is;
@@ -175,4 +170,3 @@ disk     51  0/6/2/0.99.59.19.0.0.6   sdisk    CLAIMED     DEVICE       EMC     
 only one alert on that fibre channel path. will wait to see if problem repeats 
 (as in the EMS advisory actions).
 
-</pre>

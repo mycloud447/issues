@@ -1,9 +1,4 @@
----++ Doc Log 1383887644_01
-        $ Date: Nov 08 10:44:04 2013
-        $ Summary: multipaths under Vxvm - Script
 
----++++ Details:
-<pre>
 #!/bin/ksh
 # This script will display the number of paths and their state under Veritas and
 # also shows the paths of ALL the disks and their state
@@ -37,4 +32,3 @@ echo "Checking Multipathing to disk ........ $disk"
 /usr/sbin/luxadm display /dev/rdsk/"$disk"s2 |egrep "^ *(/dev/rdsk|Path status:)"|sed "s/ //g"|sed -e :a -e '$!N;s/\nPathstatus:/ /;ta' -e 'P;D' |tee -a /tmp/luxadm.out
 echo "----------------------------------------------------"
 done
-</pre>

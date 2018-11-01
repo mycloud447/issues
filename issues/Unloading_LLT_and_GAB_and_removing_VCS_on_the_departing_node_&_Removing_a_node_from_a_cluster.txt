@@ -1,9 +1,4 @@
----++ Doc Log 1384411870_01
-        $ Date: Nov 14 12:21:10 2013
-        $ Summary: Unloading LLT and GAB and removing VCS on the departing node & Removing a node from a cluster
 
----++++ Details:
-<pre>
 Unloading LLT and GAB and removing VCS on the departing node
 
 Perform the tasks on the node that is departing the cluster.
@@ -84,4 +79,3 @@ To unconfigure and unload LLT and GAB and remove VCS
     # rm /etc/gabtab
     # rm /etc/llthosts
     Remove the language packages and patches.
-</pre>

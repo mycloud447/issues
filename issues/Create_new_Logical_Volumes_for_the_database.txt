@@ -1,11 +1,5 @@
----++ Doc Log 1218013161_01
 
-	$ Date: Wed Aug 06 08:59:21 2008
-	$ Summary: Create new Logical Volumes for the database
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 The user dont want to downtime in extending the filesystem and he need to run oracle 10g and 91 in different volums. Hence creating new logical volumes.
 
 Confirmed the volumegroup has enough space to create the volumes.
@@ -46,4 +40,3 @@ mkfs -t ext3 /dev/vg00/u16
 mkfs -t ext3 /dev/vg00/u17
 
 Make entry in the /etc/fstab, create mount points and mount the filesystem. 
-</pre>

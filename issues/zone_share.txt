@@ -1,9 +1,4 @@
----++ Doc Log 1383885498_01
-        $ Date: Nov 08 10:08:18 2013
-        $ Summary: zone share
 
----++++ Details:
-<pre>
 # zonecfg -z local-zone
 zonecfg:local-zone> set rctl zone.cpu-shares=(priv=privileged,limit=800,action=none)
 zonecfg:local-zone> info  ====> check for rctl limit value
@@ -30,4 +25,3 @@ ZONE_local-zone Critical         global        0
 #haconf -dump -makero
 #hagrp -offline local-zone -sys test24
 #hagrp -online local-zone -sys test24
-</pre>

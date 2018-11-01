@@ -1,9 +1,4 @@
----++ Doc Log 1383807480_01
-        $ Date: Thu Nov 07:: 12:28:00
-        $ Summary: zone doesn't boot and have to reboot the global zone instead
 
----++++ Details:
-<pre>
 This Bug looks related -> 15710774 - SUNBT7038404-SOLARIS_11 outstanding zone references should not cause zone_destroy
 
 Sun BugId: 7038404, Oracle BugID: 15710774
@@ -28,4 +23,3 @@ Action plan I suggest:
 local zones. However you should still  try reboot zone first as this bug may
 not always happen,  reboot global zone should be the last approach. 
  
-</pre>

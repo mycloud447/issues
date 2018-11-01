@@ -1,11 +1,5 @@
----++ Doc Log 1191939963_01
 
-	$ Date: Tue Oct 09:: 14:26:03
-	$ Summary: GAB Ports
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 Veritas Cluster Server GAB ports 
 LLT is actually a Veritas developed protocol sitting on the Data Link layer of the ISO model, while ARP (part of the IP stack) sits between datalink and network layers. LLT does "talk" from MAC address to MAC address. 
 
@@ -23,4 +17,3 @@ u  used as an exclusive port in establishing Cluster Volume Manager members
 v  vxconfigd used in Cluster Volume Manager  
 w  used in kernel-to-kernel communication for Cluster Volume Manager  
 
-</pre>

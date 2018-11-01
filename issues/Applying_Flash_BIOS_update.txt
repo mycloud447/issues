@@ -1,11 +1,5 @@
----++ Doc Log 1213180140_01
 
-	$ Date: Wed Jun 11 10:29:00 2008
-	$ Summary: Applying Flash BIOS update
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 performing a Firmware Update on the BladeCenter Management Module. The correct method to use for applying a
 can be downloaded from the IBM website as follows:
 
@@ -19,4 +13,3 @@ The shell script should be run as follows:
 
 Once this script has run the server has to be rebooted before the BIOS upgrade process
 is complete.
-</pre>

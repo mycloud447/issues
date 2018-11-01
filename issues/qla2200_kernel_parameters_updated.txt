@@ -1,9 +1,5 @@
----++ Doc Log 1132210903_01
 
-	$ Date: Thu Nov 17 07:01:43 2005
-	$ Summary:  qla2200 kernel parameters updated
 
----++++ Details:
 
 numerous repeated errors on one of the HBAs.  after HEAT 
 report from EMC, decided to go ahead and update following

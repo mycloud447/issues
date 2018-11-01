@@ -1,11 +1,5 @@
----++ Doc Log 1196683573_01
 
-	$ Date: Mon Dec 03 12:06:13 2007
-	$ Summary: splitbrain
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 (root_test303)@/etc # vxdisk list c3t0d33s2
 Device:    c3t0d33s2
 devicetag: c3t0d33
@@ -2043,4 +2037,3 @@ sd appdg03-03   oracle-01    appdg03  66210816 3296256  5092352   -        DIS
 (root_test303)@/dev/vx/rdmp # cat /var/tmp/c3t0d30s2.out | vxprint -D - -ht | sum
 10764 5
 
-</pre>

@@ -1,9 +1,4 @@
----++ Doc Log 1386309151_01
-        $ Date: Dec 06 11:22:31 2013
-        $ Summary: Veritas Volume Manager known issues
 
----++++ Details:
-<pre>
 Veritas Volume Manager known issues
 ===================================
 
@@ -3698,4 +3693,3 @@ Available controllers not shown
 
 
 The Scan Disks By Controller View does not list the available controllers
-</pre>

@@ -1,9 +1,4 @@
----++ Doc Log 1383635257_01
-        $ Date: Tue Nov 05:: 12:37:37
-        $ Summary: issue while changing the cvm master manually
 
----++++ Details:
-<pre>
 node2 $ vxclustadm nidmap
 
 Name                             CVM Nid    CM Nid     State
@@ -52,4 +47,3 @@ node2                  0          1          Joined: Slave
 node3                  1          2          Joined: Slave
 
 node2 $
-</pre>

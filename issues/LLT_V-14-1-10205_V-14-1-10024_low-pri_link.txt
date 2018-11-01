@@ -1,11 +1,5 @@
----++ Doc Log 1265631570_01
 
-	$ Date: Mon Feb 08 12:19:30 2010
-	$ Summary: LLT V-14-1-10205 V-14-1-10024 low-pri link
-	$ On-Call: UNSPECIFIED
 
----++++ Details:
-<pre>
 Starting with 5.0MP3, Symantec has added the feature of one-way link detection in LLT (Etrack Incident# 1031514)
 
 Prior to this, (i.e. until 5.0MP1), LLT used broadcast heartbeats by default. Beginning with 5.0MP3, instead of using broadcast heartbeats, LLT uses unicast heartbeats.
@@ -49,4 +43,3 @@ Current LLT timer values (.01 sec units):
  peertrouble = 400    <--------- after
  peerinact   = 1600
  . . .
-</pre>

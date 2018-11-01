@@ -1,11 +1,5 @@
----++ Doc Log 1199701394_01
 
-	$ Date: Mon Jan 07 10:23:14 2008
-	$ Summary: ASL library fault can not see disks even after Linux MP4 install
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 This was down to the version of the EMC libaray as it would not update.
 
 206s:~ # vxddladm listversion
@@ -57,4 +51,3 @@ libvxemc.so                     vm-4.1-rev-4            4.0
 libvxcscovrts.so                vm-4.1-rev-1            4.0
 206s:~ #
 
-</pre>

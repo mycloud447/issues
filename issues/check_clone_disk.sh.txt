@@ -1,9 +1,4 @@
----++ Doc Log 1427172559_01
-        $ Date: Mar 24 10:19:19 2015
-        $ Summary: check_clone_disk.sh
 
----++++ Details:
-<pre>
 #!/bin/sh
 #
 #       Written by Gunter Rogenmoser, IBM, Feb.2013
@@ -21,4 +16,3 @@ echo "Device name       status  Clone   udid   Diskgroup"
 echo "--------------------------------------------------"
 #cat /tmp/disks1.txt |nawk '/^Device/ {printf("\n%s",$2); if($3=="disk:") printf("\tonline"); else {printf("\tinvalid"); break} if(index($0,"udid:")==0) printf("\t--"); else if(substr($0,index($0,"udid:")+6,1)==1) printf("\tClone"); else printf("\tOK"); if($5=="group:") printf("\t%s",substr($6,6))} END {print ""}'
 cat /tmp/disks1.txt |nawk '/^Device/ {printf("\n%s",$2); if($3=="disk:") printf("\tonline"); else {printf("\tinvalid"); break} if(index($0,"udid:")==0) printf("\t--"); else if(substr($0,index($0,"udid:")+6,1)==1 || substr($0,index($0,"udid:")+6,1)==2) printf("\tClone"); else printf("\tOK"); if($7=="udid:") printf("\t%s",substr($7$8,0)); if($5=="group:") printf("\t%s",substr($6,6))} END {print ""}'
-</pre>

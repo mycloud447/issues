@@ -1,9 +1,4 @@
----++ Doc Log 1383808800_01
-        $ Date: Thu Nov 07:: 12:50:00
-        $ Summary: Enabling MPXIO on Solaris 10
 
----++++ Details:
-<pre>
 Enabling MPXIO on Solaris 10 
 
 
@@ -291,4 +286,3 @@ Spare 5 minutes or more to review it by your self or ask your friend to do it. A
 
 sh> stmsboot -e
 
-</pre>

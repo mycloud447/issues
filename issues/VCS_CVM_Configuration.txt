@@ -1,11 +1,5 @@
----++ Doc Log 1217318216_01
 
-	$ Date: Tue Jul 29:: 07:56:56
-	$ Summary: VCS CVM Configuration
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 CVM/CFS Configuration
 CVM Volume Name - d11_vol01
 Mount Point - /u53/oradata
@@ -36,4 +30,3 @@ haconf -dump -makero
 Bring the resource online     
 hares -online d11_u53oradata -sys nsufd419                
 hares -online d11_sdg -sys nsufd418
-</pre>

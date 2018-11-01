@@ -1,11 +1,5 @@
----++ Doc Log 1210670487_01
 
-	$ Date: Tue May 13 09:21:27 2008
-	$ Summary: unable to add the disk
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 How to add the disk in Linux ??
 
 Was getting following error initializing disk
@@ -102,4 +96,3 @@ sdax         auto:none       -            -            online
 Disk is now initialized.
 
 !!! Enjoy !!!
-</pre>

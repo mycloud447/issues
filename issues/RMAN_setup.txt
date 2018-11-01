@@ -1,9 +1,4 @@
----++ Doc Log 1383633445_01
-        $ Date: Tue Nov 05:: 12:07:25
-        $ Summary: RMAN setup
 
----++++ Details:
-<pre>
 I didn't have any issues usingthe following commands on SF5.1 versions
 
 Pre Implementation: (per diskgroup)
@@ -25,4 +20,3 @@ Post Implementation (or backout)
 3. vxprint -htg <diskgroup>   - verifiy
 4. vxsnap -g <diskgroup> refresh <volume>   - refresh snap
 5. vxtask list  - monitor
-</pre>

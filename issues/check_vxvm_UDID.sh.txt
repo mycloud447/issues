@@ -1,9 +1,4 @@
----++ Doc Log 1427172892_01
-        $ Date: Mar 24 10:24:52 2015
-        $ Summary: check_vxvm_UDID.sh
 
----++++ Details:
-<pre>
 #!/bin/ksh
 # vxudidlist.sh - Compare UDID values until upgrading to 6.x which has the "vxdisk -o udid list" command
 echo "Check excludes disks reported in online invalid|error|LVM|ZFS states"
@@ -16,4 +11,3 @@ echo "$content" | awk '{ if ($3==$4) print $1,"match" ; else print $1,"mismatch"
 done
 
 # END OF SCRIPT
-</pre>

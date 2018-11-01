@@ -1,9 +1,4 @@
----++ Doc Log 1383808919_01
-        $ Date: Thu Nov 07:: 12:51:59
-        $ Summary: how to check swap on HP servers
 
----++++ Details:
-<pre>
 In HP-UX you can use check physical memory allocated to server from command line as well as from SAM.I am going to describe here how to check memory on HP-UX from command line: 
 
 1.) Checking phyiscal memory in HP-UX using dmesg : 
@@ -95,4 +90,3 @@ memory 3024 2517 507 83%
 
 dmesg | grep -E -i 'memory|physical'
 
-</pre>

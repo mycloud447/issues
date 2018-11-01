@@ -1,11 +1,3 @@
----++ Doc Log 1202143364_01
-
-	$ Date: Mon Feb 04 16:42:44 2008
-	$ Summary: LINUX RECOVERY WHEN PASSWD IS BUSTED
-	$ On-Call: SYONCALL
-
----++++ Details:
-<pre>
 1. Log onto management module, get remote console and reboot server. Check boot up messages and saw errors stating unable to open password file (i.e. /etc/passwd). This generally means that this file is corrupt and usually /etc/group and /etc/shadow are in the same state. 
 2. Find a DHCP server on the same subnet as gbnldbi05e. (lxadm -i 128.8.145 -r check_dhcpd) This shows that gbnldbi03e has an installed/not running DHCP server.
 3. Log onto gbnldbi03e, check /etc/dhcpd.conf and try to ping the network addresses detailed in the range statement. If all pings fail then start the DHCP server.
@@ -27,5 +19,3 @@
 14. Run vgchange -a n /dev/vg00 to disable volume group.
 15. Boot up the server and examine the startup messages for any other failures, missing files etc.
 16. Stop the DHCP server started in point 3.
-</pre>
-

@@ -1,9 +1,4 @@
----++ Doc Log 1383813246_01
-        $ Date: Thu Nov 07:: 14:04:06
-        $ Summary: I/O fence reconfig online (minimum requirements SF5.0 with mp3
 
----++++ Details:
-<pre>
 $ /opt/VRTSspt/VRTSexplorer/VRTSexplorer -dbac –vxfen
 
 Enable password-less ssh access from <host1> to all nodes
@@ -68,4 +63,3 @@ vxdg destroy tpni_ps_enr_rac_fencdg
 
 
 
-</pre>

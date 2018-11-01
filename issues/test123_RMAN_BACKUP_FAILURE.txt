@@ -1,11 +1,5 @@
----++ Doc Log 1152757190_01
 
-	$ Date: Thu Jul 13 02:19:50 2006
-	$ Summary: test123 RMAN BACKUP FAILURE
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 Seems that control M agent is running ok on both the systems.
 
 # ps -ef |grep ctm
@@ -95,4 +89,3 @@ CONTROL-M/Agent Communication Diagnostic Report
  Service "ctmagent" is             :  Active
  Netstat protocol                  :  tcp
  Protocol consistency check        :  Ok
-</pre>

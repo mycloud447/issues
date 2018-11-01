@@ -1,9 +1,4 @@
----++ Doc Log 1383809267_01
-        $ Date: Thu Nov 07:: 12:57:47
-        $ Summary: Updateing SF with 5.1 Version
 
----++++ Details:
-<pre>
 Take a clean reboot so... to ensure evry thing is ok before proceed.  
 
  eeprom | grep -i boot 
@@ -64,4 +59,3 @@ task-bytamplets-sol9Packeges-EMC5.2MP2
 
 init 6  
 
-</pre>

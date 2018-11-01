@@ -1,9 +1,4 @@
----++ Doc Log 1383884750_01
-        $ Date: Nov 08 09:55:50 2013
-        $ Summary: force a defunct process to be reaped by its parent
 
----++++ Details:
-<pre>
 # ps -ef | grep -c defunct
 606
 
@@ -48,4 +43,3 @@ OpenBSD/3.2/i386
 SunOS/5.7/sparc
 SunOS/5.8/sparc
 UWIN_XP/4.0.0_5.1/i686
-</pre>

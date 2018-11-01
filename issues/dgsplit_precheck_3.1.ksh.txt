@@ -1,9 +1,4 @@
----++ Doc Log 1427172738_01
-        $ Date: Mar 24 10:22:18 2015
-        $ Summary: dgsplit_precheck_3.1.ksh
 
----++++ Details:
-<pre>
 #!/usr/bin/ksh
 # Version : 3.1
 
@@ -662,4 +657,3 @@ print "    Limitations of Disk Group Split and Join
                 echo "Wrong option or, no option selected"
                 ;;
                 esac
-</pre>

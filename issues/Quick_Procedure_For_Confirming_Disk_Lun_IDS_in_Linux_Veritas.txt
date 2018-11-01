@@ -1,11 +1,5 @@
----++ Doc Log 1248019610_01
 
-	$ Date: Sun Jul 19 16:06:50 2009
-	$ Summary: Quick Procedure For Confirming Disk/Lun IDS in Linux Veritas
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 Just a quick doc to show how to tell which disk within Veritas is the newly allocated LUN
 
 For server 0206s a new LUN was allocated as follows:
@@ -47,4 +41,3 @@ Use this information and run it again to get the physical paths:
 	/dev/vx/rdmp/sdbj  000287750508   00BE9     6006048000028775050853594d424539
 
 So again you can confirm your two physical paths "sde" and "sdbg" as seen in the lsscsi and your veritas device "sdbj"
-</pre>

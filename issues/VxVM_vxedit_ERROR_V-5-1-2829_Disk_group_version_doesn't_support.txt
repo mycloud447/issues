@@ -1,9 +1,4 @@
----++ Doc Log 1384305083_01
-        $ Date: Nov 13 06:41:23 2013
-        $ Summary: VxVM vxedit ERROR V-5-1-2829 Disk group version doesn't support
 
----++++ Details:
-<pre>
 Upgrading a disk group
 ========================
 Prior to the release of Veritas Volume Manager 3.0, the disk group version was automatically upgraded (if needed) when the disk group was imported.
@@ -44,4 +39,3 @@ To upgrade a disk group to the highest version supported by the release of VxVM 
 To create a disk group with a previous version, specify the -T version option to the vxdg init command
 
 # vxdg -T 40 init newdg newdg01=c0t3d0s2
-</pre>

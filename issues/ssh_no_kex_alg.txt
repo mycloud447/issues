@@ -1,9 +1,4 @@
----++ Doc Log 1383634384_01
-        $ Date: Tue Nov 05:: 12:23:04
-        $ Summary: ssh no kex alg
 
----++++ Details:
-<pre>
 Faced below issue while performing the change.
 ==============================================
 
@@ -54,4 +49,3 @@ Issue was fixed by performing the below activities/commands.
 
 # svcadm restart ssh
 
-</pre>

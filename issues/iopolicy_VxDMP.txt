@@ -1,11 +1,5 @@
----++ Doc Log 1404447612_01
-        $ Date: Jul 04 09:50:12 2014
-        $ Summary: iopolicy
 
----++++ Details:
-<pre>
 vxdisk -o alldgs list | egrep "udid_mismatch|clone_disk"
 vxdmpadm getattr enclosure vmax_enclr_name iopolicy
 vxdmpadm setattr enclosure vmax_enclr_name iopolicy=adaptive
 vxdmpadm getattr enclosure vmax_enclr_name iopolicy
-</pre>

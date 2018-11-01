@@ -1,9 +1,4 @@
----++ Doc Log 1385895252_01
-        $ Date: Dec 01 16:24:12 2013
-        $ Summary: Add new DG & FS to Cluster Configuration  and made those FS as NFS mount to other node
 
----++++ Details:
-<pre>
 Create a mount resource and modify its attributes
 ==================================================
 
@@ -91,4 +86,3 @@ Offline & delete the resources
 # /opt/VRTSvcs/bin/hares -delete data43-share
 # /opt/VRTSvcs/bin/hares -delete data43-mnt
 # df -h /apps/dcs/data43
-</pre>

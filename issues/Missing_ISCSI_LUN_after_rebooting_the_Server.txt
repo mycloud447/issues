@@ -1,9 +1,4 @@
----++ Doc Log 1383886963_01
-        $ Date: Nov 08 10:32:43 2013
-        $ Summary: Missing ISCSI LUN after rebooting the Server.
 
----++++ Details:
-<pre>
 O.S: solaris 10
 
 Problem Description :-
@@ -23,4 +18,3 @@ Re-enter secret: adeiscat.3028
 #iscsiadm modify discovery --static enable
 #iscsiadm add static-config iqn.1992-08.com.netapp:emomni0077c01:ossait,10.97.68.1:3260
 #devfsadm -v -i iscsi
-</pre>

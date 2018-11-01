@@ -1,10 +1,5 @@
----++ Doc Log 1145437280_01
 
-	$ Date: Wed Apr 19 09:01:20
-	$ Summary: Repeated VxVm Disk Failure
 
----++++ Details:
-<pre>
 Problem:
  
 
@@ -280,4 +275,3 @@ Choose a device, or select "none"
 
  
 
-</pre>

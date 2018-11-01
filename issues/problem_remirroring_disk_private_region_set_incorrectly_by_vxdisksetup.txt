@@ -1,11 +1,5 @@
----++ Doc Log 1239201934_01
 
-	$ Date: Wed Apr 08 14:45:34 2009
-	$ Summary: problem remirroring disk private region set incorrectly by vxdisksetup
-	$ On-Call: UNSPECIFIED
 
----++++ Details:
-<pre>
 The disk which was being remirrored after performing vxdisksetup looked the incorrect size
 On investigation :
 # vxdisk list rootmirror
@@ -43,4 +37,3 @@ vxdisksetup -i c1t0d0 privoffset=0
 
 
 This resolved the issue
-</pre>

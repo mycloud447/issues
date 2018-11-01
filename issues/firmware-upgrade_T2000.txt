@@ -1,9 +1,4 @@
----++ Doc Log 1383635071_01
-        $ Date: Tue Nov 05:: 12:34:31
-        $ Summary: firmware-upgrade-T2000
 
----++++ Details:
-<pre>
 $mkdir -p /tmp/images
 
 $cp -p 136927-03_T2000_FW-180708.zip /tmp/images/
@@ -180,4 +175,3 @@ y
 
 Enter #. to return to ALOM.
 
-</pre>

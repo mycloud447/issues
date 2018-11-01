@@ -1,9 +1,4 @@
----++ Doc Log 1383611226_01
-        $ Date: Tue Nov 05:: 05:57:06
-        $ Summary: Volume persists in SYNC state
 
----++++ Details:
-<pre>
 If a node leaves the cluster while a plex is being attached to a volume, the volume can remain in the SYNC state indefinitely.
 To avoid this, after the plex attach completes, resynchronize the volume manually with the following command:
 
@@ -22,4 +17,3 @@ sd pri0003_asap_dm-01 asapvl-01 pri0003_asap_dm 0 141346048 0     emc2_04ad ENA
 sd pri0002_asap_dm-01 asapvl-01 pri0002_asap_dm 0 47397632 141346048 emc2_04a9 ENA
 pl asapvl-02    asapvl       ENABLED  ACTIVE   188743680 CONCAT   -        RW
 sd pri0004_asap_dm-01 asapvl-02 pri0004_asap_dm 0 188743680 0     emc3_151d ENA 
-</pre>

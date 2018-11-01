@@ -1,9 +1,4 @@
----++ Doc Log 1383609779_01
-        $ Date: Tue Nov 05:: 05:32:59
-        $ Summary: migrate the Solaris native ufs FS to VxFS
 
----++++ Details:
-<pre>
 The fsmigadm utility performs online migrations of a local mount native file system to the VxFS file system. During migration, a background copy process copies the files from the source file system to the target file system. While the migration is in progress, any operations done by the application are reflected on both the target file system and the source file system.
 
 If the background copy operation is unable to copy any file due to errors, then the list of such files is kept in a file on the VxFS file system. The fsmigadm command displays the name of this file after the migration completes, and the VxFS file system is mounted again
@@ -259,4 +254,3 @@ Filesystem             size   used  avail capacity  Mounted on
                         44G    35G   8.9G    80%    /apps/clarify
 /dev/vx/dsk/DG1/ora
                         10G   1.1G   8.4G    12%    /ora   
-</pre>

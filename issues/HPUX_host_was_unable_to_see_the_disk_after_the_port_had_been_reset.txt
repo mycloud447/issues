@@ -1,10 +1,3 @@
----++ Doc Log 1141740970_01
-
-	$ Date: Tue Mar 07 14:16:10 2006
-	$ Summary: 
-
----++++ Details:
-<pre>
 the san disks have multiple paths to each device and one side of them 
 had disapeared due to a possible SAN issue. Pat fogarty from the san team 
 was able to check the switch port and reset this. 
@@ -22,6 +15,3 @@ vgchange -a y vg03 <---- this got HPUX to checl /dev/vg03/ area against /etc/lvm
 to see the current ones used by this VG do... 
 
 strings /etc/lvmtab
-
-</pre>
-

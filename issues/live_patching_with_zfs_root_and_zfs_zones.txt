@@ -1,9 +1,4 @@
----++ Doc Log 1383633990_01
-        $ Date: Tue Nov 05:: 12:16:30
-        $ Summary: live patching with zfs root  and zfs zones
 
----++++ Details:
-<pre>
 Pree checks
 ===============================
 
@@ -1878,4 +1873,3 @@ Executing legacy init script "/etc/rc2.d/S68arm".
 skntwebf01-app
 
 # 
-</pre>

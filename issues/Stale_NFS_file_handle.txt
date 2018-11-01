@@ -1,10 +1,5 @@
----++ Doc Log 1136828842_01
 
-	$ Date: Mon Jan 09 17:47:22 2006
-	$ Summary: Stale NFS file handle
 
----++++ Details:
-<pre>
 Problem occurred with filesystem corruption of /u100 on 354 (/dev/vx/dsk/ora354datdg/v_u100).
 
 Unmounted, fsck'd and re-mounted /u100.
@@ -16,4 +11,3 @@ Attempting to re-mount /u100 on these servers results in the message:
 nfs mount: mount: /u100: Stale NFS file handle
 
 Solution: restart NFS server (/etc/init.d/nfs.server) on 354
-</pre>

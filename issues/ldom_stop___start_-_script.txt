@@ -1,9 +1,4 @@
----++ Doc Log 1383808085_01
-        $ Date: Thu Nov 07:: 12:38:05
-        $ Summary: ldom stop / start - script
 
----++++ Details:
-<pre>
 #! /bin/sh
 
 #
@@ -53,4 +48,3 @@ stop)
         ;;
 
 esac
-</pre>

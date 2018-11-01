@@ -1,9 +1,4 @@
----++ Doc Log 1143203931_01
-	$ Date: Fri Mar 24 12:38:51 2006
-	$ Summary: rootdisk mirrored in sds
 
----++++ Details:
-<pre>
 went to mirror the rootdisk using SDS and found that the installation
 of the SUNWmd package wasn't any good...devices were not there etc. 
 (probably due to me...I believe that I copied over the whole /dev
@@ -74,7 +69,3 @@ and the OBP settings were also updated;
 # eeprom nvramrc='devalias rootdisk /pci@1f,0/pci@1,1/scsi@2/sd@1,0:a
 > devalias rootmirror /pci@1f,0/pci@1,1/scsi@2/sd@0,0:a'
 root@lonuxsa001 # eeprom boot-device="disk1 disk0 rootdisk rootmirror"
-
-
-</pre>
-

@@ -1,11 +1,5 @@
----++ Doc Log 1172654560_01
 
-	$ Date: Wed Feb 28 09:22:40 2007
-	$ Summary: Veritas Clustered Filesystem
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 Veritas Clustered Filesystem
 #Ensure the disks are zoned to all servers in VCS cluster
 vxdisksetup -i <disk>      # if disk is already setup you will need to perform the destroy and vxdiskunsetup above
@@ -39,4 +33,3 @@ Ensure VRTScavf/VRTSglm/VRTSgls are all installed
 
 Vxdisk list <disk>	# will show the tag clusterid, this will tell you what cluster it is linked to
 
-</pre>

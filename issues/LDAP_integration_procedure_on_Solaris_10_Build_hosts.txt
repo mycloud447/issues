@@ -1,12 +1,9 @@
----++ Doc Log 1453883355_01
 	<p /> <dl>
         <dt> Date: </dt><dd> Jan 27 13:59:15 2016
         </dd> <dt> Summary: </dt><dd> LDAP_integration_procedure_on_Solaris_10_Build_hosts
 	</dd></dl>
 	<p />
 
----++++ Details:
-<pre>
 Below are the steps to migrate hosts from local to LDAP authentication mode, specific to NEW SOLARIS 10 Builds ONLY.
  
 Procedure::
@@ -23,4 +20,3 @@ cd /var/tmp
 nohup /usr/local/Utility/bin/install_manager.pl --download ibmrepository:/tlswd/Build/Packages/WP_lists/UAM_Install.txt &  
  
 Once the process is complete in a third window try to connect and it should use your ldap password.
-</pre>

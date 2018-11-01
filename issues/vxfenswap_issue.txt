@@ -1,9 +1,4 @@
----++ Doc Log 1383561915_01
-        $ Date: Mon Nov 04:: 16:15:15
-        $ Summary: vxfenswap issue
 
----++++ Details:
-<pre>
 /opt/VRTSvcs/vxfen/bin/vxfenswap -g vmax_bss_rac_fencdg
 
 Veritas vxfenswap version 5.1SP1RP2 Solaris
@@ -33,4 +28,3 @@ cp -p /etc/vxfen.d/script/vxfen_scriptlib.sh /etc/vxfen.d/script/vxfen_scriptlib
 vi /etc/vxfen.d/script/vxfen_scriptlib.sh
 
 TR="/usr/xpg4/bin/tr" to TR="/usr/bin/tr"
-</pre>

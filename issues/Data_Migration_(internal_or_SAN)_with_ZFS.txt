@@ -1,9 +1,4 @@
----++ Doc Log 1383638972_01
-        $ Date: Tue Nov 05:: 13:39:32
-        $ Summary: Data  Migration (internal or SAN)  with  ZFS
 
----++++ Details:
-<pre>
 [root@testserver ~]# zpool create sanpool c2t17d0 c2t18d0 c2t19d0
 [root@testserver ~]# zpool status -v sanpool
 
@@ -417,4 +412,3 @@ config:
             c3t11d0  ONLINE       0     0     0
 
 Which is 4 single disk ldevs and one 4way mirrored ldev.  NOT 4 mirrored ldev's which is wha
-</pre>

@@ -1,9 +1,4 @@
----++ Doc Log 1383633634_01
-        $ Date: Tue Nov 05:: 12:10:34
-        $ Summary: spacecheck script
 
----++++ Details:
-<pre>
 #!/usr/bin/perl
 
 use strict;
@@ -223,4 +218,3 @@ foreach my $thispart (sort keys %partitions) {
 
 }
 
-</pre>

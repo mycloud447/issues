@@ -1,11 +1,5 @@
----++ Doc Log 1251060532_01
 
-	$ Date: Sun Aug 23 20:48:52 2009
-	$ Summary: veritas defrag
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 
 #
 # fsadm -DEde /u12/oradata/LWHSE01
@@ -65,4 +59,3 @@
 
 #
 
-</pre>

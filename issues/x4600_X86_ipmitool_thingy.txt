@@ -1,11 +1,5 @@
----++ Doc Log 1251239394_01
 
-	$ Date: Tue Aug 25 22:29:54 2009
-	$ Summary: x4600 X86 ipmitool thingy..
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 
 The tool is just a binary, and is available for most common operating systems from our download site. You need to run it on another machine that is able to contact the IP address of the service processor. Where exactly this machine can reside on any given network is dependent on the network configuration.
 
@@ -48,4 +42,3 @@ from OS level in the host:
 # ipmitool -v sdr
 
 
-</pre>

@@ -1,11 +1,5 @@
----++ Doc Log 1242049299_01
 
-	$ Date: Mon May 11 13:41:39 2009
-	$ Summary: The VVR replication issue
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 Issue: Secondary VVR host(test195) unreachable due to lan9 interface issue on Primary Host (xyz195)
 
 
@@ -144,4 +138,3 @@ To check vradmin is stopped
 **** Enjoy ***
 
 
-</pre>

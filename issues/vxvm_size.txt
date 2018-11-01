@@ -1,4 +1,3 @@
-<pre>
 #!/bin/bash
 # scale=2 display value with 2 decimal. 
 foo ()
@@ -90,6 +89,3 @@ echo "--------------------------------------------------------------"
 echo -e "\033[31mDiskgroup $DGS is not imported in `uname -n`\033[0m"
 echo "--------------------------------------------------------------"
 fi
-
-</pre>
-

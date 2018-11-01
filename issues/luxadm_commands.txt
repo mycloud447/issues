@@ -1,11 +1,5 @@
----++ Doc Log 1186044632_01
 
-	$ Date: Thu Aug 02 08:50:32 2007
-	$ Summary: luxadm commands
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 modinfo | grep ql
 luxadm probe
 luxadm -e port
@@ -34,4 +28,3 @@ format
 
 prtconf -pv | grep -i wwn | grep -i port
 
-</pre>

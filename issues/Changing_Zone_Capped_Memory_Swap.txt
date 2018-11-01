@@ -1,9 +1,4 @@
----++ Doc Log 1383885718_01
-        $ Date: Nov 08 10:11:58 2013
-        $ Summary: Changing Zone Capped Memory/Swap
 
----++++ Details:
-<pre>
 The below command will attempt to list configured settings of capped-memory (physical, swap, locked)
 
 for i in `zoneadm list | grep -v global` ; do echo -n "$i " ; zonecfg -z $i info capped-memory ; done
@@ -48,4 +43,3 @@ zonecfg:zone018> verify
 zonecfg:zone018> exit
 
 (A reboot of the Zone is required for changes to take affect.)
-</pre>

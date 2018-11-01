@@ -1,9 +1,4 @@
----++ Doc Log 1427172585_01
-        $ Date: Mar 24 10:19:45 2015
-        $ Summary: fix_clone_disk.sh
 
----++++ Details:
-<pre>
 #!/bin/sh
 #
 #
@@ -114,4 +109,3 @@ case "$1" in
         ;;
 esac
 
-</pre>

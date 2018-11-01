@@ -1,9 +1,4 @@
----++ Doc Log 1383707570_01
-        $ Date: Wed Nov 06:: 08:42:50
-        $ Summary: Metadevices are in maintenance state
 
----++++ Details:
-<pre>
 metadb -i command shows an error on the state database if it is corrupted as follows:
 
 #metadb -i
@@ -31,4 +26,3 @@ id1,sd@SSEAGATE_ST39173W_SUN9.0GLMD69076000079291K9W
 Please see the following doc:
 
 Solaris Volume Manager (SVM): How to Use Metadevadm to Maintain Device Relocation Information After Disk Replacement (Doc ID 1006196.1)	
-</pre>

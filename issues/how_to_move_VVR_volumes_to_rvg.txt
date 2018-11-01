@@ -1,11 +1,5 @@
----++ Doc Log 1189872210_01
 
-	$ Date: Sat Sep 15 16:03:30 2007
-	$ Summary: how to move VVR volumes to rvg
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 Make sure the volumes are created on the other side before doing this....... you can add the volumes to the rvg whilst replication is running. 
 
 first you create the vols on the other side then, you have to sync the individual volumes to other side. 
@@ -372,4 +366,3 @@ sd srldisk01-01 srl_log-01   srldisk01 0       35352288 0         c12t1d4  ENA
 
 
 see 17-25 are NOT in the rvg disk group..... >>>
-</pre>

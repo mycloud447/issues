@@ -1,11 +1,5 @@
----++ Doc Log 1181571962_01
 
-	$ Date: Mon Jun 11 14:26:02 2007
-	$ Summary: Split brains fixs
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 the following commands fixed it.
 
 # vxdg deport dg05_130
@@ -74,4 +68,3 @@ log replay in progress
 Filesystem            kbytes    used   avail capacity  Mounted on
 /dev/vx/dsk/dg05_130/algo54
                      104857600 53915027 47759497    54%    /opt/algo.54
-</pre>

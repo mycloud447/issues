@@ -1,9 +1,4 @@
----++ Doc Log 1143654662_01
-	$ Date: Wed Mar 29 17:51:02 2006
-	$ Summary: disk failure 
 
----++++ Details:
-<pre>
 Call raised with HP to replace faulty disk,  some discussion as to when this can happen as it a Treats/BOS ETX adaptor.  Wendy Hall requesting that this go ahead over the weekend.  Ops advised that this is the root mirror disk and should we have any issues with the other disk then we could be without a server until rebuilt.
 
 Disk c1t15d0 needs replacing whilst the disks for vg01 in lvmtab need updating to reflect a change of device file:  Will log a call with HP for internal drive to be replaced.  It should eb identical to the one below:
@@ -42,4 +37,3 @@ disk      6  0/6/2/0.104.64.19.0.0.6  sdisk    CLAIMED     DEVICE       EMC     
 #
 
 OPS to confirm with HP if this disk is hot swap able as this will influence the replacement time. 
-</pre>

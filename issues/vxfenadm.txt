@@ -1,11 +1,5 @@
----++ Doc Log 1183248750_01
 
-	$ Date: Sun Jul 01 00:12:30 2007
-	$ Summary: vxfenadm
-	$ On-Call: 
 
----++++ Details:
-<pre>
 (root_test)@/opt/VRTSvcs/vxfen/bin # gabconfig -a
 GAB Port Memberships
 ===============================================================
@@ -1139,4 +1133,3 @@ vxfenclearpre  vxfendebug     vxfentsthdw
 
 
 WAYNE ROONEY
-</pre>

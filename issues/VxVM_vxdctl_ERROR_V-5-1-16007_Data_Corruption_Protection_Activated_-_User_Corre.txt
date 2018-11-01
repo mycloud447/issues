@@ -1,9 +1,4 @@
----++ Doc Log 1385894653_01
-        $ Date: Dec 01 16:14:13 2013
-        $ Summary: VxVM vxdctl ERROR V-5-1-16007  Data Corruption Protection Activated - User Corre
 
----++++ Details:
-<pre>
 # vxdctl enable
 VxVM vxdctl ERROR V-5-1-16007  Data Corruption Protection Activated - User Corre
 To recover, first ensure that the OS device tree is up to date (requires OS spec
@@ -140,4 +135,3 @@ To clean up the device tree after you remove LUNs
 
     $devfsadm -Cv 
 
-</pre>

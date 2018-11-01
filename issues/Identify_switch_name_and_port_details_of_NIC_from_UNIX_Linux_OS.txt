@@ -1,9 +1,4 @@
----++ Doc Log 1391046620_01
-        $ Date: Jan 30 07:20:20 2014
-        $ Summary: Identify switch name and port details of NIC from UNIX/Linux OS
 
----++++ Details:
-<pre>
 # tcpdump -nn -v -i eth1 -s 1500 -c 1 'ether proto 0x88cc'
 tcpdump: listening on eth1, link-type EN10MB (Ethernet), capture size 1500 bytes
 17:20:46.370094 24:b6:57:ac:b3:ee > 01:80:c2:00:00:0e, ethertype Unknown (0x88cc), length 311: 
@@ -29,4 +24,3 @@ tcpdump: listening on eth1, link-type EN10MB (Ethernet), capture size 1500 bytes
 0 packets dropped by kernel
 #
 From the above information, we can notice that  "eth1"  NIC  is  connected to " slen-umi-t2-s12" device at switch port "01/1/45".
-</pre>

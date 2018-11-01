@@ -1,9 +1,4 @@
----++ Doc Log 1141645530_01
-	$ Date: Mon Mar 06 11:45:30 2006
-	$ Summary: enable sendmail
 
----++++ Details:
-<pre>
 need to enable sendmail 
 logon to server and perform the following steps: 
 
@@ -31,4 +26,3 @@ echo test | mailx -v -s "test from `hostname`" YOUR_EMAIL_ADDRESS
 
 you should see the SMTP conversation and check that Recipient is OK and the Message has been accepted for delivery.. 
 
-</pre>

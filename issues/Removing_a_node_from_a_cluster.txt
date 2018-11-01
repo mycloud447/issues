@@ -1,9 +1,4 @@
----++ Doc Log 1384416033_01
-        $ Date: Nov 14 13:30:33 2013
-        $ Summary: Removing a node from a cluster
 
----++++ Details:
-<pre>
 Removing a node from a cluster
 ==============================
 
@@ -246,4 +241,3 @@ Check the Status of the Cluster.
 # /opt/VRTSvcs/bin/hastatus -summ
 # cat /etc/VRTSvcs/conf/config/main.cf
 # cat /etc/VRTSvcs/conf/config/types.cf
-</pre>

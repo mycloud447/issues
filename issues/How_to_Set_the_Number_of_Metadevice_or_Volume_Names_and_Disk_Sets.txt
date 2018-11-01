@@ -1,9 +1,4 @@
----++ Doc Log 1383884877_01
-        $ Date: Nov 08 09:57:57 2013
-        $ Summary: How to Set the Number of Metadevice or Volume Names and Disk Sets
 
----++++ Details:
-<pre>
 With the Solaris 10 release, Solaris Volume Manager has been enhanced to configure volumes dynamically. You no longer need to edit the nmd and the md_nsets parameters in the /kernel/drv/md.conf file. New volumes are dynamically created, as needed.
 
 Tip :– 
@@ -26,4 +21,3 @@ a.	Determine the quantity of metadevice or volume names that you expect to need 
 
 If you use local metadevices or volumes, ensure that each local metadevice or volume name on which a global-devices file system, /global/.devices/node@ nodeid, is mounted is unique throughout the cluster and does not use the same name as any device-ID name in the cluster.
 
-</pre>

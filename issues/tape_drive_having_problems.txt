@@ -1,10 +1,5 @@
----++ Doc Log 1141087726_01
 
-	$ Date: Tue Feb 28 00:48:46 2006
-	$ Summary: tape drive having problems
 
----++++ Details:
-<pre>
 errors in messages file;
 
 Feb 28 00:23:26 test154 scsi: [ID 107833 kern.warning] WARNING: /pci@1d,700000/lpfc@2/st@8,0 (st152):
@@ -51,4 +46,3 @@ robot      0    -    ACS    -       -  -          -              psl390
   drive    -    2 hcart2    -      UP  -          ps_00_ndmp_42  /ndmp//dev/rmt/15cbn  ACS=0, LSM=1, PANEL=1, DRIVE=9
   drive    -    3 hcart2    -      UP  -          ps_00_ndmp_58  /ndmp//dev/rmt/53cbn  ACS=0, LSM=0, PANEL=1, DRIVE=9
 
-</pre>

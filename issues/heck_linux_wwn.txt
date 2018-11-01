@@ -1,11 +1,5 @@
----++ Doc Log 1200894774_01
 
-	$ Date: Mon Jan 21 05:52:54 2008
-	$ Summary: check linux wwn
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 use lspci to check Adaptor (Qlogic in this case)
 
 # lspci
@@ -108,4 +102,3 @@ SCSI LUN Information:
 ( 1: 2): Total reqs 394, Pending reqs 0, flags 0x0, 1:0:82,
 ( 1: 3): Total reqs 245, Pending reqs 0, flags 0x0, 1:0:82,
 
-</pre>

@@ -1,9 +1,4 @@
----++ Doc Log 1383809030_01
-        $ Date: Thu Nov 07:: 12:53:50
-        $ Summary: TSM backups
 
----++++ Details:
-<pre>
 dsmc Query Backup -FROMDate=11/01/11 -TODate=11/10/11 -INActive "*" 
 
 dsmc incr -ver <file>            ///take a file backup and verify
@@ -40,4 +35,3 @@ dsmc rest -fromdate=03/02/11 -todate=03/10/12 -ina -subdir=yes "/applications/cq
 
 dsmc res -pitd=03/10/2012 /applications/cq/ -subdir=yes -replace=yes
 
-</pre>

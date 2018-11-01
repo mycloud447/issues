@@ -1,4 +1,3 @@
-<pre>
 # gabconfig -a
 GAB Port Memberships
 ===============================================================
@@ -50,4 +49,3 @@ On both servers
 ----------------
 # gabconfig -a to check port b
 # cat /etc/vxfentab to ensure new devices are populated
-</pre>

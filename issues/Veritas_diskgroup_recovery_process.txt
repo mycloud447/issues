@@ -1,9 +1,4 @@
----++ Doc Log 1429490900_01
-        $ Date: Apr 20 06:18:20 2015
-        $ Summary: Veritas diskgroup recovery process
 
----++++ Details:
-<pre>
 Below are the details and Disk group recovery plan
 ===================================================
 
@@ -105,4 +100,3 @@ Do start all volumes  and then mount all the File systems
 # vxvol -g  sandg init active <vol>
 # vxvol -g  sandg start <vol>
 # mountall
-</pre>

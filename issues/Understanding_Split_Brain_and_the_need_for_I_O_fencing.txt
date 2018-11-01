@@ -1,9 +1,4 @@
----++ Doc Log 1383808381_01
-        $ Date: Thu Nov 07:: 12:43:01
-        $ Summary: Understanding Split Brain and the need for I/O fencing
 
----++++ Details:
-<pre>
 I/O fencing
 
 I/O fencing is a mechanism to prevent uncoordinated access to the shared storage. This feature works even in the case of faulty cluster communications causing a split-brain condition.
@@ -66,4 +61,3 @@ Additional SF Oracle RAC features include:
     The ability to transition from a local high-availability cluster into a disaster recovery environment. This environment ensures maximum data protection and availability in the event of large-scale disasters and involves global clustering with VCS and replication with Veritas Volume Replicator (VVR).
     The ability to back up and recover data at the volume and file system levels using Veritas Database Flashsnap and Veritas Storage Checkpoints.
     The ability to evaluate or troubleshoot I/O performance with Veritas Storage Mapping. You can access mapping information that allows for a detailed understanding of the storage hierarchy in which files reside. 
-</pre>

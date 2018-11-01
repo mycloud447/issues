@@ -1,9 +1,4 @@
----++ Doc Log 1383808286_01
-        $ Date: Thu Nov 07:: 12:41:26
-        $ Summary: Corrections for I/O fencing utilties and procedures
 
----++++ Details:
-<pre>
 About I/O fencing utilities
 
 Veritas Cluster Server User's Guide for 5.0 MP3 does not include the path for the I/O fencing commands. Refer to the following content.
@@ -251,4 +246,3 @@ To replace a disk in a coordinator diskgroup when the cluster is online
     If you do not want to replace the diskgroup, answer n.
 
     The vxfenswap utility rolls back any changes to the coordinator diskgroup
-</pre>

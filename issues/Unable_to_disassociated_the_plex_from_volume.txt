@@ -1,9 +1,4 @@
----++ Doc Log 1383614061_01
-        $ Date: Tue Nov 05:: 06:44:21
-        $ Summary: Unable to disassociated the plex from volume
 
----++++ Details:
-<pre>
 $ /usr/sbin/vxplex -g testserverdg dis bfwrd02vl-01
 
 VxVM vxplex ERROR V-5-1-10128  Unexpected kernel error in configuration update
@@ -58,4 +53,3 @@ pl bfwrd02vl_dcl-01 bfwrd02vl_dcl ENABLED ACTIVE 1120   CONCAT    -        RW
 sd 007testserverdn-05 bfwrd02vl_dcl-01 007testserverdn 8388608 1120 0 emc10_00cb ENA
 
 $
-</pre>

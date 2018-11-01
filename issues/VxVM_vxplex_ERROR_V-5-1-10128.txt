@@ -1,4 +1,3 @@
-<pre>
 Unexpected kernel error in configuration update
 -----------------------------------------------
 test $ /usr/sbin/vxplex -g testdg dis bfwrd02vl-01
@@ -93,4 +92,3 @@ Because of a bug in the logic of path name comparison, DMP ends up including the
 Resolution:
 -------------
 The code in DMP is corrected to handle path name comparison appropriately.
-</pre>

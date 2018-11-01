@@ -1,9 +1,4 @@
----++ Doc Log 1383704326_01
-        $ Date: Wed Nov 06:: 07:48:46
-        $ Summary: Making opt a separate file system in ZFS Root Pool
 
----++++ Details:
-<pre>
 Please find the technical procedure to separate opt into a zfs file system.
 
 1.Making opt in separate file system in ZFS.
@@ -141,4 +136,3 @@ rpool/export                    38K   125G    20K  /export
 rpool/export/home               18K   125G    18K  /export/home
 rpool/swap                       2G   127G    16K  -
 #
-</pre>

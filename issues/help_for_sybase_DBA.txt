@@ -1,10 +1,5 @@
----++ Doc Log 1147683885_01
 
-	$ Date: Mon May 15 09:04:45 2006
-	$ Summary: help for sybase DBA
 
----++++ Details:
-<pre>
  # lsof -nl | egrep " TCP|UDP" |grep 10040
 lsof: can't make index for clone: 
 dataserve 12143      101    8u  inet  0x922ba980        0t0      TCP 128.29.112.141:10040 (LISTEN)
@@ -57,4 +52,3 @@ looking for those processes (2nd column)...
 
 they are now capable of knowing which dataservers to kill and fixing the 
 problem themselves.
-</pre>

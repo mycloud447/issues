@@ -1,9 +1,4 @@
----++ Doc Log 1384746562_01
-        $ Date: Nov 18 09:19:22 2013
-        $ Summary: Solaris 10 - Setting up printers inside zones
 
----++++ Details:
-<pre>
 Install HP Jet Direct into global zone: 
 
 pkgadd -d . SOLe134.PKG 
@@ -187,4 +182,3 @@ gla0002_1 accepting requests since Fri May 02 13:16:15 2008
 root#
 
 
-</pre>

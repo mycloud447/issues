@@ -1,10 +1,5 @@
----++ Doc Log 1139927485_01
 
-	$ Date: Tue Feb 14 14:31:25 2006
-	$ Summary: fault light on - alerted by HP engineer
 
----++++ Details:
-<pre>
 alerted by HP after a walkthrough that a fault light was on 
 one of the netras -
 
@@ -37,4 +32,3 @@ lom>check
 lom>console
 
 
-</pre>

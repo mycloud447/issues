@@ -1,9 +1,4 @@
----++ Doc Log 1384746367_01
-        $ Date: Nov 18 09:16:07 2013
-        $ Summary: inetd core dumps in local zone after patching
 
----++++ Details:
-<pre>
 if you've seen this before, but after patching Solaris 10 to the latest level, inetd in the local zones keeps core dumping 
 This obviously means none of your other inet services will start 
 
@@ -13,4 +8,3 @@ inetadm -M connection_backlog=10
 Once this is done, enabling the inetd svc kicks everthing into life. Thanks to Sun Support for this one as there was on sunsolve....
 
 
-</pre>

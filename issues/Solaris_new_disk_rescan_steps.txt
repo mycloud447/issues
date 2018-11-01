@@ -1,9 +1,4 @@
----++ Doc Log 1384130046_01
-        $ Date: Nov 11 06:04:06 2013
-        $ Summary: Solaris new disk rescan steps
 
----++++ Details:
-<pre>
 Solaris Disk Rescan
 ====================
 List the HBA controller numbers connected to EMC DMX (006048) and VMAX (000097) VSANs:
@@ -43,4 +38,3 @@ If using Veritas DMP, ensure multiple paths exist & each path is enabled:
 # /usr/lib/vxvm/diag.d/vxdmpdbprint
 # vxdisk -e path
 (There should not be any LUNs listeds in the Disabled state)
-</pre>

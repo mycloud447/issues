@@ -1,9 +1,4 @@
----++ Doc Log 1401685637_01
-        $ Date: Jun 02 10:37:17 2014
-        $ Summary: snap vol break
 
----++++ Details:
-<pre>
 from cvm master:testserver PROD_TIB_C1
 
 
@@ -26,4 +21,3 @@ From cvm master : testserver1 PROD_TIB_C2
 vxsnap -g tibdgwemsdg unprepare gatewayvl 
 vxassist -g tibdgwemsdg snapclear gatewayvl PFIgatewayvl_1c_snp1 
 vxsnap -g tibdgwemsdg -f unprepare siebelvl 
-</pre>

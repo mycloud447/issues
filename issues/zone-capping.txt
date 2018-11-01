@@ -1,4 +1,3 @@
-<pre>
 How To Configure FSS Shares
 
 # ps -eafc|grep -i fss|grep -i vrts
@@ -285,4 +284,3 @@ ZONE_test10 CpuCap          global        0
 ZONE_test10 Shares          global        400
 ZONE_test11 CpuCap           global        0
 ZONE_test11 Shares           global        1600
-</pre>

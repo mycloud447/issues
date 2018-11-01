@@ -1,11 +1,5 @@
----++ Doc Log 1195456309_01
 
-	$ Date: Mon Nov 19 07:11:49 2007
-	$ Summary: 192 and 195 Heartbeat unacknowledged from node 128.9.69.79 for 10 seconds.
-	$ On-Call: LNONCALL
 
----++++ Details:
-<pre>
  was unabel to resume the replication, I raised a call with Veritas and they found some faile disks on 192. Veritas ran the folling commands to fix it.
 
 vxreattach 
@@ -26,4 +20,3 @@ vxprint -g sybdg01_192 -lP
 vxedit -g sybdg01_192 set srlprot=dcm csrep192 
 vxedit -g sybdg01_192 -f set srlprot=dcm csrep192 
 vxprint -g sybdg01_192 -lP 
-</pre>

@@ -1,9 +1,4 @@
----++ Doc Log 1383807784_01
-        $ Date: Thu Nov 07:: 12:33:04
-        $ Summary: converting zfs pool to mirror -- script
 
----++++ Details:
-<pre>
 # attached new storage to pool
 
 -------------------------------
@@ -294,4 +289,3 @@ config:
 
 
 Which is 4 single disk ldevs and one 4way mirrored ldev.  NOT 4 mirrored ldev's which is what we actually wanted.
-</pre>

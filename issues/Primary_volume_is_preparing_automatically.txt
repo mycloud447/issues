@@ -1,9 +1,4 @@
----++ Doc Log 1424317915_01
-        $ Date: Feb 19 09:21:55 2015
-        $ Summary: Primary volume is preparing automatically
 
----++++ Details:
-<pre>
 For the snapshot preparation, there is a default file for creating snapshot. You need to turn that flag off otherwise a mirror command would prepare the volumes.
 
 The default values that the vxassist command uses may be specified in the file /etc/default/vxassist. The defaults listed in this file take effect if you do not override them on the command line
@@ -230,4 +225,3 @@ sd appdg21-02   appdatavl_dcl-01 appdg21 86426624 122832 0        emc2_0935 ENA
 pl appdatavl_dcl-02 appdatavl_dcl ENABLED ACTIVE 122832 CONCAT    -        RW
 
 sd pri0005_app_dm-04 appdatavl_dcl-02 pri0005_app_dm 201654560 122832 0 emc3_0f34 ENA
-</pre>

@@ -1,11 +1,5 @@
----++ Doc Log 1236157450_01
 
-	$ Date: Wed Mar 04 09:04:10 2009
-	$ Summary: how to setup user ssh keys
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 1) Create a public and private key pair for the protocol you want to use (should allways be SSH2). 
 To create a key pair for use by SSH2, enter: 
 
@@ -42,4 +36,3 @@ In both cases, replace filename.pub with the name of the file containing your pu
 
 Note: Follow steps 2-5 for each remote host you want to log into using public key authentication.
 
-</pre>

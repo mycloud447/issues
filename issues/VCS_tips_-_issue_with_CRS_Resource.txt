@@ -1,9 +1,4 @@
----++ Doc Log 1383697104_01
-        $ Date: Wed Nov 06:: 05:48:24
-        $ Summary: VCS tips - issue with CRS Resource
 
----++++ Details:
-<pre>
 Since two week I have came across three similar VCS issue where one of the DB resource group is faulted since a CRS resource is not getting up & we have been transferring it Apps/DB team. 
 
 There could be multiple reason for that, but the one you need to check first is "oracle" user login status.. 
@@ -12,4 +7,3 @@ There could be multiple reason for that, but the one you need to check first is 
 Root cause > Permission of oracle home directory has been changed which is not allowing oracle to login to system during "crs" resource start up & resulting a faulted state. And there wont be any indication of that in any of the system log file including engine_A.log . 
 
 Action > check & change the permission of /opt (mostly you need to provide 755 to /opt FS) & start the resource group.
-</pre>

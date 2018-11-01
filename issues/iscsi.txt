@@ -1,9 +1,4 @@
----++ Doc Log 1383626778_01
-        $ Date: Tue Nov 05:: 10:16:18
-        $ Summary: iscsi
 
----++++ Details:
-<pre>
 # iscsiadm list static-config
 
 Static Configuration Target: iqn.1992-08.com.netapp:e25kappfarm1a,10.97.73.161:3260
@@ -139,4 +134,3 @@ zonecfg:xyz180ab> verify
 zonecfg:xyz180ab> commit
 
 zonecfg:xyz180ab> exit 
-</pre>

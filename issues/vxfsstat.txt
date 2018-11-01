@@ -1,4 +1,3 @@
-<pre>
 nygeqdbxdbuat3:/root # /opt/VRTSvxfs/sbin/vxfsstat -b -e 2 -c 2 -t 2 /export/data/oracle/product
 
 01:54:55.398 October 20, 2011 01:54:55 AM EDT -- absolute sample
@@ -14,4 +13,3 @@ buffer cache statistics
    189824 Kbyte current   24060416 maximum
         8 lookups           100.00% hit rate
      3569 sec recycle age [not limited by maximum]
-</pre>

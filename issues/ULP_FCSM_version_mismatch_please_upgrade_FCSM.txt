@@ -1,12 +1,9 @@
----++ Doc Log 1454487564_01
 	<p /> <dl>
         <dt> Date: </dt><dd> Feb 03 13:49:24 2016
         </dd> <dt> Summary: </dt><dd> ULP_FCSM_version_mismatch_please_upgrade_FCSM
 	</dd></dl>
 	<p />
 
----++++ Details:
-<pre>
 Error :-  unix: WARNING: fctl: ULP FCSM version mismatch; please upgrade FCSM
 
 Solution:-
@@ -87,4 +84,3 @@ Installation of Sun StorEdge SAN completed Successfully
 Please reboot your system.
 -------------------------------------------
 -------------------------------------------
-</pre>

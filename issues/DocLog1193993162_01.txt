@@ -1,11 +1,5 @@
----++ Doc Log 1193993162_01
 
-	$ Date: Fri Nov 02 08:46:02 2007
-	$ Summary: When good disks go bad.... !!!!
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 Parag,
  
 I cannot guarantee all the data will be there as I am unsure why the private region has been stepped on, however, I would replace the disk with themselves and if the data is all intact, the volumes/file-systems will be fine once done.
@@ -40,4 +34,3 @@ You can then if vxfs:
 NOTE:  The above is a log replay and non-intrusive.
 
 Hope this helps,
-</pre>

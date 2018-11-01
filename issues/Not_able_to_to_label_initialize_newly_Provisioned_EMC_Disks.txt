@@ -1,9 +1,4 @@
----++ Doc Log 1383638494_01
-        $ Date: Tue Nov 05:: 13:31:34
-        $ Summary: Not able to  to label/initialize  newly Provisioned EMC Disks
 
----++++ Details:
-<pre>
 Issue : Not able to  to label/initialize  newly Provisioned EMC Disks. 
 ======================================================================
 emc9_131a    auto            -            -            nolabel
@@ -199,4 +194,3 @@ $
 c7t5000097208465954d2 labelled SUCCESSFULLY
 
 $ 
-</pre>

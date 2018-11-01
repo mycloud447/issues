@@ -1,9 +1,4 @@
----++ Doc Log 1384931456_01
-        $ Date: Nov 20 12:40:56 2013
-        $ Summary: swapping subdisk online in Veritas Volume
 
----++++ Details:
-<pre>
 $ vxprint -g ora_db003_dg -htqv data001_vl
 v  data001_vl   -            ENABLED  ACTIVE   473956352 SELECT   -        fsgen
 pl data001_vl-02 data001_vl  ENABLED  ACTIVE   473956352 CONCAT   -        RW
@@ -43,4 +38,3 @@ emc4_xxxx  ---> New VMAX ( Do disk setup and add the disk into disk group)
      vxdg -g ora_db003_dg rmdisk dat_0008_ora_db003_dm
   /etc/vx/bin/vxdiskunsetup -C emc2_076a
   /etc/vx/bin/vxdiskunsetup -C emc2_0769
-</pre>

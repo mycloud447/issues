@@ -1,11 +1,5 @@
----++ Doc Log 1234786806_01
 
-	$ Date: Feb 16 12:20:06 2009
-	$ Summary: No disks in rootdg due to rootdisk public region deletion
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 Problem
 
 rootdg consisted of 2 disks (rootdisk & rootmirror).
@@ -65,4 +59,3 @@ To mirror this rootdisk, run vxdiskadm and select option 6 to mirror volumes on 
 
 After this mirroring is complete you can add all the other volumes back into the /etc/vfstab file.
 
-</pre>

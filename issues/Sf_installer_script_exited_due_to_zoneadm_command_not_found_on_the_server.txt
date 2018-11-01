@@ -1,9 +1,4 @@
----++ Doc Log 1383886475_01
-        $ Date: Nov 08 10:24:35 2013
-        $ Summary: Sf installer script exited due to zoneadm command not found on the server
 
----++++ Details:
-<pre>
 ISSUE:  SF upgrade Installer script throwing a error with “/usr/sbin/zoneadm: No such file or directory”
  
  
@@ -44,4 +39,3 @@ RESOLUTION:
 ==========
 
 Mount the Solaris 10 image and install the missing packages.
-</pre>

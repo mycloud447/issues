@@ -1,9 +1,4 @@
----++ Doc Log 1390866891_01
-        $ Date: Jan 28 05:24:51 2014
-        $ Summary: INST_RELEASE issue fixed
 
----++++ Details:
-<pre>
 $ ./installpatchset --s10patchset
 
 ERROR: Failed to read INST_RELEASE file from target boot environment. This file
@@ -22,4 +17,3 @@ VERSION=x
 REV=0
 "x" Is the version of Solaris software on the system
 
-</pre>

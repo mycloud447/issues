@@ -1,11 +1,5 @@
----++ Doc Log 1256819448_01
 
-	$ Date: Thu Oct 29 12:30:48 2009
-	$ Summary: Oracle Netbackup Agent installs (newest way)
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 
 On Oracle servers we have to install the Netbackup Oracle agent. This will also need to be patched. If you are running on Netbackup Client version 6.5.3 (now standard as part of all new builds), then you will need to perform the following steps to add the agent and the pack  NB_ORA_6.5.2 (usually the Client and the oracle pack needs to be the same version, but 6.5.3 pack for Oracle has not been released. Confirmed with Symantec that this is ok) :-
 
@@ -80,4 +74,3 @@ There is 1 pack available in /var/tmp/NB_ORA_6.5.2:
 
 Enter pack name (or q) [q]: NB_ORA_6.5.2
 
-</pre>

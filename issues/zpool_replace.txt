@@ -1,9 +1,4 @@
----++ Doc Log 1388989020_01
-        $ Date: Jan 06 11:47:00 2014
-        $ Summary: zpool replace
 
----++++ Details:
-<pre>
 2)	zpool offline rpool c1t5d0
 3)	cfgadm -c unconfigure c1::dsk/c1t5d0
 4)	# cfgadm -al | grep -i c1t5d0     (Here the disk is inserted physically)
@@ -19,4 +14,3 @@
 or else we can direct replace with singel command.
 
 After H/W engg replaced the disk do # zpool replace rpool c1t5d0
-</pre>

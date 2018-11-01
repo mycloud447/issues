@@ -1,11 +1,5 @@
----++ Doc Log 1253700540_01
 
-	$ Date: Wed Sep 23 10:09:00 2009
-	$ Summary: Issue with vxconfigd and vradmin on test192
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 vradmin reporting vxconfigd disabled. 
 But actually vxconfigd was running on both primary and secondary VVR hosts.
 
@@ -131,4 +125,3 @@ Secondary:
 
 
 (root_xyz192) @ / #
-</pre>

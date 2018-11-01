@@ -1,11 +1,5 @@
----++ Doc Log 1224868361_01
 
-	$ Date: Fri Oct 24 17:12:41 2008
-	$ Summary: To get enclosure policies
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 :/etc/vx/lib/discovery.d # vxdmpadm getattr enclosure EMC_CLARiiON0 iopolicy
 ENCLR_NAME     DEFAULT        CURRENT
 ============================================
@@ -23,4 +17,3 @@ ENCLR_NAME     DEFAULT        CURRENT
 ============================================
 EMC_CLARiiON3  Round-Robin    Round-Robin
 :/etc/vx/lib/discovery.d #
-</pre>

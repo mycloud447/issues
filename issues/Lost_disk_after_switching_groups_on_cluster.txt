@@ -1,11 +1,5 @@
-\---++ Doc Log 1178805397_01
 
-	$ Date: Thu May 10 13:56:37 2007
-	$ Summary: Lost disk after switching groups on cluster.
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 I switched groups and a disk went failed and I was unable to bring it back online.
 
 -            -         sdbe         dg03         failed was:sdqx
@@ -39,4 +33,3 @@ vxmend -g dg03 on vol05-01
 vxmend -g dg03 fix clean vol05-01
 vxvol -g dg03 start vol05
 
-</pre>

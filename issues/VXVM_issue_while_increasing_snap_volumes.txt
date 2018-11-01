@@ -1,9 +1,4 @@
----++ Doc Log 1383809779_01
-        $ Date: Thu Nov 07:: 13:06:19
-        $ Summary: VXVM issue while increasing snap volumes
 
----++++ Details:
-<pre>
 Increase size of snapshot and parent volume for PFIbatchprogvl_01/batchprogvl
 Symantec suggested mounting the snapshot volume to be increased and grow it in this fashion due to a known issue with the vxassist growto command when dcl logs are involved:
 mount -F vxfs /dev/vx/dsk/testdb11dg/PFIbatchprogvl_01 /mnt
@@ -78,4 +73,3 @@ batchprogvl --           volume   --       --           --       100.00
 PFIbatchprogvl_ef_snp1  volume   --       PFIbatchprogvl_ef 0.01     --
 
 PFIbatchprogvl_ef batchprogvl_snp volume   batchprogvl -- 0.01 100.00
-</pre>

@@ -1,10 +1,5 @@
----++ Doc Log 1145886117_01
 
-	$ Date: Mon Apr 24 13:41:57 2006
-	$ Summary: clock running 1.5 hr slow.
 
----++++ Details:
-<pre>
 
 
 /sbin/init.d # date
@@ -47,4 +42,3 @@ Mon Apr 24 13:40:32 BST 2006
 /sbin/init.d # 
 
 slowly getting better.  will be all fine soon.
-</pre>

@@ -1,11 +1,5 @@
----++ Doc Log 1153401877_01
 
-	$ Date: Thu Jul 20 13:24:37 2006
-	$ Summary: need to set printers....
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 this is how to add printers to summit... 
 
 
@@ -42,4 +36,3 @@ use=cs_co4_lj
 This key/value pair specifies what real queue to use for a queue name. It's a simple form of aliasing. 
 _default 
 This alias identifies the system's default printer and is typically only used with the use=... key/value pair. 
-</pre>

@@ -1,9 +1,4 @@
----++ Doc Log 1383633296_01
-        $ Date: Tue Nov 05:: 12:04:56
-        $ Summary: I/O Fenc Issue
 
----++++ Details:
-<pre>
 $ /etc/init.d/odm stop
 
 Stopping ODM...
@@ -139,4 +134,3 @@ Starting ODM...
 $
 
 $ hastart
-</pre>

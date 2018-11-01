@@ -1,11 +1,5 @@
----++ Doc Log 1241805969_01
 
-	$ Date: Fri May 08 18:06:09 2009
-	$ Summary: VCS 5.0 MP3
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 A number of new VCS 5.0 MP3 implementations/upgrades on Solaris have been experiencing a high volume of LLT informational messages being posted to /var/adm/messages. 
 
 These messages relate only to the low-priority network interfaces and do not affect the stability of the cluster. However, these messages may be being forwarded 
@@ -49,4 +43,3 @@ Current LLT timer values (.01 sec units):
 
 The Solaris VCS 5.0 MP3 Installation and Best Practice Guide is in the process of being updated to include the above information.
 
-</pre>

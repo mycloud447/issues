@@ -1,11 +1,5 @@
----++ Doc Log 1210943404_01
 
-	$ Date: May 16 13:10:04 2008
-	$ Summary: extend ext2 filesystem Linux lvextend resize2fs
-	$ On-Call: UNSPECIFIED
 
----++++ Details:
-<pre>
 df -h /u03/oradata/LMDS03
 /dev/mapper/vg00-u03  113G  107G  455M 100% /u03/oradata/LMDS03
 
@@ -49,4 +43,3 @@ mount /u03/oradata/LMDS03
 
 df -h /u03/oradata/LMDS03
 /dev/mapper/vg00-u03  162G  107G   49G  69% /u03/oradata/LMDS03
-</pre>

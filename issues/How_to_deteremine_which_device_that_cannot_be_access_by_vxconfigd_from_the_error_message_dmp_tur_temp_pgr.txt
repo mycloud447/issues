@@ -1,11 +1,5 @@
----++ Doc Log 1259753383_01
 
-	$ Date: Wed Dec 02 11:29:43 2009
-	$ Summary: How to deteremine which device that cannot be access by vxconfigd from the error message dmp_tur_temp_pgr
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 
 How to deteremine which device that cannot be access by vxconfigd from the error message: dmp_tur_temp_pgr: open failed: error = 6 
 --------------------------------------------------------------------------------
@@ -99,4 +93,3 @@ Languages:
 Solaris
 9.0
 
-</pre>

@@ -1,10 +1,4 @@
----++ Doc Log 1162203944_01
-	$ Date: Mon Oct 30 10:25:44 2006
-	$ Summary: 090 - Error Starting VERITAS volume Manager
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 090 - ERROR STARTING VERITAS VOLUME MANAGER
 
 IM raised for Tobias Brecker090 - ERROR STARTING VERITAS VOLUME MANAGER
@@ -24,4 +18,3 @@ all volumes are now running
 Mon Oct 30 10:30:48 GMT 2006
 #
 
-</pre>

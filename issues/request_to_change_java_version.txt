@@ -1,10 +1,5 @@
----++ Doc Log 1144077472_01
 
-	$ Date: Mon Apr 03 15:17:52 2006
-	$ Summary: request to change java version
 
----++++ Details:
-<pre>
 got request to change java version.  as per previous doclog 
 when server was upgraded and java and checking status of 
 system;
@@ -36,4 +31,3 @@ the system java has changed to 1.4.2_05 -- altho' jdk is still
 # diff -r jdk jdk1.4.2_10 |grep -v '^Common'
 # 
 
-</pre>

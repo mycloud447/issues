@@ -1,9 +1,4 @@
----++ Doc Log 1383626662_01
-        $ Date: Tue Nov 05:: 10:14:22
-        $ Summary: Creating soft partition
 
----++++ Details:
-<pre>
 In the following example, a 4-Gbyte soft partition called d20 is created on c1t3d0s2.
 
 # metainit d20 -p c1t3d0s2 4g
@@ -26,4 +21,3 @@ The -o parameter signifies the offset into the slice, and the -b parameter is th
 
 All numbers are in blocks (a block is 512 bytes). The metainit command ensures that extents and soft partitions do not overlap. 
 
-</pre>

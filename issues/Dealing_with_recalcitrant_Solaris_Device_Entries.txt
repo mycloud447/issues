@@ -1,4 +1,3 @@
-<pre>
 
 Dealing with recalcitrant Solaris Device Entries
 I recently had some EMC Clariion LUNs presented to a Solaris 10 host, and the host was having nothing but trouble. This host also had VxVM running, and Veritas kept creating phantom entries even when the LUNs were removed from the host (masked out). Here are some things I had to do in order to try to get these LUNs removed from the Solaris device tree.
@@ -44,4 +43,3 @@ The disk is in by Veritas because DMP is still holding on to it, you need to dis
 # vxdmpadm getsubpaths dmpnodename=disk_0
 # vxdmpadm -f disable path=c0t0d0s0 
 
-</pre>

@@ -1,10 +1,5 @@
----++ Doc Log 1146829534_01
 
-	$ Date: Fri May 05 11:45:34 2006
-	$ Summary: IPMP failure detection time errors
 
----++++ Details:
-<pre>
 RC RAISED AS REQUESTED
 
 Please open a priority 4 root cause to resolve the issue below;
@@ -66,4 +61,3 @@ ge0: flags=1000843<UP,BROADCAST,RUNNING,MULTICAST,IPv4> mtu 1500 index 7
         ether 0:3:ba:8:d5:c1 
 
 closing RC
-</pre>

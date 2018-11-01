@@ -1,9 +1,4 @@
----++ Doc Log 1397198739_01
-        $ Date: Apr 11 12:15:39 2014
-        $ Summary: vxconfigd not starting after SF installation
 
----++++ Details:
-<pre>
 Issue:
 upon host reboot, vxconfigd not starting after storage foundation installation 5.0MP3/5.1SP1 
 
@@ -45,4 +40,3 @@ add_drv fdd
 4.) Check to see if the modules successfully loaded.
 
 #modinfo |egrep 'fdd|vx' 
-</pre>

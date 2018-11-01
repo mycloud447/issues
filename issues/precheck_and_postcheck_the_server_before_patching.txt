@@ -1,9 +1,4 @@
----++ Doc Log 1427172246_01
-        $ Date: Mar 24 10:14:06 2015
-        $ Summary: precheck and postcheck the server before patching
 
----++++ Details:
-<pre>
 #  Script to precheck and postcheck the server before patching
 #  02-July-2014
 #  Version: 1.00
@@ -197,4 +192,3 @@ if(-e "/var/tmp/solaris_cmds.txt"){
 if(-e "/var/tmp/aix_cmds.txt"){
 	`rm /var/tmp/aix_cmds.txt`;
 }
-</pre>

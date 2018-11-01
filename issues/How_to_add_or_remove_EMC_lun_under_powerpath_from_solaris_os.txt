@@ -1,9 +1,4 @@
----++ Doc Log 1383640762_01
-        $ Date: Tue Nov 05:: 14:09:22
-        $ Summary: How to add or remove EMC lun under powerpath from solaris os
 
----++++ Details:
-<pre>
 >>> Follow the procedures in exact order because deviating from the procedures can cause server to
 
 reboot to add/remove the LUN <<<
@@ -113,4 +108,3 @@ end change happended before removing it from powerpath)
 #/etc/powermt display dev=all
 
 8) Remove the device from the device tree via the cfgadm or by devfsadm -Cv
-</pre>

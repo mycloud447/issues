@@ -1,9 +1,4 @@
----++ Doc Log 1383609903_01
-        $ Date: Tue Nov 05:: 05:35:03
-        $ Summary: Spliting disk group for snap/om volumes with out doing disassociate/unprepare primary and snap volumes
 
----++++ Details:
-<pre>
 -bash-4.1#
 -bash-4.1# uname -r
 5.11
@@ -237,4 +232,3 @@ v  vol_db4prod1_dcl -        ENABLED  ACTIVE   67840    SELECT    -        gen
 pl vol_db4prod1_dcl-01 vol_db4prod1_dcl ENABLED ACTIVE 67840 CONCAT -      RW
 sd disk01-02    vol_db4prod1_dcl-01 disk01 204800 67840 0         disk_0   ENA
 sp snap_db4prod1_snp vol_db4prod1 vol_db4prod1_dco
-</pre>

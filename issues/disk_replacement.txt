@@ -1,9 +1,4 @@
----++ Doc Log 1383808691_01
-        $ Date: Thu Nov 07:: 12:48:11
-        $ Summary: disk replacement
 
----++++ Details:
-<pre>
 # /opt/SUNWexplo/bin/explorer
 
 # cfgadm -al |grep cf7f3e64     
@@ -116,4 +111,3 @@ Ask Sun Engineer to Install a New HDD
 
 # metastat | grep -I main;iostat -en
 
-</pre>

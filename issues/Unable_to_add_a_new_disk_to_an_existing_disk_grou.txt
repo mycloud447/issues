@@ -1,9 +1,4 @@
----++ Doc Log 1383610009_01
-        $ Date: Tue Nov 05:: 05:36:49
-        $ Summary: Unable to add a new disk to an existing disk group
 
----++++ Details:
-<pre>
 
 Problem
 
@@ -72,4 +67,3 @@ tag      udid_asl=EMC%5FSYMMETRIX%5F000292600663%5F6300FE5000
 
 # vxdg -g oradg adddisk 002oradg=emc2_0fe5
 #
-</pre>

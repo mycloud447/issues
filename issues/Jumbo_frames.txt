@@ -1,9 +1,4 @@
----++ Doc Log 1401165076_01
-        $ Date: May 27 10:01:16 2014
-        $ Summary: Jumbo frames
 
----++++ Details:
-<pre>
 	Step by step to increase the MTU size, on Solaris.
 	==================================================
 By default, if you type “ifconfig -a” you will get the MTU size is 1500:
@@ -154,4 +149,3 @@ do
    echo "ce$i\\t$jumbo"
 done
 
-</pre>

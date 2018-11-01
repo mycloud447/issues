@@ -1,9 +1,4 @@
----++ Doc Log 1383609607_01
-        $ Date: Tue Nov 05:: 05:30:07
-        $ Summary: I/O fence reconfig manually & DG split requirements
 
----++++ Details:
-<pre>
 1. While doing disk group split VERITAS Storage Foundation Standard license will not work, required enterprise license
 
 2. While doing quorum migration manually we need to follow below steps.
@@ -25,4 +20,3 @@ $ gabconfig -c
 $ /sbin/vcsmmconfig -c
 $ /etc/init.d/odm start
 $ hastart
-</pre>

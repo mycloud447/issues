@@ -1,9 +1,4 @@
----++ Doc Log 1383610258_01
-        $ Date: Tue Nov 05:: 05:40:58
-        $ Summary: How to remove VMAX thin disk from VxVM
 
----++++ Details:
-<pre>
 bash-3.00# vxdg -g ora9idb001dg rmdisk pri0001_ora9idb001_dm
 VxVM vxdg ERROR V-5-1-0 Disk pri0001_ora9idb001_dm is used by one or more subdisks which are pending to be reclaimed.
         Use "vxdisk reclaim emc1_10d0" to reclaim space used by these subdisks,
@@ -31,4 +26,3 @@ Disk emc1_10d7 : Reclaimed freed subdisks.
 Disk emc1_10d9 : Reclaimed freed subdisks.
 
 bash-3.00# vxdg -g ora9idb001dg rm disk pri0001_ora9idb001_dm
-</pre>

@@ -1,9 +1,4 @@
----++ Doc Log 1383886280_01
-        $ Date: Nov 08 10:21:20 2013
-        $ Summary: SF upgrade Installer script exited without installing the core packages (VRTSvxvm, VRTSvcs etc)
 
----++++ Details:
-<pre>
 $ pkgadd -d VRTSvxvm.pkg
 
 The following packages are available:
@@ -204,4 +199,3 @@ RESOLUTION:
 2.Re-install the SUNWcsu packages on the server ( Note: Make sure you installed the correct version of the package) 
 3.Installed SF packages on the servers.
 
-</pre>

@@ -1,9 +1,4 @@
----++ Doc Log 1393502328_01
-        $ Date: Feb 27 17:28:48 2014
-        $ Summary: fc-fabric failed
 
----++++ Details:
-<pre>
 Issue:-
 ======
 
@@ -16,4 +11,3 @@ Solution:
 ========
 In /etc/cfg/fp,  we need to check for file starting with fabric_wwn*  and delete all the files which are starting with fabric_wwn*.
 After doing so, the issue was resolved and we were able to boot the server successfully.
-</pre>

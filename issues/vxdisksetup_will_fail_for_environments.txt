@@ -1,9 +1,4 @@
----++ Doc Log 1396856988_01
-        $ Date: Apr 07 13:19:48 2014
-        $ Summary: vxdisksetup will fail for environments
 
----++++ Details:
-<pre>
 Issue
 ======
 VxVM (VERITAS Volume Manager) command vxdisksetup will fail for environments with Solaris patch 147440-20  and later.
@@ -47,4 +42,3 @@ Solution:
     The Storage Foundation 6.0.1 release has the General Availability fix in patch vm-sol10_sparc-6.0.1.200 for SPARC architecture and vm-sol10_x64-6.0.1.200 for Intel x86_64 architecture.
 
 
-</pre>

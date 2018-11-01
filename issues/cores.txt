@@ -1,4 +1,3 @@
-<pre>
 #!/usr/bin/bash
 PATH="/sbin:/bin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/opt/sfw/bin:/usr/ucb:\
 /usr/local/soe/sbin:/usr/local/soe/bin:/usr/local/Utility/bin:/usr/sfw/sbin:\
@@ -325,4 +324,3 @@ if [ `uname -s` == "SunOS" ]; then
 		else	
                 echo "This script is compatible for Solaris OS, it seems not Oracle OS."
         fi
-</pre>

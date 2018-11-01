@@ -1,11 +1,5 @@
----++ Doc Log 1259319800_01
 
-	$ Date: Fri Nov 27 11:03:20 2009
-	$ Summary: ethtool
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 # lspci -v | grep Ethernet -A 1 |grep 03
 0000:03:00.0 Ethernet controller: Broadcom Corporation NetXtreme II BCM5708 Gigabit Ethernet (rev 12)
 # ethtool -i eth1
@@ -95,4 +89,3 @@ Link Failure Count: 0
 Permanent HW addr: 00:1f:29:57:38:03
 gbplu0768s:/proc/net/bonding #
 
-</pre>

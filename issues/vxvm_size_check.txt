@@ -1,9 +1,4 @@
----++ Doc Log 1425340287_01
-        $ Date: Mar 03 05:21:27 2015
-        $ Summary: vxvm size check
 
----++++ Details:
-<pre>
 #!/bin/bash
 # scale=2 display value with 2 decimal. 
 foo ()
@@ -95,4 +90,3 @@ echo "--------------------------------------------------------------"
 echo -e "\033[31mDiskgroup $DGS is not imported in `uname -n`\033[0m"
 echo "--------------------------------------------------------------"
 fi
-</pre>

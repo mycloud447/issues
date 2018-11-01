@@ -1,11 +1,5 @@
----++ Doc Log 1267462741_01
 
-	$ Date: Mon Mar 01 16:59:01 2010
-	$ Summary: Problem removing root disk from OS for replacement
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 When replacing a root disk if in a failing state, you need to carry out the Veritas vxdiskadm opt 4 and then cfgadm -c unconfigure C#::c#t#d#
 
 If the above fails with this error:
@@ -34,4 +28,3 @@ NOTE: VxVM 4.1 and above 'es_rcm.pl' script is under /usr/lib/rcm/scripts
 # cfgadm -c configure c0::dsk/c0t0d0
 
 
-</pre>

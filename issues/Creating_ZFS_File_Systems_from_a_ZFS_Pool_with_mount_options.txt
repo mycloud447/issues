@@ -1,8 +1,4 @@
----++ Doc Log 1383620267_01
-        $ Date: Tue Nov 05:: 08:27:47
 
----++++ Details:
-<pre>
 # zfs create bigpool/mynewfs
 
 root# zfs list bigpool/mynewfs
@@ -57,4 +53,3 @@ root# cd /fickle
 root# zfs set mountpoint=/ohnoyoudont bigpool/mynewfs
 
 cannot unmount '/fickle': Device busy
-</pre>

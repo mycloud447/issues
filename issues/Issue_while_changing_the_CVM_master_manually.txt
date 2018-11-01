@@ -1,4 +1,3 @@
-<pre>
 node2 $ vxclustadm nidmap
 Name                             CVM Nid    CM Nid     State
 node1                  2          0          Joined: Slave
@@ -26,4 +25,3 @@ node1                  2          0          Joined: Master
 node2                  0          1          Joined: Slave
 node3                  1          2          Joined: Slave
 node2 $
-</pre>

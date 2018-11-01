@@ -1,9 +1,4 @@
----++ Doc Log 1383807953_01
-        $ Date: Thu Nov 07:: 12:35:53
-        $ Summary: decom wipe disk -script
 
----++++ Details:
-<pre>
 #!/bin/ksh
 
 # Description:  Purging/wiping disks
@@ -459,4 +454,3 @@ fi
 /usr/bin/rm /var/tmp/wipe/time_end
 
 /usr/bin/rm /var/tmp/wipe/host_details
-</pre>

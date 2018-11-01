@@ -1,11 +1,5 @@
----++ Doc Log 1265544322_01
 
-	$ Date: Sun Feb 07 12:05:22 2010
-	$ Summary: Memory upgrade on linux
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 Volume Block Device (minor No)was changed after system reboot.
 =============================================================
 
@@ -75,4 +69,3 @@ To Activate Volumes
 brw-------  1 root root 253, 8 Feb  7 11:43 /dev/mapper/vg00-LMDS08--03
 
 *****Enjoy*****
-</pre>

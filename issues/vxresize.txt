@@ -1,9 +1,4 @@
----++ Doc Log 1384305306_01
-        $ Date: Nov 13 06:45:06 2013
-        $ Summary: vxresize
 
----++++ Details:
-<pre>
 For example, the following command resizes a volume from 1 GB to 10 GB. The volume is homevol in the disk group mydg, and contains a VxFS file system. The command uses spare disks mydg10 and mydg11.
 
 # vxresize -g mydg -b -F vxfs -x -t homevolresize homevol 10g mydg10 mydg11
@@ -31,4 +26,3 @@ Note :-
 If you enter an incorrect volume size, do not try to stop the vxresize operation by entering Crtl-C. Let the operation complete and then rerun vxresize with the correct value.
 The new_length operand can begin with a plus (+) or minus (-) to indicate that the new length is added to or subtracted from from the current volume length. Specify the new length, or change in length, in Veritas Volume Manager standard length units
 Verify the diskgroup version whether it's matched with VxVM version.
-</pre>

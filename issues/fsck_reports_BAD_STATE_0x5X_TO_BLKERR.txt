@@ -1,9 +1,4 @@
----++ Doc Log 1384746426_01
-        $ Date: Nov 18 09:17:06 2013
-        $ Summary:fsck reports BAD STATE 0x5X TO BLKERR 
 
----++++ Details:
-<pre>
 * Solution 207453 : Solaris[TM] 10: fsck reports "BAD STATE 0x5X TO 
 BLKERR" and terminates *** 
 
@@ -180,4 +175,3 @@ Now fsck should run through:
 190948 files, 7718142 used, 2614078 free (97102 frags, 314622 blocks, 0.9% fragmentation)
 
 
-</pre>

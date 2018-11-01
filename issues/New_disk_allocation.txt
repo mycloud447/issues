@@ -1,11 +1,5 @@
----++ Doc Log 1186043091_01
 
-	$ Date: Thu Aug 02 08:24:51 2007
-	$ Summary: New disk allocation 
-	$ On-Call: 
 
----++++ Details:
-<pre>
 Detecting new luns on Sun OS not using Persistent Binding.
 modinfo | grep ql
 luxadm probe
@@ -32,4 +26,3 @@ cfgadm -c configure c5::5006016830602db2
 cfgadm -c configure c5::50060169306003ea
 devfsadm
 format 
-</pre>

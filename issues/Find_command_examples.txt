@@ -1,11 +1,5 @@
----++ Doc Log 1175251483_01
 
-	$ Date: Fri Mar 30 10:44:43 2007
-	$ Summary: Find examples
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 find . -type f -size +10000 -exec ls -al {} \;
 find . -atime +1 -type f -exec mv {} TMP \; # mv files older then 1 day to dir TMP
 find . -name "-F" -exec rm {} \;   # a script error created a file called -F 
@@ -101,4 +95,3 @@ find /raid -type d -name ".local_sd_customize" \
 find /var/sadm/pkg -name undo.Z -o -name obsolete.Z -mtime +180  | xargs rm -f
 find /var -xdev -type f -size +100000 -exec ls -lh {} \;
 
-</pre>

@@ -1,9 +1,4 @@
----++ Doc Log 1383611346_01
-        $ Date: Tue Nov 05:: 05:59:06
-        $ Summary: vxfenswap issue while doing I/O fence reconfiguration via online
 
----++++ Details:
-<pre>
 Problem
 ========
 
@@ -41,4 +36,3 @@ TDTJ3
 $ echo SCSI3|/usr/bin/tr '[A-Z]' '[a-z]'
 scsi3
 
-</pre>

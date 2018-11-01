@@ -1,9 +1,4 @@
----++ Doc Log 1423833817_01
-        $ Date: Feb 13 18:53:37 2015
-        $ Summary: lofiadm issue
 
----++++ Details:
-<pre>
 This was what i did on an E450 with Solaris 8:
 
 # mkfile 35m /opt/testfile
@@ -67,4 +62,3 @@ inetd. The following the a list of processes:
     root   642     1  0 23:58:06 ?        0:00 /usr/sbin/syslogd -t
 
 Could anyone point out what was wrong.
-</pre>

@@ -1,9 +1,4 @@
----++ Doc Log 1383885909_01
-        $ Date: Nov 08 10:15:09 2013
-        $ Summary: How to check uptime for the server, if uptime command is not showing any output
 
----++++ Details:
-<pre>
 $ mount |grep d0
 
 / on /dev/md/dsk/d0 read/write/setuid/devices/intr/largefiles/logging/xattr/onerror=panic/dev=1540000 on Fri Aug  2 16:20:22 2013
@@ -27,4 +22,3 @@ hots1$ uptime
 hots1$
 
 
-</pre>

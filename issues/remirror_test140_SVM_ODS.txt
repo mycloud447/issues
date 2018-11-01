@@ -1,11 +1,5 @@
----++ Doc Log 1241280341_01
 
-	$ Date: Sat May 02 16:05:41 2009
-	$ Summary: remirror test140 SVM ODS
-	$ On-Call: LNONCALL
 
----++++ Details:
-<pre>
 (root_test140)@/root # metadb
         flags           first blk       block count
      a        u         16              8192            /dev/dsk/c1t0d0s7
@@ -468,4 +462,3 @@ c1t0d0   Yes    id1,sd@SSEAGATE_ST314685LSUN146G12839RBW____________3KN39RBW
     Resync in progress: 0 % done
     State: Resyncing
 
-</pre>

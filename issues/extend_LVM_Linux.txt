@@ -1,11 +1,5 @@
----++ Doc Log 1254224064_01
 
-	$ Date: Tue Sep 29 11:34:24 2009
-	$ Summary: extend LVM Linux
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 
 # lsof /home
 # umount /home
@@ -69,4 +63,3 @@ Filesystem            Size  Used Avail Use% Mounted on
                       2.0G  792M  1.2G  41% /home
 #
 
-</pre>

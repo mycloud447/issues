@@ -1,12 +1,3 @@
----++ Doc Log 1132136791_01
-<pre>
-
-	$ Date: Wed Nov 16 10:26:31 2005
-	$ Summary: Power path storage problems
-</pre>
----++++ Details:
-<pre>
-
 Server is having storage problems after this event;
 --------------
 
@@ -128,4 +119,3 @@ Running /etc/vx/diag.d/vxasldebug and the VRTSexplorer (separately) and sending
 output to Jean.  Initially we are looking for a way to recover without rebooting, 
 but don't really believe that this will be possible.  Jean is suggesting a 
 reconfigure reboot.
-</pre>

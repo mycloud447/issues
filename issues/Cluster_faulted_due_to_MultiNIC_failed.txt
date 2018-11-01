@@ -1,9 +1,4 @@
----++ Doc Log 1383635609_01
-        $ Date: Tue Nov 05:: 12:43:29
-        $ Summary: Cluster faulted due to MultiNIC failed
 
----++++ Details:
-<pre>
 Issue :  Cluster faulted due to MultiNIC failed.
 ==============================================
 ROOT@:/root # ifconfig -a
@@ -259,4 +254,3 @@ From the engine log – this confirms the “GroupName” parameter is missing.
 
 Feb 12 06:23:38 lonshspltp11a Had[19667]: [ID 702911 daemon.notice] VCS ERROR V-16-1-6525 (lonshspltp11a) MultiNICB:MultiNIC01:monitor:Interface configuration is not valid. Check IP addresses, subnet masks, flags, groupnames on all interfaces. Make sure that all the interfaces of only one IP subnet are included under the resource. See Bundled Agents Reference Guide
 
-</pre>

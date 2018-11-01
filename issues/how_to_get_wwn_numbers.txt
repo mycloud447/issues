@@ -1,11 +1,5 @@
----++ Doc Log 1187009893_01
 
-	$ Date: Mon Aug 13 12:58:13 2007
-	$ Summary: how to get wwn numbers
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 # fcinfo hba-port
 HBA Port WWN: 10000000c954185a
         OS Device Name: /dev/cfg/c3
@@ -47,4 +41,3 @@ HBA Port WWN: 10000000c95416c5
 
 
 use the Node WWN line for the online ones...
-</pre>

@@ -1,9 +1,4 @@
----++ Doc Log 1383808244_01
-        $ Date: Thu Nov 07:: 12:40:44
-        $ Summary: svm unmirror / remirror - script
 
----++++ Details:
-<pre>
 #!/bin/sh
 
 # script name: unmirror
@@ -599,4 +594,3 @@ chmod u+x unmirror_cont
 ln -s $PWD/unmirror_cont /etc/rc3.d/S99unmirror_cont
 
 init 6
-</pre>

@@ -1,10 +1,5 @@
----++ Doc Log 1142321769_01
 
-	$ Date: Tue Mar 14 07:36:09 2006
-	$ Summary: logical host timeout changed on suncluster
 
----++++ Details:
-<pre>
 
 Increase Cluster Parameters and change script files. On servers 011 and 016 increase the Logical Host Timeout Value from 180 seconds to 600 seconds by performing the following (taken from Sun website)
 
@@ -40,4 +35,3 @@ In the resulting output, look for the following information to check the increas
 > Node List : host1 host2
 > Disk Groups : sapdg
 > ... 
-</pre>

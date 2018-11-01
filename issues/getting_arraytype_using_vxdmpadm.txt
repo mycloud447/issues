@@ -1,11 +1,5 @@
----++ Doc Log 1172654598_01
 
-	$ Date: Wed Feb 28 09:23:18 2007
-	$ Summary: getting arraytype using vxdmpadm
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 # vxdmpadm listenclosure all
 ENCLR_NAME        ENCLR_TYPE     ENCLR_SNO            STATUS       ARRAY_TYPE
 ============================================================================
@@ -62,4 +56,3 @@ EMC1_21              ENABLED      EMC          2      2     0     EMC1
 EMC1_1               ENABLED      EMC          2      2     0     EMC1
 EMC1_2               ENABLED      EMC          2      2     0     EMC1
 
-</pre>

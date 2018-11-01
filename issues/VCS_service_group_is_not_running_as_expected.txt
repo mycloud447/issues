@@ -1,9 +1,4 @@
----++ Doc Log 1142442977_01
-	$ Date: Wed Mar 15 17:16:17 2006
-	$ Summary: VCS service group LGRT01 is not running as expected
 
----++++ Details:
-<pre>
 test154 - 155 alerted lots of VCS alerts
 VCS service group LGRT01 is not running as expected - please contact Oracle DBA 
 VCS service group LMRC01 is not running as expected - please contact Oracle DBA 
@@ -39,4 +34,3 @@ haconf -dump -makero
 after these steps the VCS service has restarted the oracle instances. this has been confirmed,
 
 this service has been resumed with all the teams... 
-</pre>

@@ -1,9 +1,4 @@
----++ Doc Log 1385002970_01
-        $ Date: Nov 21 08:32:50 2013
-        $ Summary: RECONFIG received. VCS waiting for I/O fencing to be completed - V-16-1-10034
 
----++++ Details:
-<pre>
 Message: 	
 ========
 RECONFIG received. VCS waiting for I/O fencing to be completed
@@ -37,4 +32,3 @@ Based on the condition you encounter, do one of the following:
     3. Restart the node to start GAB and all the other modules in the stack.
 
  
-</pre>

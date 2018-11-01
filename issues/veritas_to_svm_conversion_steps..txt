@@ -1,9 +1,4 @@
----++ Doc Log 1383884958_01
-        $ Date: Nov 08 09:59:18 2013
-        $ Summary: veritas to svm conversion steps
 
----++++ Details:
-<pre>
 Special Veritas to Disksuite Root Disk Conversion Guideline
 
 Potential Impact
@@ -345,4 +340,3 @@ Make sure all disksuite mirrors are in sync. This should return no output
 metastat | grep Resync
 
 
-</pre>

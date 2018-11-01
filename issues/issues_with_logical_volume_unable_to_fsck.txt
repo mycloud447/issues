@@ -1,11 +1,5 @@
----++ Doc Log 1245945627_01
 
-	$ Date: Thu Jun 25 16:00:27 2009
-	$ Summary: issues with logical volume unable to fsck
-	$ On-Call: UNSPECIFIED
 
----++++ Details:
-<pre>
 We had an issue trying to fsck /dev/vg00/lvol11
 
 /etc/VRTSvcs/conf/config # fsck /dev/vg00/lvol11
@@ -41,4 +35,3 @@ This then changed the block device
 brw-------   1 root root 253,  6 Jun 25 15:46 vg00-lvol11
 
 We were then able to fsck the filesystem and mount the filesytem.
-</pre>

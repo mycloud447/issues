@@ -1,11 +1,5 @@
----++ Doc Log 1256126455_01
 
-	$ Date: Wed Oct 21 12:00:55 2009
-	$ Summary: disk groups not deporting as they say they are open
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 Diskgroup - oramqdatadg cannot deport due to Veritas thinking it is busy with a mount even though the volumes are all disabled.
 
 Doing the following command tells you that the volume is till busy -
@@ -24,4 +18,3 @@ See the following link -
 http://seer.entsupport.symantec.com/docs/241660.htm
 
 When the application team give you the go ahead could you reboot the server and make sure the diskgroup oramqdatadg is deported.
-</pre>

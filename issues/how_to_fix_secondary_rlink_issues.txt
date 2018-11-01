@@ -1,11 +1,5 @@
----++ Doc Log 1258826406_01
 
-	$ Date: Sat Nov 21 18:00:06 2009
-	$ Summary: how to fix secondary rlink issues.
-	$ On-Call: N
 
----++++ Details:
-<pre>
 (root_xyz192) @ /var/tmp # vradmin -l repstatus dg08_rvg
 Replicated Data Set: dg08_rvg
 Primary:
@@ -126,4 +120,3 @@ Secondary:
 
 (root_xyz192) @ /var/tmp #
 
-</pre>

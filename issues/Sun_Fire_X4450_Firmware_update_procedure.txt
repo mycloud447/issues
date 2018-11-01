@@ -1,11 +1,5 @@
----++ Doc Log 1247069195_01
 
-	$ Date: Wed Jul 08 16:06:35 2009
-	$ Summary: Sun Fire X4450 Firmware update procedure
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 Before starting the procedure shutdon wth server: shutdown -y -g0 -i0
 
 For remote flash through the WebGUI:
@@ -44,4 +38,3 @@ upgrade until next server poweroff.
 The BIOS and SP firmware on the Sun Fire X4150/X4250/X4450 server will be updated. 
 
 From the iLOM restart the OS. 
-</pre>

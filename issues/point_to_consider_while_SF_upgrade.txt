@@ -1,9 +1,4 @@
----++ Doc Log 1383807353_01
-        $ Date: Thu Nov 07:: 12:25:53
-        $ Summary: point to consider while SF upgrade
 
----++++ Details:
-<pre>
 Upgrading VxFS disk layout versions 
 ====================================
 VxFS 5.0 allows you to mount and create the following file system disk layouts: 
@@ -42,4 +37,3 @@ The vxfsconvert command converts any older disk layout versions directly to Vers
 Estimating space and time requirements for upgrading to disk layout Version 7 
 Converting a Version 5 or Version 6 disk layout to a Version 7 disk layout requires adequate free space to complete. The space and time required to complete the upgrade increases with the number of files, extended attributes, and hard links in the file system. Typical maximum space is at least two additional inodes with one block for every inode. Allow at least ten minutes to upgrade for every million inodes in the file system. 
 
-</pre>

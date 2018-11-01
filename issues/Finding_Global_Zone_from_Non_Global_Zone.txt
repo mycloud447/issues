@@ -1,9 +1,4 @@
----++ Doc Log 1383641427_01
-        $ Date: Tue Nov 05:: 14:20:27
-        $ Summary: Finding Global Zone from Non Global Zone
 
----++++ Details:
-<pre>
 Login to any Non_Global zone  and sudo
 
 
@@ -109,4 +104,3 @@ Password:
    - sol10            installed  /zonebuild/sol10               native   shared
 
 #
-</pre>

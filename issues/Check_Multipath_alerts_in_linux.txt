@@ -1,9 +1,4 @@
----++ Doc Log 1383813479_01
-        $ Date: Thu Nov 07:: 14:07:59
-        $ Summary: Check Multipath alerts in linux
 
----++++ Details:
-<pre>
 #for i in `dmesg |grep "I/O" |cut -f2 -d","|awk '{print $2}'|sort |uniq |grep ^s` ; do multipath -ll|grep $i ; done
 
 
@@ -25,4 +20,3 @@
  \_ 2:0:1:39 sdek 128:192 [active][ready]
 
  \_ 1:0:1:39 sdel 128:208 [active][ready]
-</pre>

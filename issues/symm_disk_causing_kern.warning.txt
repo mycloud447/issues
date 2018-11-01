@@ -1,9 +1,4 @@
----++ Doc Log 1141302769_01
-	$ Date: Thu Mar 02 12:32:49 2006
-	$ Summary: symm disk causing kern.warning
 
----++++ Details:
-<pre>
 one single disk that has no label.
 
 c5t0d0: configured with capacity of 6.56MB
@@ -75,4 +70,3 @@ c4t17d78s2      state=enabled
 c5t17d78s2      state=enabled
 # 
 
-</pre>

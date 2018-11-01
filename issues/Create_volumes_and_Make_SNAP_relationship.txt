@@ -1,9 +1,4 @@
----++ Doc Log 1383611111_01
-        $ Date: Tue Nov 05:: 05:55:11
-        $ Summary: Create volumes and Make SNAP relationship
 
----++++ Details:
-<pre>
  Create New FS
 ===============
 vxassist -g <diskgroup> make <vol> 12g alloc=disk1,disk2
@@ -34,4 +29,3 @@ RSYNC/VXSYNC/CPIO copy
 =====================
 cd /apps/bss/kenandm1/data
 find * -print | cpio -pvdmu /DM01/dat
-</pre>

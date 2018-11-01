@@ -1,10 +1,5 @@
----++ Doc Log 1139672996_01
 
-	$ Date: Sat Feb 11 15:49:56 2006
-	$ Summary: VVR heartbeat errors
 
----++++ Details:
-<pre>
 Called out for errors like following;
 Feb 11 15:36:55 server123 vmunix: WARNING: vxvm:vxio: Heartbeat unacknowledged from node 128.9.69.80 for 10 seconds
 
@@ -25,4 +20,3 @@ Feb 11 15:37:10 server123 vmunix: NOTICE: vxvm:vxio: Rlink to_syrep195 connected
 
 all okay then.
 
-</pre>

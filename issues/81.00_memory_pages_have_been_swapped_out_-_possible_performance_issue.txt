@@ -1,11 +1,5 @@
----++ Doc Log 1157644238_01
 
-	$ Date: Sep 07 15:50:38 2006
-	$ Summary: 81.00 memory pages have been swapped out - possible performance issue
-	$ On-Call: SYONCALL
 
----++++ Details:
-<pre>
 # /usr/ucb/ps aux |more
 USER       PID %CPU %MEM   SZ  RSS TT       S    START  TIME COMMAND
 oracle    1785  6.2  3.820049281972880 ?        O 17:14:54 285:25 oracleRCBRRP01 (DE
@@ -53,4 +47,3 @@ oracle    9965  0.1  1.1617912567592 ?        S   Aug 19 54:31 ora_pmon_RCIDRP01
 
 
 Oracle  is bottleneck , need to check from oracle side. Transferring IM to CIT/PSDMDB. Please healthcheck from oracle side.
-</pre>

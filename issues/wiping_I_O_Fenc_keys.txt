@@ -1,9 +1,4 @@
----++ Doc Log 1383634601_01
-        $ Date: Tue Nov 05:: 12:26:41
-        $ Summary: wiping I/O Fenc keys
 
----++++ Details:
-<pre>
 bash$ /sbin/vxfenconfig -c
 
 VXFEN vxfenconfig NOTICE Driver will use SCSI-3 compliant disks.
@@ -146,4 +141,3 @@ OR
 vxfenadm –p –k TMP –vAVCS –f /tmp/file1 (Note – may not work)
 
 
-</pre>

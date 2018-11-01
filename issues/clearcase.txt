@@ -1,9 +1,4 @@
----++ Doc Log 1432170425_01
-        $ Date: May 21 06:37:05 2015
-        $ Summary: clearcase
 
----++++ Details:
-<pre>
 Problem(Abstract)
 ================
 Attempts to mount IBM Rational ClearCase VOBs result in an error, env: mount.mvfs: No such file or directory, on newly installed ClearCase 7.1 installations on Linux.
@@ -58,4 +53,3 @@ Correct the link by recreating the link to point to the location where ClearCase
 Try the mount command again to verify the fix.
 
 /usr/atria/bin/cleartool mount -a
-</pre>

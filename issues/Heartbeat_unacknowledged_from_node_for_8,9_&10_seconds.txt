@@ -1,11 +1,5 @@
----++ Doc Log 1157413963_01
 
-	$ Date: Mon Sep 04 23:52:43 2006
-	$ Summary: Heartbeat unacknowledged from node for 8,9 &10 seconds.
-	$ On-Call: 
 
----++++ Details:
-<pre>
 There was a temparory problem
 
 # grep "Heartbeat unacknowledged" syslog.log
@@ -55,4 +49,3 @@ Secondary:
         HostName: xyz192
         RvgName: dg09_rvg
         DgName: dg09
-</pre>

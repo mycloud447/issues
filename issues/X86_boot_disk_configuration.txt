@@ -1,11 +1,5 @@
----++ Doc Log 1247658140_01
 
-	$ Date: Wed Jul 15 11:42:20 2009
-	$ Summary: X86 boot disk configuration
-	$ On-Call: UNSPECIFIED
 
----++++ Details:
-<pre>
 PROJECTS:  Just to let you know that when hardware delivery hand over builds you should see the following configuration as per e.g 1).  
 
 You should see one RAID group comprising of device 0/1 and a second RAID group again consisting of a pair of disks device 2/3.   The second RAID group is effectively spare or can be used for additional local disk space or swap space.  At present the recommendation is to use Veritas on the second RAID set of disks if you really need to use them
@@ -50,4 +44,3 @@ In these examples both RAID groups have been configured yet format is questionab
 NB: Please note that the Solaris LIVE Upgrade procedure as used on SPARC is not possible at this time for x86 and possibly this could change or the introduction of incorporating using the second RAID set of disks could be used to integrate this feature in some how to the x86 range.
 
 
-</pre>

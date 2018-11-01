@@ -1,9 +1,4 @@
----++ Doc Log 1399351113_01
-        $ Date: May 06 10:08:33 2014
-        $ Summary: compare two files for dg split
 
----++++ Details:
-<pre>
 #!/bin/ksh
 
 
@@ -83,4 +78,3 @@ done
 
         fi
 
-</pre>

@@ -1,11 +1,5 @@
----++ Doc Log 1212156107_01
 
-	$ Date: Fri May 30 14:01:47 2008
-	$ Summary: rpc deamon not working
-	$ On-Call: NO
 
----++++ Details:
-<pre>
 to check run rpcinfo
 
 if portmap is running it should look like this
@@ -54,4 +48,3 @@ if nfsserver is started the /usr/sbin/rpc.mountd should be running and the rpcin
 #
 
 if not start /etc/init.d/nfsserver
-</pre>

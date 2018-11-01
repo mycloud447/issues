@@ -1,9 +1,4 @@
----++ Doc Log 1383707703_01
-        $ Date: Wed Nov 06:: 08:45:03
-        $ Summary: Procedure to fix the issue of unable to resolve named-server defined in /etc/hsosts
 
----++++ Details:
-<pre>
 Description:
 Unable to resolve server name defined in /etc/hosts,  command "getent hosts server-name" returned nothing instead of
 returning the IP address associated with the server-name.
@@ -86,4 +81,3 @@ Now the getent command should work hence the issue is resolved, for example:
 # getent hosts testserver.com
 192.168.1.30    testserver.com
 #
-</pre>
