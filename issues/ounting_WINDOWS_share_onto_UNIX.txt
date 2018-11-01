@@ -1,11 +1,11 @@
 
 Getting below error while mounting cifs filesystem.
 
-# mount -F cifs -o user='hbeu\ftpalgo' -o password= test.uk.com:/share /mnt1
+# mount -F cifs -o user='xxxx\xxx' -o password= test.com:/share /mnt1
 ipcclient: error connecting to daemon: [2] No such file or directory
 ipcclient: CIFS Client is down.
 
-#  cifsmount //test.uk.com/share /mnt1 -U ftpalgo -P <passwd>
+#  cifsmount //test.com/share /mnt1 -U ftpalgo -P <passwd>
 ipcclient: error connecting to daemon: [2] No such file or directory
 ipcclient: CIFS Client is down.
 
@@ -31,53 +31,51 @@ cksum:	 1323969665
 Status:	CIFS Client daemon is up; process id 9997, started 13:29:55.
 
 Mounted CIFS filesystem
-# cifsmount //test.uk.com/share /mnt1 -U ftpalgo -P W19WeKm
+# cifsmount //test.com/share /mnt1 -U ftpalgo -P W19WeKm
 
 # bdf /mnt1
 Filesystem			 kbytes	 used	avail %used Mounted on
-localhost:\\test.uk.com\SHARE
+localhost:\\test.com\SHARE
 						 379624240 369553344 10070896	97% /mnt1
 
-csl196:/usr/bin /usr/bin/cifslist -A
+test123server:/usr/bin /usr/bin/cifslist -A
 =========================================================================
-server test.uk.com:
+server test.com:
 =========================================================================
-Remote Username: ftpalgo				  Local Username: root					 
+Remote Username: xxxxx				  Local Username: root					 
 
-Share: \\test.uk.com\SHARE
+Share: \\test.com\SHARE
 
 But now user(dsadm) is not able to change directory to /mnt1
 # su - dsadm
-csl196:/home/dsadm--cd /mnt1/Algo/
-NFS lookup failed for server test.uk.com: RPC: Remote system error
+test123server:/home/dsadm--cd /mnt1/Algo/
+NFS lookup failed for server test.com: RPC: Remote system error
 
 How to fix this??
 # cifsclient stop
 # cifsclient start
 
 In dsadm login run the below command - 
-csl196:/home/dsadm--/usr/bin/cifslogin test.uk.com ftpalgo
-Remote user ukhibmdata02's password:  W19WeKm
-csl196:/home/dsadm--
+test123server:/home/dsadm--/usr/bin/cifslogin test.com ftpalgo
+Remote user xxxxx's password:  xxxxx
+test123server:/home/dsadm--
 
 # /usr/bin/cifslist -u
 Server				Local User		  Remote User		 Domain				State 
 -------------------------------------------------------------------------------
-ukhibmdata02.uk.h root				  ftpalgo									  L	  
-ukhibmdata02		purwarn			  ftpalgo									  L	  
 
 Now check changing directory to /mnt1/Algo... it should work. 
 
 Getting Below Alerts - /var/adm/syslog/syslog.log
-Sep 25 07:11:00 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
-Sep 25 07:13:04 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
-Sep 25 07:29:16 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
-Sep 25 07:31:16 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
-Sep 25 07:41:16 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
-Sep 25 07:43:16 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
-Sep 25 07:45:17 csl196 vmunix: NFS fsstat failed for server test.uk.com: RPC: Remote system error
+Sep 25 07:11:00 test123server vmunix: NFS fsstat failed for server test.com: RPC: Remote system error
+Sep 25 07:13:04 test123server vmunix: NFS fsstat failed for server test.com: RPC: Remote system error
+Sep 25 07:29:16 test123server vmunix: NFS fsstat failed for server test.com: RPC: Remote system error
+Sep 25 07:31:16 test123server vmunix: NFS fsstat failed for server test.com: RPC: Remote system error
+Sep 25 07:41:16 test123server vmunix: NFS fsstat failed for server test.com: RPC: Remote system error
+Sep 25 07:43:16 test123server vmunix: NFS fsstat failed for server test.com: RPC: Remote system error
+Sep 25 07:45:17 test123server vmunix: NFS fsstat failed for server test.com: RPC: Remote system error
 
-Copied latest configuration file from psd034(HPUX) system to csl196:/etc/opt/cifsclient/cifsclient.cfg
+Copied latest configuration file from psd034(HPUX) system to test123server:/etc/opt/cifsclient/cifsclient.cfg
 Commented below entry on configuration file to stop alerts
 #smbConnect
 

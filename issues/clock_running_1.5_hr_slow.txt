@@ -17,13 +17,13 @@ Mon Apr 24 13:35:35 BST 2006
 /sbin/init.d # ntpq -p
      remote           refid      st t when poll reach   delay   offset    disp
 ==============================================================================
- gpstime1.uk.hib 0.0.0.0         16 -    -   64    0     0.00    0.000 16000.0
- gpstime2.uk.hib 0.0.0.0         16 -    -   64    0     0.00    0.000 16000.0
+ test123 0.0.0.0         16 -    -   64    0     0.00    0.000 16000.0
+ test456 0.0.0.0         16 -    -   64    0     0.00    0.000 16000.0
 /sbin/init.d # ntpq -p
      remote           refid      st t when poll reach   delay   offset    disp
 ==============================================================================
- gpstime1.uk.hib 0.0.0.0         16 -    -   64    0     0.00    0.000 16000.0
- gpstime2.uk.hib 0.0.0.0         16 -    -   64    0     0.00    0.000 16000.0
+ test123 0.0.0.0         16 -    -   64    0     0.00    0.000 16000.0
+ test456 0.0.0.0         16 -    -   64    0     0.00    0.000 16000.0
 /sbin/init.d # date
 Mon Apr 24 13:35:59 BST 2006
 /sbin/init.d # date
@@ -31,14 +31,14 @@ Mon Apr 24 13:40:32 BST 2006
 /sbin/init.d # ntpq -p
      remote           refid      st t when poll reach   delay   offset    disp
 ==============================================================================
-*gpstime1.uk.hib .GPS.            1 u    2   64   37     4.24   12.160  879.79
-+gpstime2.uk.hib .GPS.            1 u    2   64   37     4.33   12.057  879.79
+*test123 .GPS.            1 u    2   64   37     4.24   12.160  879.79
++test456 .GPS.            1 u    2   64   37     4.33   12.057  879.79
 /sbin/init.d # 
 /sbin/init.d # ntpq -p
      remote           refid      st t when poll reach   delay   offset    disp
 ==============================================================================
-*gpstime1.uk.hib .GPS.            1 u   29   64  177     4.33    5.521  128.40
-+gpstime2.uk.hib .GPS.            1 u   29   64  177     4.61    5.558  128.14
+*test123 .GPS.            1 u   29   64  177     4.33    5.521  128.40
++test456 .GPS.            1 u   29   64  177     4.61    5.558  128.14
 /sbin/init.d # 
 
 slowly getting better.  will be all fine soon.
