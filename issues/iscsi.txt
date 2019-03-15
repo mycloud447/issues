@@ -68,7 +68,7 @@ Add the below entry into /etc/vfstab
 #chown oracle:dba /opt/app/oracle
 
 Verify Oracle user available on xyz180ab, if not create it.
-oracle:x:150:200:616/F/*TELORA//IBMDSS, Oracle User:/ora/admin:/usr/bin/ksh
+oracle:x:550:500:SS, Oracle User:/ora/admin:/usr/bin/ksh
 
 lofs mount from xyz180ps to xyz180ab
 #mount -F ufs /dev/md/dsk/d211 /zones/data/xyz180ab/oraproduct10g
