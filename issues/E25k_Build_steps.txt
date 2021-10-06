@@ -17,13 +17,13 @@ NFS share solaris10 Flash archive from 731
 Go to E25k Client console
 =========================
 
-ok> setenv network-boot-arguments host-ip=192.168.1.10,router-ip=192.168.1.1,subnet-mask=255.255.255.224,hostname=testhost,file=http://146.132.11.254/cgi-bin/wanboot-cgi
+ok> setenv network-boot-arguments host-ip=192.168.1.10,router-ip=192.168.1.1,subnet-mask=255.255.255.224,hostname=testhost,file=http://731/cgi-bin/wanboot-cgi
 
 ok> boot net -vV - install http://731/config/testhost.tar
 
 -- provide all the required details
 -- select flash installation
 -- select NFS
--- update NFS paths as (146.132.11.254:/jumpstart/flars/sun4u/sol10/Solaris10_E25K_V03.00.0.flar
+-- update NFS paths as (731:/jumpstart/flars/sun4u/sol10/Solaris10_E25K_V03.00.0.flar
 
 
