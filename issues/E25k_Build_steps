@@ -1,0 +1,29 @@
+E25k Build:
+============
+
+From 731 :
+----------
+/usr/local/bin/wanboot_client_setup.pl -i <client ip> -n <netmaks> -g <gateway> -m <interface mac> -e <interface> -h <hostname> -o <os-version> -r ufs -p <platform>
+
+Ex:/usr/local/bin/wanboot_client_setup.pl -i 192.168.1.10 -n 255.255.255.224 -g 192.168.1.1 -m 00:14:4f:26:b0:95 -e ce0 -h testhost -o sol10u8 -r ufs -p sun4u
+
+The OBP variable 'network-boot-arguments' can be set with:
+setenv network-boot-arguments host-ip=192.168.1.10,router-ip=192.168.1.1,subnet-mask=255.255.255.224,hostname=testhost,file=http://731/cgi-bin/wanboot-cgi
+
+NFS share solaris10 Flash archive from 731
+---------------------------------------------
+731 # share -F nfs -o ro,anon=0,nosuid /jumpstart/flars/sun4u/sol10
+
+Go to E25k Client console
+=========================
+
+ok> setenv network-boot-arguments host-ip=192.168.1.10,router-ip=192.168.1.1,subnet-mask=255.255.255.224,hostname=testhost,file=http://146.132.11.254/cgi-bin/wanboot-cgi
+
+ok> boot net -vV - install http://731/config/testhost.tar
+
+-- provide all the required details
+-- select flash installation
+-- select NFS
+-- update NFS paths as (146.132.11.254:/jumpstart/flars/sun4u/sol10/Solaris10_E25K_V03.00.0.flar
+
+
