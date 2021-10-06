@@ -1,0 +1,29 @@
+Solaris 11 WanBoot Setup
+========================
+
+From solaris 11 proxy server:
+-----------------------------
+
+root@Proxyserver: installadm create-service -n s11_3 -s /var/share/pkg/sol-11_3-ai-sparc.iso -d /var/share/ai-boot
+
+Disable DHCP:
+root@Proxyserver:/var/share/pkg# svcadm disable  svc:/network/dhcp/server:ipv4
+
+Enable Multicast:
+root@Proxyserver:/var/share/pkg# svcadm enable svc:/network/dns/multicast:default
+
+root@Proxyserver:/var/share/pkg# svcs svc:/network/dns/multicast:default
+STATE          STIME    FMRI
+online         14:22:37 svc:/network/dns/multicast:default
+
+
+root@Proxyserver:# installadm create-client -e 00:10:e0:71:01:16 -n s11_3
+Created Client: '00:10:E0:71:01:16'
+
+root@Proxyserver:# installadm list -a
+
+Clinent:
+--------
+OK> setenv network-boot-arguments host-ip=192.168.1.10,router-ip=192.168.1.1,subnet-mask=255.255.255.192,hostname=testhost,file=http://proxy:5555/cgi-bin/wanboot-cgi
+
+OK> boot net -s
