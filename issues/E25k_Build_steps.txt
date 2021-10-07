@@ -26,4 +26,113 @@ ok> boot net -vV - install http://731/config/testhost.tar
 -- select NFS
 -- update NFS paths as (731:/jumpstart/flars/sun4u/sol10/Solaris10_E25K_V03.00.0.flar
 
+------------------
+Check for ABE disk
+------------------
 
+Root Disk: c1t10d0
+Spare Disk : c0t8d0
+Repartition the on ABE disk to  make the root FS 12 G as per telstra guidelines
+
+# format  -e c0t8d0
+Partition   Size
+0             12.00GB     /
+1             16.00GB     /swap
+3             10.00GB     /var
+4             16.00GB    /var/crash
+5             02.00GB    /home
+6             $                 soft partittion
+7             300.00MB
+=======================================
+
+Create metadevices and soft partition for Solaris-10 update-11upgrade to  statandize the FS layout adding /var/crash.
+----------------------------------------------------------------------------------------------------------------------
+# metadb -a -c3 c0t8d0s7
+Create new metadevices for the slices on the new disk. for Solaris-9 to Solaris-10 upgrade, we need to create metadevices for slices 0, 1, 3, 4, 5 & 6.
+# metainit d50 1 1 c0t8d0s0  ----->12g
+# metainit d100 -m d50  /
+# metainit d51 1 1 c0t8d0s1
+# metainit d101 -m d51  swap   --->16g
+# metainit d53 1 1 c0t8d0s3
+# metainit d103  -m d53  /var ---->10g
+# metainit d54 1 1 c0t8d0s4
+# metainit d104 -m d54  /var/crash ---> 16g
+# metainit d55 1 1 c0t8d0s5
+# metainit d105 -m d55   /home  ---> 2g
+# metainit d56 1 1 c0t8d0s6
+# metainit d106 -m d56    ---> soft partitions
+# metainit d80 -p d106  2g  /apps/stats
+# metainit d81 -p d46  710mb  /opt/controlm6
+# metainit d81 -p d106  8g  /usr/openv
+
+=========================================================================
+Install required packages for Live Upgrade :
+
+# pkginfo -l SUNWlucfg SUNWluu SUNWlur
+# mount -F nfs 721:/export/vmax/Dont_Delete-iso /mnt
+# lofiadm -a /var/tmp/sol-10-u11-ga-sparc-dvd.iso
+# mkdir /sol10u11
+# mount -F hsfs -o ro /dev/lofi/1 /sol10u11
+# pkgrm SUNWlucfg SUNWluu SUNWlur
+# cd /sol10u11/Solaris_10/Tools/Installers
+# ./liveupgrade20 -nodisplay -noconsole
+After installing the required packages unmoun the iso image:-
+# cd /
+# umount /sol10u11
+# lofiadm -d /dev/lofi/1
+# umount /mnt
+# scp user@721:/export/vmax/Dont_Delete-iso/121430-88.zip /var/crash/PATCHES/
+# cd /var/crash/PATCHES/
+# unzip 121430-88.zip
+# patchadd 121430-88
+# pkginfo -l SUNWlucfg SUNWluu SUNWlur
+=====================================================
+LUcreate:
+# cd /home/admin/<your home-directory>
+Create the lucr.sh file with content:
+# vi lucr.sh
+#!/bin/ksh
+lucreate -c Solaris10_base -n Sol10_u11_upgrade -C /dev/dsk/c1t10d0s0  -m /:/dev/md/dsk/d100:ufs -m -:/dev/md/dsk/d101:swap  -m /var:/dev/md/dsk/d103:ufs  -m /var/crash:/dev/md/dsk/d104:ufs  -m /home:/dev/md/dsk/d105:ufs -m /apps/stats:/dev/md/dsk/d80:ufs   -m /usr/openv:/dev/md/dsk/d81:ufs   -l /var/crash/luerror1.txt -o /var/crash/luout1.txt
+# at now
+> sh ./lucr.sh
+> ctrl<D>
+#
+Monitor lucreate progress:
+# tail -f /var/crash/luout1.txt
+# lustatus
+=================================================================
+LUupgrade:
+# mkdir  /sol10u11
+# mount -F nfs 721:/export/vmax/Dont_Delete-iso /mnt
+# lofiadm -a /var/tmp/sol-10-u11-ga-sparc-dvd.iso
+# mount -F hsfs -o ro /dev/lofi/1 /sol10u11
+# cd /sol10u11/Solaris_10/Tools/Installers
+# echo ""autoreg=disable"" > /var/tmp/no-autoreg
+
+
+Run the below command in at now:-
+
+# at now
+> luupgrade -u -n Sol10_u11_upgrade -s /sol10u11 -k /var/tmp/no-autoreg > /var/crash/luupgrade.out 2>&1
+# tail -f /var/crash/luupgrade.out
+Once the upgrade is completed check lustatus, /etc/release and /usr/ccs/bin/what /mnt/platform/`uname -m`/kernel/unix comamnd outputs
+# lustatus
+Check the /etc/release on New Boot Environment
+# mkdir /mnt1
+# lumount Sol10_u11_upgrade  /mnt1
+# cat /mnt/etc/release
+# /usr/ccs/bin/what  /mnt/platform/`uname -m`/kernel/unix
+# luumount Sol10_u11_upgrade
+====================================
+
+Patching:
+ Patching on ABE:
+ # at now
+ >/usr/sbin/luupgrade -n "Sol10_u11_pb1211" -s /var/crash/OS/10_Recommended_CPU_2016-01/patches -t `cat /var/crash/OS/10_Recommended_CPU_2016-01/patch_order` >> /var/crash/luupgrade_patching.out
+ <Ctlr+ D>
+# grep -i successfully /var/crash/luupgrade_patching.out|wc -l
+================================
+Activate ABE
+luactivate Sol10_u11_pb1211
+lustatus
+shutdown -y -g0 -i6 (edited) 
